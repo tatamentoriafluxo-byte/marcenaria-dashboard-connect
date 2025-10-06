@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      abastecimentos: {
+        Row: {
+          created_at: string | null
+          data: string
+          id: string
+          km_atual: number
+          litros: number
+          observacoes: string | null
+          posto: string | null
+          user_id: string
+          valor: number
+          veiculo_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: string
+          id?: string
+          km_atual: number
+          litros: number
+          observacoes?: string | null
+          posto?: string | null
+          user_id: string
+          valor: number
+          veiculo_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          id?: string
+          km_atual?: number
+          litros?: number
+          observacoes?: string | null
+          posto?: string | null
+          user_id?: string
+          valor?: number
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abastecimentos_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capacidade_producao: {
         Row: {
           capacidade_mensal_horas: number | null
@@ -324,6 +371,84 @@ export type Database = {
           },
         ]
       }
+      ferramentas: {
+        Row: {
+          categoria: Database["public"]["Enums"]["categoria_ferramenta"]
+          codigo_patrimonio: string
+          created_at: string | null
+          data_aquisicao: string | null
+          foto_url: string | null
+          id: string
+          localizacao: Database["public"]["Enums"]["localizacao_ferramenta"]
+          marca: string | null
+          modelo: string | null
+          nome: string
+          numero_serie: string | null
+          observacoes: string | null
+          proxima_manutencao: string | null
+          qr_code: string | null
+          status: Database["public"]["Enums"]["status_ferramenta"]
+          taxa_depreciacao_anual: number | null
+          tipo: Database["public"]["Enums"]["tipo_ferramenta"]
+          ultima_manutencao: string | null
+          updated_at: string | null
+          user_id: string
+          valor_aquisicao: number | null
+          valor_atual: number | null
+          vida_util_anos: number | null
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["categoria_ferramenta"]
+          codigo_patrimonio: string
+          created_at?: string | null
+          data_aquisicao?: string | null
+          foto_url?: string | null
+          id?: string
+          localizacao?: Database["public"]["Enums"]["localizacao_ferramenta"]
+          marca?: string | null
+          modelo?: string | null
+          nome: string
+          numero_serie?: string | null
+          observacoes?: string | null
+          proxima_manutencao?: string | null
+          qr_code?: string | null
+          status?: Database["public"]["Enums"]["status_ferramenta"]
+          taxa_depreciacao_anual?: number | null
+          tipo: Database["public"]["Enums"]["tipo_ferramenta"]
+          ultima_manutencao?: string | null
+          updated_at?: string | null
+          user_id: string
+          valor_aquisicao?: number | null
+          valor_atual?: number | null
+          vida_util_anos?: number | null
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["categoria_ferramenta"]
+          codigo_patrimonio?: string
+          created_at?: string | null
+          data_aquisicao?: string | null
+          foto_url?: string | null
+          id?: string
+          localizacao?: Database["public"]["Enums"]["localizacao_ferramenta"]
+          marca?: string | null
+          modelo?: string | null
+          nome?: string
+          numero_serie?: string | null
+          observacoes?: string | null
+          proxima_manutencao?: string | null
+          qr_code?: string | null
+          status?: Database["public"]["Enums"]["status_ferramenta"]
+          taxa_depreciacao_anual?: number | null
+          tipo?: Database["public"]["Enums"]["tipo_ferramenta"]
+          ultima_manutencao?: string | null
+          updated_at?: string | null
+          user_id?: string
+          valor_aquisicao?: number | null
+          valor_atual?: number | null
+          vida_util_anos?: number | null
+        }
+        Relationships: []
+      }
       fornecedores: {
         Row: {
           ativo: boolean | null
@@ -382,6 +507,168 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fretes: {
+        Row: {
+          avaliacao: number | null
+          created_at: string | null
+          custo_frete: number | null
+          data_frete: string
+          destino: string | null
+          fretista_id: string | null
+          id: string
+          km_rodados: number | null
+          montagem_id: string | null
+          observacoes: string | null
+          origem: string | null
+          project_id: string | null
+          status_pagamento: string | null
+          tipo_transporte: Database["public"]["Enums"]["tipo_transporte"]
+          user_id: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          avaliacao?: number | null
+          created_at?: string | null
+          custo_frete?: number | null
+          data_frete?: string
+          destino?: string | null
+          fretista_id?: string | null
+          id?: string
+          km_rodados?: number | null
+          montagem_id?: string | null
+          observacoes?: string | null
+          origem?: string | null
+          project_id?: string | null
+          status_pagamento?: string | null
+          tipo_transporte: Database["public"]["Enums"]["tipo_transporte"]
+          user_id: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          avaliacao?: number | null
+          created_at?: string | null
+          custo_frete?: number | null
+          data_frete?: string
+          destino?: string | null
+          fretista_id?: string | null
+          id?: string
+          km_rodados?: number | null
+          montagem_id?: string | null
+          observacoes?: string | null
+          origem?: string | null
+          project_id?: string | null
+          status_pagamento?: string | null
+          tipo_transporte?: Database["public"]["Enums"]["tipo_transporte"]
+          user_id?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fretes_fretista_id_fkey"
+            columns: ["fretista_id"]
+            isOneToOne: false
+            referencedRelation: "fretistas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fretes_montagem_id_fkey"
+            columns: ["montagem_id"]
+            isOneToOne: false
+            referencedRelation: "montagem"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fretes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fretes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fretes_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fretistas: {
+        Row: {
+          ativo: boolean | null
+          avaliacao_media: number | null
+          capacidade_carga: number | null
+          cpf_cnpj: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          placa_veiculo: string | null
+          telefone: string | null
+          tipo_veiculo:
+            | Database["public"]["Enums"]["tipo_veiculo_fretista"]
+            | null
+          total_fretes: number | null
+          total_pago: number | null
+          updated_at: string | null
+          user_id: string
+          valor_frete_fixo: number | null
+          valor_km: number | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          avaliacao_media?: number | null
+          capacidade_carga?: number | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          placa_veiculo?: string | null
+          telefone?: string | null
+          tipo_veiculo?:
+            | Database["public"]["Enums"]["tipo_veiculo_fretista"]
+            | null
+          total_fretes?: number | null
+          total_pago?: number | null
+          updated_at?: string | null
+          user_id: string
+          valor_frete_fixo?: number | null
+          valor_km?: number | null
+        }
+        Update: {
+          ativo?: boolean | null
+          avaliacao_media?: number | null
+          capacidade_carga?: number | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          placa_veiculo?: string | null
+          telefone?: string | null
+          tipo_veiculo?:
+            | Database["public"]["Enums"]["tipo_veiculo_fretista"]
+            | null
+          total_fretes?: number | null
+          total_pago?: number | null
+          updated_at?: string | null
+          user_id?: string
+          valor_frete_fixo?: number | null
+          valor_km?: number | null
+        }
+        Relationships: []
       }
       funcionarios: {
         Row: {
@@ -468,6 +755,103 @@ export type Database = {
             columns: ["material_id"]
             isOneToOne: false
             referencedRelation: "materiais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manutencoes_ferramentas: {
+        Row: {
+          created_at: string | null
+          custo: number | null
+          data: string
+          descricao: string | null
+          ferramenta_id: string
+          id: string
+          proxima_prevista: string | null
+          responsavel: string | null
+          tipo: Database["public"]["Enums"]["tipo_manutencao"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custo?: number | null
+          data?: string
+          descricao?: string | null
+          ferramenta_id: string
+          id?: string
+          proxima_prevista?: string | null
+          responsavel?: string | null
+          tipo: Database["public"]["Enums"]["tipo_manutencao"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custo?: number | null
+          data?: string
+          descricao?: string | null
+          ferramenta_id?: string
+          id?: string
+          proxima_prevista?: string | null
+          responsavel?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_manutencao"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manutencoes_ferramentas_ferramenta_id_fkey"
+            columns: ["ferramenta_id"]
+            isOneToOne: false
+            referencedRelation: "ferramentas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manutencoes_veiculos: {
+        Row: {
+          created_at: string | null
+          custo: number | null
+          data: string
+          descricao: string | null
+          id: string
+          km_atual: number | null
+          oficina: string | null
+          proxima_manutencao_km: number | null
+          tipo: Database["public"]["Enums"]["tipo_manutencao"]
+          user_id: string
+          veiculo_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custo?: number | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          km_atual?: number | null
+          oficina?: string | null
+          proxima_manutencao_km?: number | null
+          tipo: Database["public"]["Enums"]["tipo_manutencao"]
+          user_id: string
+          veiculo_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custo?: number | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          km_atual?: number | null
+          oficina?: string | null
+          proxima_manutencao_km?: number | null
+          tipo?: Database["public"]["Enums"]["tipo_manutencao"]
+          user_id?: string
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manutencoes_veiculos_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
             referencedColumns: ["id"]
           },
         ]
@@ -649,6 +1033,70 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movimentacoes_ferramentas: {
+        Row: {
+          created_at: string | null
+          data_retorno_prevista: string | null
+          data_retorno_real: string | null
+          data_saida: string | null
+          ferramenta_id: string
+          funcionario_id: string | null
+          id: string
+          montagem_id: string | null
+          observacoes: string | null
+          tipo_movimentacao: Database["public"]["Enums"]["tipo_movimentacao_ferramenta"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data_retorno_prevista?: string | null
+          data_retorno_real?: string | null
+          data_saida?: string | null
+          ferramenta_id: string
+          funcionario_id?: string | null
+          id?: string
+          montagem_id?: string | null
+          observacoes?: string | null
+          tipo_movimentacao: Database["public"]["Enums"]["tipo_movimentacao_ferramenta"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data_retorno_prevista?: string | null
+          data_retorno_real?: string | null
+          data_saida?: string | null
+          ferramenta_id?: string
+          funcionario_id?: string | null
+          id?: string
+          montagem_id?: string | null
+          observacoes?: string | null
+          tipo_movimentacao?: Database["public"]["Enums"]["tipo_movimentacao_ferramenta"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movimentacoes_ferramentas_ferramenta_id_fkey"
+            columns: ["ferramenta_id"]
+            isOneToOne: false
+            referencedRelation: "ferramentas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_ferramentas_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movimentacoes_ferramentas_montagem_id_fkey"
+            columns: ["montagem_id"]
+            isOneToOne: false
+            referencedRelation: "montagem"
             referencedColumns: ["id"]
           },
         ]
@@ -1058,6 +1506,63 @@ export type Database = {
           },
         ]
       }
+      veiculos: {
+        Row: {
+          ano: number | null
+          cor: string | null
+          created_at: string | null
+          custo_mensal_medio: number | null
+          data_aquisicao: string | null
+          id: string
+          km_atual: number | null
+          marca: string | null
+          modelo: string
+          observacoes: string | null
+          placa: string
+          status: Database["public"]["Enums"]["status_veiculo"]
+          tipo: Database["public"]["Enums"]["tipo_veiculo"]
+          updated_at: string | null
+          user_id: string
+          valor_aquisicao: number | null
+        }
+        Insert: {
+          ano?: number | null
+          cor?: string | null
+          created_at?: string | null
+          custo_mensal_medio?: number | null
+          data_aquisicao?: string | null
+          id?: string
+          km_atual?: number | null
+          marca?: string | null
+          modelo: string
+          observacoes?: string | null
+          placa: string
+          status?: Database["public"]["Enums"]["status_veiculo"]
+          tipo: Database["public"]["Enums"]["tipo_veiculo"]
+          updated_at?: string | null
+          user_id: string
+          valor_aquisicao?: number | null
+        }
+        Update: {
+          ano?: number | null
+          cor?: string | null
+          created_at?: string | null
+          custo_mensal_medio?: number | null
+          data_aquisicao?: string | null
+          id?: string
+          km_atual?: number | null
+          marca?: string | null
+          modelo?: string
+          observacoes?: string | null
+          placa?: string
+          status?: Database["public"]["Enums"]["status_veiculo"]
+          tipo?: Database["public"]["Enums"]["tipo_veiculo"]
+          updated_at?: string | null
+          user_id?: string
+          valor_aquisicao?: number | null
+        }
+        Relationships: []
+      }
       vendedores: {
         Row: {
           ativo: boolean | null
@@ -1165,6 +1670,10 @@ export type Database = {
       }
     }
     Functions: {
+      calcular_depreciacao_ferramenta: {
+        Args: { ferramenta_id: string }
+        Returns: number
+      }
       calcular_lucro_projeto: {
         Args: { project_id: string }
         Returns: number
@@ -1172,6 +1681,14 @@ export type Database = {
     }
     Enums: {
       avaliacao: "EXCELENTE" | "BOM" | "REGULAR" | "RUIM"
+      categoria_ferramenta:
+        | "CORTE"
+        | "ACABAMENTO"
+        | "MEDICAO"
+        | "FIXACAO"
+        | "LIXAMENTO"
+        | "FURACAO"
+        | "OUTRO"
       categoria_parceiro:
         | "ARQUITETO"
         | "DESIGNER_INTERIORES"
@@ -1199,6 +1716,7 @@ export type Database = {
         | "BOLETO"
         | "TRANSFERENCIA"
         | "CREDITO_PARCELADO"
+      localizacao_ferramenta: "MARCENARIA" | "OBRA" | "MANUTENCAO_EXTERNA"
       origem_lead:
         | "LOJA"
         | "INSTAGRAM"
@@ -1213,6 +1731,12 @@ export type Database = {
         | "EM_TRANSITO"
         | "ENTREGUE"
         | "CANCELADO"
+      status_ferramenta:
+        | "DISPONIVEL"
+        | "EM_USO"
+        | "MANUTENCAO"
+        | "QUEBRADA"
+        | "VENDIDA"
       status_montagem: "AGENDADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO"
       status_pagamento_comissao: "PENDENTE" | "PAGO" | "CANCELADO"
       status_producao:
@@ -1227,14 +1751,32 @@ export type Database = {
         | "EM_PRODUCAO"
         | "ENTREGUE"
         | "CANCELADO"
+      status_veiculo: "ATIVO" | "MANUTENCAO" | "INATIVO" | "VENDIDO"
+      tipo_ferramenta: "ESTACIONARIA" | "MANUAL" | "ELETRICA" | "PNEUMATICA"
+      tipo_manutencao: "PREVENTIVA" | "CORRETIVA" | "TROCA_PECA" | "CALIBRACAO"
       tipo_material:
         | "MADEIRA"
         | "FERRAGEM"
         | "ACABAMENTO"
         | "FERRAMENTA"
         | "OUTROS"
+      tipo_movimentacao_ferramenta:
+        | "SAIDA_OBRA"
+        | "RETORNO_MARCENARIA"
+        | "EMPRESTIMO_FUNCIONARIO"
+        | "DEVOLUCAO"
+        | "MANUTENCAO"
       tipo_remuneracao: "PERCENTUAL" | "VALOR_FIXO"
       tipo_transacao: "RECEITA" | "DESPESA"
+      tipo_transporte: "VEICULO_PROPRIO" | "FRETISTA"
+      tipo_veiculo:
+        | "CARRO"
+        | "CAMINHAO"
+        | "KOMBI"
+        | "VAN"
+        | "UTILITARIO"
+        | "OUTRO"
+      tipo_veiculo_fretista: "CARRO" | "CAMINHAO" | "VAN" | "BAU" | "UTILITARIO"
       unidade_medida:
         | "UNIDADE"
         | "METRO"
@@ -1370,6 +1912,15 @@ export const Constants = {
   public: {
     Enums: {
       avaliacao: ["EXCELENTE", "BOM", "REGULAR", "RUIM"],
+      categoria_ferramenta: [
+        "CORTE",
+        "ACABAMENTO",
+        "MEDICAO",
+        "FIXACAO",
+        "LIXAMENTO",
+        "FURACAO",
+        "OUTRO",
+      ],
       categoria_parceiro: [
         "ARQUITETO",
         "DESIGNER_INTERIORES",
@@ -1400,6 +1951,7 @@ export const Constants = {
         "TRANSFERENCIA",
         "CREDITO_PARCELADO",
       ],
+      localizacao_ferramenta: ["MARCENARIA", "OBRA", "MANUTENCAO_EXTERNA"],
       origem_lead: [
         "LOJA",
         "INSTAGRAM",
@@ -1415,6 +1967,13 @@ export const Constants = {
         "EM_TRANSITO",
         "ENTREGUE",
         "CANCELADO",
+      ],
+      status_ferramenta: [
+        "DISPONIVEL",
+        "EM_USO",
+        "MANUTENCAO",
+        "QUEBRADA",
+        "VENDIDA",
       ],
       status_montagem: ["AGENDADO", "EM_ANDAMENTO", "CONCLUIDO", "CANCELADO"],
       status_pagamento_comissao: ["PENDENTE", "PAGO", "CANCELADO"],
@@ -1432,6 +1991,9 @@ export const Constants = {
         "ENTREGUE",
         "CANCELADO",
       ],
+      status_veiculo: ["ATIVO", "MANUTENCAO", "INATIVO", "VENDIDO"],
+      tipo_ferramenta: ["ESTACIONARIA", "MANUAL", "ELETRICA", "PNEUMATICA"],
+      tipo_manutencao: ["PREVENTIVA", "CORRETIVA", "TROCA_PECA", "CALIBRACAO"],
       tipo_material: [
         "MADEIRA",
         "FERRAGEM",
@@ -1439,8 +2001,25 @@ export const Constants = {
         "FERRAMENTA",
         "OUTROS",
       ],
+      tipo_movimentacao_ferramenta: [
+        "SAIDA_OBRA",
+        "RETORNO_MARCENARIA",
+        "EMPRESTIMO_FUNCIONARIO",
+        "DEVOLUCAO",
+        "MANUTENCAO",
+      ],
       tipo_remuneracao: ["PERCENTUAL", "VALOR_FIXO"],
       tipo_transacao: ["RECEITA", "DESPESA"],
+      tipo_transporte: ["VEICULO_PROPRIO", "FRETISTA"],
+      tipo_veiculo: [
+        "CARRO",
+        "CAMINHAO",
+        "KOMBI",
+        "VAN",
+        "UTILITARIO",
+        "OUTRO",
+      ],
+      tipo_veiculo_fretista: ["CARRO", "CAMINHAO", "VAN", "BAU", "UTILITARIO"],
       unidade_medida: [
         "UNIDADE",
         "METRO",
