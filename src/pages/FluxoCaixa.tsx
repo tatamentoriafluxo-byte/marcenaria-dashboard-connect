@@ -16,12 +16,14 @@ type Transacao = {
   id: string;
   tipo: string;
   categoria: string;
+  subcategoria: string | null;
   valor: number;
   data_transacao: string;
   descricao: string | null;
   forma_pagamento: string | null;
   status_pagamento: string | null;
   numero_nf: string | null;
+  documento_associado: string | null;
   project_id: string | null;
   compra_id: string | null;
 };
@@ -53,12 +55,14 @@ export default function FluxoCaixa() {
   const [formData, setFormData] = useState({
     tipo: "RECEITA",
     categoria: "VENDA",
+    subcategoria: "",
     valor: "",
     data_transacao: new Date().toISOString().split("T")[0],
     descricao: "",
     forma_pagamento: "PIX",
     status_pagamento: "PAGO",
     numero_nf: "",
+    documento_associado: "",
   });
 
   useEffect(() => {
@@ -87,12 +91,14 @@ export default function FluxoCaixa() {
     const payload = {
       tipo: formData.tipo as "RECEITA" | "DESPESA",
       categoria: formData.categoria as any,
+      subcategoria: formData.subcategoria || null,
       valor: Number(formData.valor),
       data_transacao: formData.data_transacao,
       descricao: formData.descricao || null,
       forma_pagamento: formData.forma_pagamento as any,
       status_pagamento: formData.status_pagamento,
       numero_nf: formData.numero_nf || null,
+      documento_associado: formData.documento_associado || null,
       user_id: user!.id,
     };
 
@@ -127,12 +133,14 @@ export default function FluxoCaixa() {
     setFormData({
       tipo: transacao.tipo,
       categoria: transacao.categoria,
+      subcategoria: transacao.subcategoria || "",
       valor: transacao.valor.toString(),
       data_transacao: transacao.data_transacao,
       descricao: transacao.descricao || "",
       forma_pagamento: transacao.forma_pagamento || "PIX",
       status_pagamento: transacao.status_pagamento || "PAGO",
       numero_nf: transacao.numero_nf || "",
+      documento_associado: transacao.documento_associado || "",
     });
     setIsOpen(true);
   };
@@ -155,12 +163,14 @@ export default function FluxoCaixa() {
     setFormData({
       tipo: "RECEITA",
       categoria: "VENDA",
+      subcategoria: "",
       valor: "",
       data_transacao: new Date().toISOString().split("T")[0],
       descricao: "",
       forma_pagamento: "PIX",
       status_pagamento: "PAGO",
       numero_nf: "",
+      documento_associado: "",
     });
   };
 
@@ -236,6 +246,15 @@ export default function FluxoCaixa() {
                 </div>
 
                 <div>
+                  <Label htmlFor="subcategoria">Subcategoria</Label>
+                  <Input
+                    id="subcategoria"
+                    value={formData.subcategoria}
+                    onChange={(e) => setFormData({ ...formData, subcategoria: e.target.value })}
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="valor">Valor (R$) *</Label>
                   <Input
                     id="valor"
@@ -294,12 +313,21 @@ export default function FluxoCaixa() {
                   </Select>
                 </div>
 
-                <div className="col-span-2">
+                <div>
                   <Label htmlFor="numero_nf">Número NF</Label>
                   <Input
                     id="numero_nf"
                     value={formData.numero_nf}
                     onChange={(e) => setFormData({ ...formData, numero_nf: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="documento_associado">Documento Associado</Label>
+                  <Input
+                    id="documento_associado"
+                    value={formData.documento_associado}
+                    onChange={(e) => setFormData({ ...formData, documento_associado: e.target.value })}
                   />
                 </div>
               </div>

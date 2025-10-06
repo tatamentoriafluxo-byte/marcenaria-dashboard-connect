@@ -19,11 +19,18 @@ interface EstoqueItem {
   quantidade_atual: number;
   quantidade_minima: number;
   quantidade_maxima: number | null;
+  data_ultima_compra: string | null;
+  quantidade_ultima_compra: number | null;
+  fornecedor_principal_id: string | null;
+  preco_medio_compra: number | null;
   ultima_atualizacao: string;
   materiais?: {
     nome: string;
     codigo: string;
     unidade: string;
+  };
+  fornecedores?: {
+    nome: string;
   };
 }
 
@@ -32,6 +39,7 @@ const Estoque = () => {
   const { toast } = useToast();
   const [estoque, setEstoque] = useState<EstoqueItem[]>([]);
   const [materiais, setMateriais] = useState<any[]>([]);
+  const [fornecedores, setFornecedores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEstoque, setEditingEstoque] = useState<any>(null);
@@ -39,7 +47,11 @@ const Estoque = () => {
     material_id: '',
     quantidade_atual: '',
     quantidade_minima: '',
-    quantidade_maxima: ''
+    quantidade_maxima: '',
+    data_ultima_compra: '',
+    quantidade_ultima_compra: '',
+    fornecedor_principal_id: '',
+    preco_medio_compra: ''
   });
 
   useEffect(() => {
@@ -51,7 +63,7 @@ const Estoque = () => {
     
     setLoading(true);
     try {
-      const [estoqueResult, materiaisResult] = await Promise.all([
+      const [estoqueResult, materiaisResult, fornecedoresResult] = await Promise.all([
         supabase
           .from('estoque')
           .select(`
@@ -60,6 +72,9 @@ const Estoque = () => {
               nome,
               codigo,
               unidade
+            ),
+            fornecedores (
+              nome
             )
           `)
           .eq('user_id', user.id)
@@ -68,14 +83,22 @@ const Estoque = () => {
           .from('materiais')
           .select('*')
           .eq('user_id', user.id)
+          .order('nome'),
+        supabase
+          .from('fornecedores')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('ativo', true)
           .order('nome')
       ]);
 
       if (estoqueResult.error) throw estoqueResult.error;
       if (materiaisResult.error) throw materiaisResult.error;
+      if (fornecedoresResult.error) throw fornecedoresResult.error;
       
       setEstoque(estoqueResult.data || []);
       setMateriais(materiaisResult.data || []);
+      setFornecedores(fornecedoresResult.data || []);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       toast({
@@ -97,7 +120,11 @@ const Estoque = () => {
         material_id: formData.material_id,
         quantidade_atual: parseFloat(formData.quantidade_atual),
         quantidade_minima: parseFloat(formData.quantidade_minima),
-        quantidade_maxima: formData.quantidade_maxima ? parseFloat(formData.quantidade_maxima) : null
+        quantidade_maxima: formData.quantidade_maxima ? parseFloat(formData.quantidade_maxima) : null,
+        data_ultima_compra: formData.data_ultima_compra || null,
+        quantidade_ultima_compra: formData.quantidade_ultima_compra ? parseFloat(formData.quantidade_ultima_compra) : null,
+        fornecedor_principal_id: formData.fornecedor_principal_id || null,
+        preco_medio_compra: formData.preco_medio_compra ? parseFloat(formData.preco_medio_compra) : null
       };
 
       if (editingEstoque) {
@@ -136,7 +163,11 @@ const Estoque = () => {
       material_id: item.material_id,
       quantidade_atual: item.quantidade_atual.toString(),
       quantidade_minima: item.quantidade_minima.toString(),
-      quantidade_maxima: item.quantidade_maxima?.toString() || ''
+      quantidade_maxima: item.quantidade_maxima?.toString() || '',
+      data_ultima_compra: item.data_ultima_compra || '',
+      quantidade_ultima_compra: item.quantidade_ultima_compra?.toString() || '',
+      fornecedor_principal_id: item.fornecedor_principal_id || '',
+      preco_medio_compra: item.preco_medio_compra?.toString() || ''
     });
     setDialogOpen(true);
   };
@@ -146,7 +177,11 @@ const Estoque = () => {
       material_id: '',
       quantidade_atual: '',
       quantidade_minima: '',
-      quantidade_maxima: ''
+      quantidade_maxima: '',
+      data_ultima_compra: '',
+      quantidade_ultima_compra: '',
+      fornecedor_principal_id: '',
+      preco_medio_compra: ''
     });
     setEditingEstoque(null);
   };
@@ -254,6 +289,53 @@ const Estoque = () => {
                     step="0.01"
                     value={formData.quantidade_maxima}
                     onChange={(e) => setFormData({ ...formData, quantidade_maxima: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="fornecedor_principal_id">Fornecedor Principal</Label>
+                  <Select 
+                    value={formData.fornecedor_principal_id} 
+                    onValueChange={(value) => setFormData({ ...formData, fornecedor_principal_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um fornecedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fornecedores.map((fornecedor) => (
+                        <SelectItem key={fornecedor.id} value={fornecedor.id}>
+                          {fornecedor.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="preco_medio_compra">Preço Médio de Compra (R$)</Label>
+                  <Input
+                    id="preco_medio_compra"
+                    type="number"
+                    step="0.01"
+                    value={formData.preco_medio_compra}
+                    onChange={(e) => setFormData({ ...formData, preco_medio_compra: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="data_ultima_compra">Data da Última Compra</Label>
+                  <Input
+                    id="data_ultima_compra"
+                    type="date"
+                    value={formData.data_ultima_compra}
+                    onChange={(e) => setFormData({ ...formData, data_ultima_compra: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="quantidade_ultima_compra">Quantidade da Última Compra</Label>
+                  <Input
+                    id="quantidade_ultima_compra"
+                    type="number"
+                    step="0.01"
+                    value={formData.quantidade_ultima_compra}
+                    onChange={(e) => setFormData({ ...formData, quantidade_ultima_compra: e.target.value })}
                   />
                 </div>
                 <div className="flex justify-end gap-2">

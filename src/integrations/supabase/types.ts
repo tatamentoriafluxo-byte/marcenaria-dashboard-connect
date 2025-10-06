@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      capacidade_producao: {
+        Row: {
+          capacidade_mensal_horas: number | null
+          capacidade_mensal_projetos: number | null
+          created_at: string | null
+          horas_utilizadas: number | null
+          id: string
+          mes_referencia: string
+          observacoes: string | null
+          projetos_realizados: number | null
+          taxa_ocupacao: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          capacidade_mensal_horas?: number | null
+          capacidade_mensal_projetos?: number | null
+          created_at?: string | null
+          horas_utilizadas?: number | null
+          id?: string
+          mes_referencia: string
+          observacoes?: string | null
+          projetos_realizados?: number | null
+          taxa_ocupacao?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          capacidade_mensal_horas?: number | null
+          capacidade_mensal_projetos?: number | null
+          created_at?: string | null
+          horas_utilizadas?: number | null
+          id?: string
+          mes_referencia?: string
+          observacoes?: string | null
+          projetos_realizados?: number | null
+          taxa_ocupacao?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           cep: string | null
@@ -79,6 +121,7 @@ export type Database = {
           fornecedor_id: string
           id: string
           observacoes: string | null
+          ordem_compra: string | null
           status: Database["public"]["Enums"]["status_compra"]
           updated_at: string | null
           user_id: string
@@ -92,6 +135,7 @@ export type Database = {
           fornecedor_id: string
           id?: string
           observacoes?: string | null
+          ordem_compra?: string | null
           status?: Database["public"]["Enums"]["status_compra"]
           updated_at?: string | null
           user_id: string
@@ -105,6 +149,7 @@ export type Database = {
           fornecedor_id?: string
           id?: string
           observacoes?: string | null
+          ordem_compra?: string | null
           status?: Database["public"]["Enums"]["status_compra"]
           updated_at?: string | null
           user_id?: string
@@ -130,38 +175,57 @@ export type Database = {
       estoque: {
         Row: {
           created_at: string | null
+          data_ultima_compra: string | null
+          fornecedor_principal_id: string | null
           id: string
           material_id: string
+          preco_medio_compra: number | null
           quantidade_atual: number
           quantidade_maxima: number | null
           quantidade_minima: number
+          quantidade_ultima_compra: number | null
           ultima_atualizacao: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          data_ultima_compra?: string | null
+          fornecedor_principal_id?: string | null
           id?: string
           material_id: string
+          preco_medio_compra?: number | null
           quantidade_atual?: number
           quantidade_maxima?: number | null
           quantidade_minima?: number
+          quantidade_ultima_compra?: number | null
           ultima_atualizacao?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
+          data_ultima_compra?: string | null
+          fornecedor_principal_id?: string | null
           id?: string
           material_id?: string
+          preco_medio_compra?: number | null
           quantidade_atual?: number
           quantidade_maxima?: number | null
           quantidade_minima?: number
+          quantidade_ultima_compra?: number | null
           ultima_atualizacao?: string | null
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "estoque_fornecedor_principal_id_fkey"
+            columns: ["fornecedor_principal_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "estoque_material_id_fkey"
             columns: ["material_id"]
@@ -508,11 +572,14 @@ export type Database = {
       }
       montagem: {
         Row: {
+          ambiente: string | null
           created_at: string | null
           data_montagem: string | null
           desafios: string | null
+          feedback_cliente: string | null
           id: string
           montador_id: string | null
+          nome_movel: string | null
           project_id: string
           status: Database["public"]["Enums"]["status_montagem"]
           tempo_estimado: number | null
@@ -522,11 +589,14 @@ export type Database = {
           valor_montagem: number | null
         }
         Insert: {
+          ambiente?: string | null
           created_at?: string | null
           data_montagem?: string | null
           desafios?: string | null
+          feedback_cliente?: string | null
           id?: string
           montador_id?: string | null
+          nome_movel?: string | null
           project_id: string
           status?: Database["public"]["Enums"]["status_montagem"]
           tempo_estimado?: number | null
@@ -536,11 +606,14 @@ export type Database = {
           valor_montagem?: number | null
         }
         Update: {
+          ambiente?: string | null
           created_at?: string | null
           data_montagem?: string | null
           desafios?: string | null
+          feedback_cliente?: string | null
           id?: string
           montador_id?: string | null
+          nome_movel?: string | null
           project_id?: string
           status?: Database["public"]["Enums"]["status_montagem"]
           tempo_estimado?: number | null
@@ -582,12 +655,18 @@ export type Database = {
       }
       producao: {
         Row: {
+          ambiente: string | null
+          consumo_ferragem: number | null
+          consumo_madeira: number | null
           created_at: string | null
+          custo_mao_obra: number | null
           data_fim_prevista: string | null
           data_fim_real: string | null
           data_inicio: string | null
+          data_liberacao: string | null
           id: string
           marceneiro_id: string | null
+          nome_movel: string | null
           observacoes: string | null
           project_id: string
           status: Database["public"]["Enums"]["status_producao"]
@@ -599,12 +678,18 @@ export type Database = {
           valor_producao: number | null
         }
         Insert: {
+          ambiente?: string | null
+          consumo_ferragem?: number | null
+          consumo_madeira?: number | null
           created_at?: string | null
+          custo_mao_obra?: number | null
           data_fim_prevista?: string | null
           data_fim_real?: string | null
           data_inicio?: string | null
+          data_liberacao?: string | null
           id?: string
           marceneiro_id?: string | null
+          nome_movel?: string | null
           observacoes?: string | null
           project_id: string
           status?: Database["public"]["Enums"]["status_producao"]
@@ -616,12 +701,18 @@ export type Database = {
           valor_producao?: number | null
         }
         Update: {
+          ambiente?: string | null
+          consumo_ferragem?: number | null
+          consumo_madeira?: number | null
           created_at?: string | null
+          custo_mao_obra?: number | null
           data_fim_prevista?: string | null
           data_fim_real?: string | null
           data_inicio?: string | null
+          data_liberacao?: string | null
           id?: string
           marceneiro_id?: string | null
+          nome_movel?: string | null
           observacoes?: string | null
           project_id?: string
           status?: Database["public"]["Enums"]["status_producao"]
@@ -794,11 +885,13 @@ export type Database = {
           created_at: string | null
           data_transacao: string
           descricao: string | null
+          documento_associado: string | null
           forma_pagamento: Database["public"]["Enums"]["forma_pagamento"] | null
           id: string
           numero_nf: string | null
           project_id: string | null
           status_pagamento: string | null
+          subcategoria: string | null
           tipo: Database["public"]["Enums"]["tipo_transacao"]
           updated_at: string | null
           user_id: string
@@ -810,6 +903,7 @@ export type Database = {
           created_at?: string | null
           data_transacao?: string
           descricao?: string | null
+          documento_associado?: string | null
           forma_pagamento?:
             | Database["public"]["Enums"]["forma_pagamento"]
             | null
@@ -817,6 +911,7 @@ export type Database = {
           numero_nf?: string | null
           project_id?: string | null
           status_pagamento?: string | null
+          subcategoria?: string | null
           tipo: Database["public"]["Enums"]["tipo_transacao"]
           updated_at?: string | null
           user_id: string
@@ -828,6 +923,7 @@ export type Database = {
           created_at?: string | null
           data_transacao?: string
           descricao?: string | null
+          documento_associado?: string | null
           forma_pagamento?:
             | Database["public"]["Enums"]["forma_pagamento"]
             | null
@@ -835,6 +931,7 @@ export type Database = {
           numero_nf?: string | null
           project_id?: string | null
           status_pagamento?: string | null
+          subcategoria?: string | null
           tipo?: Database["public"]["Enums"]["tipo_transacao"]
           updated_at?: string | null
           user_id?: string

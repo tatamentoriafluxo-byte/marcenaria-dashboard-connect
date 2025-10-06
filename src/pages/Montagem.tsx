@@ -16,12 +16,15 @@ type Montagem = {
   id: string;
   project_id: string;
   montador_id: string | null;
+  nome_movel: string | null;
+  ambiente: string | null;
   data_montagem: string | null;
   tempo_estimado: number | null;
   tempo_real: number | null;
   status: string;
   valor_montagem: number | null;
   desafios: string | null;
+  feedback_cliente: string | null;
 };
 
 type Projeto = {
@@ -48,12 +51,15 @@ export default function Montagem() {
   const [formData, setFormData] = useState({
     project_id: "",
     montador_id: "",
+    nome_movel: "",
+    ambiente: "",
     data_montagem: "",
     tempo_estimado: "",
     tempo_real: "",
     status: "AGENDADO",
     valor_montagem: "",
     desafios: "",
+    feedback_cliente: "",
   });
 
   useEffect(() => {
@@ -102,12 +108,15 @@ export default function Montagem() {
     const payload = {
       project_id: formData.project_id,
       montador_id: formData.montador_id || null,
+      nome_movel: formData.nome_movel || null,
+      ambiente: formData.ambiente || null,
       data_montagem: formData.data_montagem || null,
       tempo_estimado: formData.tempo_estimado ? Number(formData.tempo_estimado) : null,
       tempo_real: formData.tempo_real ? Number(formData.tempo_real) : null,
       status: formData.status as "AGENDADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO",
       valor_montagem: formData.valor_montagem ? Number(formData.valor_montagem) : null,
       desafios: formData.desafios || null,
+      feedback_cliente: formData.feedback_cliente || null,
       user_id: user!.id,
     };
 
@@ -142,12 +151,15 @@ export default function Montagem() {
     setFormData({
       project_id: montagem.project_id,
       montador_id: montagem.montador_id || "",
+      nome_movel: montagem.nome_movel || "",
+      ambiente: montagem.ambiente || "",
       data_montagem: montagem.data_montagem || "",
       tempo_estimado: montagem.tempo_estimado?.toString() || "",
       tempo_real: montagem.tempo_real?.toString() || "",
       status: montagem.status,
       valor_montagem: montagem.valor_montagem?.toString() || "",
       desafios: montagem.desafios || "",
+      feedback_cliente: montagem.feedback_cliente || "",
     });
     setIsOpen(true);
   };
@@ -170,12 +182,15 @@ export default function Montagem() {
     setFormData({
       project_id: "",
       montador_id: "",
+      nome_movel: "",
+      ambiente: "",
       data_montagem: "",
       tempo_estimado: "",
       tempo_real: "",
       status: "AGENDADO",
       valor_montagem: "",
       desafios: "",
+      feedback_cliente: "",
     });
   };
 
@@ -248,6 +263,24 @@ export default function Montagem() {
                 </div>
 
                 <div>
+                  <Label htmlFor="nome_movel">Nome do Móvel</Label>
+                  <Input
+                    id="nome_movel"
+                    value={formData.nome_movel}
+                    onChange={(e) => setFormData({ ...formData, nome_movel: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="ambiente">Ambiente</Label>
+                  <Input
+                    id="ambiente"
+                    value={formData.ambiente}
+                    onChange={(e) => setFormData({ ...formData, ambiente: e.target.value })}
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="status">Status *</Label>
                   <Select
                     value={formData.status}
@@ -315,7 +348,17 @@ export default function Montagem() {
                   id="desafios"
                   value={formData.desafios}
                   onChange={(e) => setFormData({ ...formData, desafios: e.target.value })}
-                  rows={3}
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="feedback_cliente">Feedback do Cliente</Label>
+                <Textarea
+                  id="feedback_cliente"
+                  value={formData.feedback_cliente}
+                  onChange={(e) => setFormData({ ...formData, feedback_cliente: e.target.value })}
+                  rows={2}
                 />
               </div>
 

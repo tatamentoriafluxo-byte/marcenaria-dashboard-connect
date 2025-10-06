@@ -35,7 +35,8 @@ const Compras = () => {
     data_compra: new Date(),
     data_entrega_prevista: null as Date | null,
     observacoes: '',
-    status: 'PENDENTE'
+    status: 'PENDENTE',
+    ordem_compra: ''
   });
   const [novoItem, setNovoItem] = useState({
     material_id: '',
@@ -156,6 +157,7 @@ const Compras = () => {
         data_entrega_prevista: formData.data_entrega_prevista ? format(formData.data_entrega_prevista, 'yyyy-MM-dd') : null,
         observacoes: formData.observacoes || null,
         status: formData.status as 'PENDENTE' | 'CONFIRMADO' | 'EM_TRANSITO' | 'ENTREGUE' | 'CANCELADO',
+        ordem_compra: formData.ordem_compra || null,
         valor_total: calcularTotal()
       };
 
@@ -285,7 +287,8 @@ const Compras = () => {
       data_compra: new Date(),
       data_entrega_prevista: null,
       observacoes: '',
-      status: 'PENDENTE'
+      status: 'PENDENTE',
+      ordem_compra: ''
     });
     setItensCompra([]);
     setNovoItem({ material_id: '', quantidade: '', preco_unitario: '' });
@@ -411,7 +414,15 @@ const Compras = () => {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="col-span-2">
+                  <div>
+                    <Label htmlFor="ordem_compra">Ordem de Compra</Label>
+                    <Input
+                      id="ordem_compra"
+                      value={formData.ordem_compra}
+                      onChange={(e) => setFormData({ ...formData, ordem_compra: e.target.value })}
+                    />
+                  </div>
+                  <div>
                     <Label htmlFor="observacoes">Observações</Label>
                     <Input
                       id="observacoes"

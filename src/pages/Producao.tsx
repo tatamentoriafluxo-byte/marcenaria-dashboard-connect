@@ -16,6 +16,8 @@ type Producao = {
   id: string;
   project_id: string;
   marceneiro_id: string | null;
+  nome_movel: string | null;
+  ambiente: string | null;
   data_inicio: string | null;
   data_fim_prevista: string | null;
   data_fim_real: string | null;
@@ -23,6 +25,10 @@ type Producao = {
   tempo_real: number | null;
   status: string;
   valor_producao: number | null;
+  consumo_madeira: number | null;
+  consumo_ferragem: number | null;
+  custo_mao_obra: number | null;
+  data_liberacao: string | null;
   taxa_rejeicao: number | null;
   observacoes: string | null;
 };
@@ -51,6 +57,8 @@ export default function Producao() {
   const [formData, setFormData] = useState({
     project_id: "",
     marceneiro_id: "",
+    nome_movel: "",
+    ambiente: "",
     data_inicio: "",
     data_fim_prevista: "",
     data_fim_real: "",
@@ -58,6 +66,10 @@ export default function Producao() {
     tempo_real: "",
     status: "PLANEJADO",
     valor_producao: "",
+    consumo_madeira: "",
+    consumo_ferragem: "",
+    custo_mao_obra: "",
+    data_liberacao: "",
     taxa_rejeicao: "",
     observacoes: "",
   });
@@ -108,6 +120,8 @@ export default function Producao() {
     const payload = {
       project_id: formData.project_id,
       marceneiro_id: formData.marceneiro_id || null,
+      nome_movel: formData.nome_movel || null,
+      ambiente: formData.ambiente || null,
       data_inicio: formData.data_inicio || null,
       data_fim_prevista: formData.data_fim_prevista || null,
       data_fim_real: formData.data_fim_real || null,
@@ -115,6 +129,10 @@ export default function Producao() {
       tempo_real: formData.tempo_real ? Number(formData.tempo_real) : null,
       status: formData.status as "PLANEJADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "PAUSADO" | "REJEITADO",
       valor_producao: formData.valor_producao ? Number(formData.valor_producao) : null,
+      consumo_madeira: formData.consumo_madeira ? Number(formData.consumo_madeira) : null,
+      consumo_ferragem: formData.consumo_ferragem ? Number(formData.consumo_ferragem) : null,
+      custo_mao_obra: formData.custo_mao_obra ? Number(formData.custo_mao_obra) : null,
+      data_liberacao: formData.data_liberacao || null,
       taxa_rejeicao: formData.taxa_rejeicao ? Number(formData.taxa_rejeicao) : null,
       observacoes: formData.observacoes || null,
       user_id: user!.id,
@@ -151,6 +169,8 @@ export default function Producao() {
     setFormData({
       project_id: producao.project_id,
       marceneiro_id: producao.marceneiro_id || "",
+      nome_movel: producao.nome_movel || "",
+      ambiente: producao.ambiente || "",
       data_inicio: producao.data_inicio || "",
       data_fim_prevista: producao.data_fim_prevista || "",
       data_fim_real: producao.data_fim_real || "",
@@ -158,6 +178,10 @@ export default function Producao() {
       tempo_real: producao.tempo_real?.toString() || "",
       status: producao.status,
       valor_producao: producao.valor_producao?.toString() || "",
+      consumo_madeira: producao.consumo_madeira?.toString() || "",
+      consumo_ferragem: producao.consumo_ferragem?.toString() || "",
+      custo_mao_obra: producao.custo_mao_obra?.toString() || "",
+      data_liberacao: producao.data_liberacao || "",
       taxa_rejeicao: producao.taxa_rejeicao?.toString() || "",
       observacoes: producao.observacoes || "",
     });
@@ -182,6 +206,8 @@ export default function Producao() {
     setFormData({
       project_id: "",
       marceneiro_id: "",
+      nome_movel: "",
+      ambiente: "",
       data_inicio: "",
       data_fim_prevista: "",
       data_fim_real: "",
@@ -189,6 +215,10 @@ export default function Producao() {
       tempo_real: "",
       status: "PLANEJADO",
       valor_producao: "",
+      consumo_madeira: "",
+      consumo_ferragem: "",
+      custo_mao_obra: "",
+      data_liberacao: "",
       taxa_rejeicao: "",
       observacoes: "",
     });
@@ -263,6 +293,24 @@ export default function Producao() {
                 </div>
 
                 <div>
+                  <Label htmlFor="nome_movel">Nome do Móvel</Label>
+                  <Input
+                    id="nome_movel"
+                    value={formData.nome_movel}
+                    onChange={(e) => setFormData({ ...formData, nome_movel: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="ambiente">Ambiente</Label>
+                  <Input
+                    id="ambiente"
+                    value={formData.ambiente}
+                    onChange={(e) => setFormData({ ...formData, ambiente: e.target.value })}
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="status">Status *</Label>
                   <Select
                     value={formData.status}
@@ -333,6 +381,39 @@ export default function Producao() {
                 </div>
 
                 <div>
+                  <Label htmlFor="consumo_madeira">Consumo Madeira (m³)</Label>
+                  <Input
+                    id="consumo_madeira"
+                    type="number"
+                    step="0.01"
+                    value={formData.consumo_madeira}
+                    onChange={(e) => setFormData({ ...formData, consumo_madeira: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="consumo_ferragem">Consumo Ferragem (kg)</Label>
+                  <Input
+                    id="consumo_ferragem"
+                    type="number"
+                    step="0.01"
+                    value={formData.consumo_ferragem}
+                    onChange={(e) => setFormData({ ...formData, consumo_ferragem: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="custo_mao_obra">Custo Mão de Obra (R$)</Label>
+                  <Input
+                    id="custo_mao_obra"
+                    type="number"
+                    step="0.01"
+                    value={formData.custo_mao_obra}
+                    onChange={(e) => setFormData({ ...formData, custo_mao_obra: e.target.value })}
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="valor_producao">Valor Produção (R$)</Label>
                   <Input
                     id="valor_producao"
@@ -340,6 +421,16 @@ export default function Producao() {
                     step="0.01"
                     value={formData.valor_producao}
                     onChange={(e) => setFormData({ ...formData, valor_producao: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="data_liberacao">Data de Liberação</Label>
+                  <Input
+                    id="data_liberacao"
+                    type="date"
+                    value={formData.data_liberacao}
+                    onChange={(e) => setFormData({ ...formData, data_liberacao: e.target.value })}
                   />
                 </div>
 

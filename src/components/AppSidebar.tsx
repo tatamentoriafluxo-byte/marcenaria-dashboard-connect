@@ -8,6 +8,12 @@ import {
   Warehouse, 
   ShoppingCart, 
   Building2,
+  Factory,
+  Wrench,
+  DollarSign,
+  Target,
+  MessageSquare,
+  Gauge,
   ChevronRight
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -49,6 +55,22 @@ const menuItems = [
       { title: 'Estoque', url: '/estoque', icon: Warehouse },
       { title: 'Compras', url: '/compras', icon: ShoppingCart },
       { title: 'Fornecedores', url: '/fornecedores', icon: Building2 },
+    ]
+  },
+  {
+    title: 'Produção',
+    items: [
+      { title: 'Produção', url: '/producao', icon: Factory },
+      { title: 'Montagem', url: '/montagem', icon: Wrench },
+      { title: 'Capacidade', url: '/capacidade-producao', icon: Gauge },
+    ]
+  },
+  {
+    title: 'Financeiro & Metas',
+    items: [
+      { title: 'Fluxo de Caixa', url: '/fluxo-caixa', icon: DollarSign },
+      { title: 'Metas', url: '/metas', icon: Target },
+      { title: 'Feedbacks', url: '/feedbacks', icon: MessageSquare },
     ]
   }
 ];

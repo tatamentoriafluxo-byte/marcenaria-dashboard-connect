@@ -22,6 +22,7 @@ import Montagem from "./pages/Montagem";
 import FluxoCaixa from "./pages/FluxoCaixa";
 import Metas from "./pages/Metas";
 import Feedbacks from "./pages/Feedbacks";
+import CapacidadeProducao from "./pages/CapacidadeProducao";
 import DadosTeste from "./pages/DadosTeste";
 import NotFound from "./pages/NotFound";
 
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/fluxo-caixa" element={<ProtectedRoute><AppLayout><FluxoCaixa /></AppLayout></ProtectedRoute>} />
           <Route path="/metas" element={<ProtectedRoute><AppLayout><Metas /></AppLayout></ProtectedRoute>} />
           <Route path="/feedbacks" element={<ProtectedRoute><AppLayout><Feedbacks /></AppLayout></ProtectedRoute>} />
+          <Route path="/capacidade-producao" element={<ProtectedRoute><AppLayout><CapacidadeProducao /></AppLayout></ProtectedRoute>} />
           <Route path="/dados-teste" element={<ProtectedRoute><AppLayout><DadosTeste /></AppLayout></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
