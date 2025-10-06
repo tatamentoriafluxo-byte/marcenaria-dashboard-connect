@@ -36,6 +36,12 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
           <Button variant="ghost" asChild className="hidden md:inline-flex">
             <Link to="/projetos">Projetos</Link>
           </Button>
+          <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Link to="/vendedores">Vendedores</Link>
+          </Button>
+          <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Link to="/clientes">Clientes</Link>
+          </Button>
           <Button variant="ghost" onClick={signOut} size="icon">
             <LogOut className="h-5 w-5" />
           </Button>
