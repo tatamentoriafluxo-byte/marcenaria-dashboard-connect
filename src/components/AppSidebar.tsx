@@ -3,7 +3,7 @@ import {
   Home, BarChart3, Box, Truck, Users, UserCheck,
   User, FolderKanban, ShoppingCart, Package,
   Factory, Wrench, Wallet, MessageSquare,
-  Target, TrendingUp, Handshake
+  Target, TrendingUp, Handshake, Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -51,6 +51,8 @@ export function AppSidebar() {
       items: [
         { title: "Compras", url: "/compras", icon: ShoppingCart },
         { title: "Estoque", url: "/estoque", icon: Package },
+        { title: "Ferramentas", url: "/ferramentas", icon: Settings },
+        { title: "Fretistas", url: "/fretistas", icon: Truck },
       ]
     },
     {

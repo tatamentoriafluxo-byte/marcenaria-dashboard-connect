@@ -19,6 +19,8 @@ import Materiais from "./pages/Materiais";
 import Estoque from "./pages/Estoque";
 import Compras from "./pages/Compras";
 import Fornecedores from "./pages/Fornecedores";
+import Ferramentas from "./pages/Ferramentas";
+import Fretistas from "./pages/Fretistas";
 import Producao from "./pages/Producao";
 import Montagem from "./pages/Montagem";
 import FluxoCaixa from "./pages/FluxoCaixa";
@@ -66,6 +68,8 @@ const App = () => (
           <Route path="/feedbacks" element={<ProtectedRoute><AppLayout><Feedbacks /></AppLayout></ProtectedRoute>} />
           <Route path="/capacidade-producao" element={<ProtectedRoute><AppLayout><CapacidadeProducao /></AppLayout></ProtectedRoute>} />
           <Route path="/dados-teste" element={<ProtectedRoute><AppLayout><DadosTeste /></AppLayout></ProtectedRoute>} />
+          <Route path="/ferramentas" element={<ProtectedRoute><AppLayout><Ferramentas /></AppLayout></ProtectedRoute>} />
+          <Route path="/fretistas" element={<ProtectedRoute><AppLayout><Fretistas /></AppLayout></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
