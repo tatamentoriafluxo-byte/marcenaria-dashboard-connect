@@ -17,6 +17,11 @@ import Materiais from "./pages/Materiais";
 import Estoque from "./pages/Estoque";
 import Compras from "./pages/Compras";
 import Fornecedores from "./pages/Fornecedores";
+import Producao from "./pages/Producao";
+import Montagem from "./pages/Montagem";
+import FluxoCaixa from "./pages/FluxoCaixa";
+import Metas from "./pages/Metas";
+import Feedbacks from "./pages/Feedbacks";
 import DadosTeste from "./pages/DadosTeste";
 import NotFound from "./pages/NotFound";
 
