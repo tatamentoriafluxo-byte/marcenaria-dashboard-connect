@@ -49,6 +49,9 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             <Link to="/estoque">Estoque</Link>
           </Button>
           <Button variant="ghost" asChild className="hidden lg:inline-flex">
+            <Link to="/compras">Compras</Link>
+          </Button>
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
             <Link to="/fornecedores">Fornecedores</Link>
           </Button>
           <Button variant="ghost" onClick={signOut} size="icon">
