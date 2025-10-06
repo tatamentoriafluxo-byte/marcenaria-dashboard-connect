@@ -22,6 +22,7 @@ export default function Home() {
       "Fornecedores": "fornecedores",
       "Funcionários": "funcionarios",
       "Vendedores": "vendedores",
+      "Parceiros": "parceiros",
       "Clientes": "clientes",
       "Projetos": "projetos",
       "Compras": "compras",
@@ -43,6 +44,7 @@ export default function Home() {
         { nome: "Fornecedores", rota: "/fornecedores", icone: Truck, descricao: "De onde vem seus materiais" },
         { nome: "Funcionários", rota: "/funcionarios", icone: Users, descricao: "Sua equipe (marceneiros, montadores)" },
         { nome: "Vendedores", rota: "/vendedores", icone: UserCheck, descricao: "Quem vende seus projetos" },
+        { nome: "Parceiros", rota: "/parceiros", icone: Users, descricao: "Arquitetos, designers e outros parceiros" },
       ]
     },
     {

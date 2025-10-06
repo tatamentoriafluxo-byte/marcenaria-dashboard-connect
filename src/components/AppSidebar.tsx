@@ -3,7 +3,7 @@ import {
   Home, BarChart3, Box, Truck, Users, UserCheck,
   User, FolderKanban, ShoppingCart, Package,
   Factory, Wrench, Wallet, MessageSquare,
-  Target, TrendingUp
+  Target, TrendingUp, Handshake
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +36,7 @@ export function AppSidebar() {
         { title: "Fornecedores", url: "/fornecedores", icon: Truck },
         { title: "Funcionários", url: "/funcionarios", icon: Users },
         { title: "Vendedores", url: "/vendedores", icon: UserCheck },
+        { title: "Parceiros", url: "/parceiros", icon: Handshake },
       ]
     },
     {

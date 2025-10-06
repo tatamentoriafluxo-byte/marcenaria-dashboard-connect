@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Projetos from "./pages/Projetos";
 import NovoProjeto from "./pages/NovoProjeto";
 import Vendedores from "./pages/Vendedores";
+import Parceiros from "./pages/Parceiros";
 import Clientes from "./pages/Clientes";
 import Funcionarios from "./pages/Funcionarios";
 import Materiais from "./pages/Materiais";
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/projetos" element={<ProtectedRoute><AppLayout><Projetos /></AppLayout></ProtectedRoute>} />
           <Route path="/novo-projeto" element={<ProtectedRoute><AppLayout><NovoProjeto /></AppLayout></ProtectedRoute>} />
           <Route path="/vendedores" element={<ProtectedRoute><AppLayout><Vendedores /></AppLayout></ProtectedRoute>} />
+          <Route path="/parceiros" element={<ProtectedRoute><AppLayout><Parceiros /></AppLayout></ProtectedRoute>} />
           <Route path="/clientes" element={<ProtectedRoute><AppLayout><Clientes /></AppLayout></ProtectedRoute>} />
           <Route path="/funcionarios" element={<ProtectedRoute><AppLayout><Funcionarios /></AppLayout></ProtectedRoute>} />
           <Route path="/materiais" element={<ProtectedRoute><AppLayout><Materiais /></AppLayout></ProtectedRoute>} />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
@@ -18,6 +18,7 @@ const NovoProjeto = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const [parceiros, setParceiros] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     cod_projeto: '',
     data_contato: new Date().toISOString().split('T')[0],
@@ -37,7 +38,24 @@ const NovoProjeto = () => {
     data_entrega: '',
     visualizado_cliente: false,
     preencheu_formulario: false,
+    parceiro_id: '',
+    comissao_parceiro: '',
   });
+
+  useEffect(() => {
+    loadParceiros();
+  }, [user]);
+
+  const loadParceiros = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('parceiros')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('ativo', true)
+      .order('nome');
+    setParceiros(data || []);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +63,11 @@ const NovoProjeto = () => {
 
     setLoading(true);
     try {
+      const valorVenda = formData.valor_venda ? parseFloat(formData.valor_venda) : null;
+      const comissaoParceiro = formData.parceiro_id && valorVenda
+        ? (valorVenda * (parseFloat(formData.comissao_parceiro) || 0)) / 100
+        : 0;
+
       const { error } = await supabase.from('projects').insert([
         {
           user_id: user.id,
@@ -60,12 +83,14 @@ const NovoProjeto = () => {
           custo_mao_obra: parseFloat(formData.custo_mao_obra) || 0,
           outros_custos: parseFloat(formData.outros_custos) || 0,
           status: formData.status as any,
-          valor_venda: formData.valor_venda ? parseFloat(formData.valor_venda) : null,
+          valor_venda: valorVenda,
           prazo_entrega: formData.prazo_entrega ? parseInt(formData.prazo_entrega) : null,
           data_venda: formData.data_venda || null,
           data_entrega: formData.data_entrega || null,
           visualizado_cliente: formData.visualizado_cliente,
           preencheu_formulario: formData.preencheu_formulario,
+          parceiro_id: formData.parceiro_id || null,
+          comissao_parceiro: comissaoParceiro,
         },
       ]);
 
@@ -308,6 +333,43 @@ const NovoProjeto = () => {
                     type="date"
                     value={formData.data_entrega}
                     onChange={(e) => handleChange('data_entrega', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="parceiro_id">Parceiro</Label>
+                  <Select
+                    value={formData.parceiro_id}
+                    onValueChange={(value) => {
+                      const parceiro = parceiros.find(p => p.id === value);
+                      handleChange('parceiro_id', value);
+                      handleChange('comissao_parceiro', parceiro?.percentual_comissao || '0');
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um parceiro" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Sem parceiro</SelectItem>
+                      {parceiros.map(p => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.nome} ({p.percentual_comissao}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="comissao_parceiro">% Comissão</Label>
+                  <Input
+                    id="comissao_parceiro"
+                    type="number"
+                    step="0.01"
+                    value={formData.comissao_parceiro}
+                    onChange={(e) => handleChange('comissao_parceiro', e.target.value)}
+                    disabled={!formData.parceiro_id}
+                    placeholder="0.00"
                   />
                 </div>
 

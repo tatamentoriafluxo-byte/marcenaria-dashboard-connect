@@ -15,7 +15,8 @@ import DashboardMontagem from "@/components/dashboard/DashboardMontagem";
 import DashboardFluxoCaixa from "@/components/dashboard/DashboardFluxoCaixa";
 import DashboardMetas from "@/components/dashboard/DashboardMetas";
 import DashboardFeedbacks from "@/components/dashboard/DashboardFeedbacks";
-import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Home } from "lucide-react";
+import DashboardParceiros from "@/components/dashboard/DashboardParceiros";
+import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -89,6 +90,10 @@ export default function Dashboard() {
             <MessageSquare className="h-4 w-4" />
             <span className="hidden sm:inline">Feedbacks</span>
           </TabsTrigger>
+          <TabsTrigger value="parceiros" className="flex items-center gap-2 text-xs">
+            <Handshake className="h-4 w-4" />
+            <span className="hidden sm:inline">Parceiros</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="vendas">
@@ -149,6 +154,10 @@ export default function Dashboard() {
 
         <TabsContent value="feedbacks">
           <DashboardFeedbacks userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="parceiros">
+          <DashboardParceiros userId={user!.id} />
         </TabsContent>
 
         <TabsContent value="producao">

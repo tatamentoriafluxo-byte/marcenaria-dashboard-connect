@@ -653,6 +653,81 @@ export type Database = {
           },
         ]
       }
+      parceiros: {
+        Row: {
+          ativo: boolean | null
+          categoria: Database["public"]["Enums"]["categoria_parceiro"]
+          cep: string | null
+          cidade: string | null
+          cpf_cnpj: string | null
+          created_at: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          percentual_comissao: number | null
+          telefone: string | null
+          tipo_remuneracao:
+            | Database["public"]["Enums"]["tipo_remuneracao"]
+            | null
+          total_comissoes_pagas: number | null
+          total_indicacoes: number | null
+          total_vendas_geradas: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria: Database["public"]["Enums"]["categoria_parceiro"]
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          percentual_comissao?: number | null
+          telefone?: string | null
+          tipo_remuneracao?:
+            | Database["public"]["Enums"]["tipo_remuneracao"]
+            | null
+          total_comissoes_pagas?: number | null
+          total_indicacoes?: number | null
+          total_vendas_geradas?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria?: Database["public"]["Enums"]["categoria_parceiro"]
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          percentual_comissao?: number | null
+          telefone?: string | null
+          tipo_remuneracao?:
+            | Database["public"]["Enums"]["tipo_remuneracao"]
+            | null
+          total_comissoes_pagas?: number | null
+          total_indicacoes?: number | null
+          total_vendas_geradas?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       producao: {
         Row: {
           ambiente: string | null
@@ -780,6 +855,7 @@ export type Database = {
           ambiente: string
           cliente_id: string | null
           cod_projeto: string
+          comissao_parceiro: number | null
           created_at: string | null
           custo_mao_obra: number
           custo_materiais: number
@@ -790,9 +866,13 @@ export type Database = {
           nome_cliente: string
           origem_lead: Database["public"]["Enums"]["origem_lead"]
           outros_custos: number
+          parceiro_id: string | null
           prazo_entrega: number | null
           preencheu_formulario: boolean | null
           status: Database["public"]["Enums"]["status_projeto"]
+          status_pagamento_parceiro:
+            | Database["public"]["Enums"]["status_pagamento_comissao"]
+            | null
           telefone: string
           updated_at: string | null
           user_id: string
@@ -806,6 +886,7 @@ export type Database = {
           ambiente: string
           cliente_id?: string | null
           cod_projeto: string
+          comissao_parceiro?: number | null
           created_at?: string | null
           custo_mao_obra?: number
           custo_materiais?: number
@@ -816,9 +897,13 @@ export type Database = {
           nome_cliente: string
           origem_lead: Database["public"]["Enums"]["origem_lead"]
           outros_custos?: number
+          parceiro_id?: string | null
           prazo_entrega?: number | null
           preencheu_formulario?: boolean | null
           status?: Database["public"]["Enums"]["status_projeto"]
+          status_pagamento_parceiro?:
+            | Database["public"]["Enums"]["status_pagamento_comissao"]
+            | null
           telefone: string
           updated_at?: string | null
           user_id: string
@@ -832,6 +917,7 @@ export type Database = {
           ambiente?: string
           cliente_id?: string | null
           cod_projeto?: string
+          comissao_parceiro?: number | null
           created_at?: string | null
           custo_mao_obra?: number
           custo_materiais?: number
@@ -842,9 +928,13 @@ export type Database = {
           nome_cliente?: string
           origem_lead?: Database["public"]["Enums"]["origem_lead"]
           outros_custos?: number
+          parceiro_id?: string | null
           prazo_entrega?: number | null
           preencheu_formulario?: boolean | null
           status?: Database["public"]["Enums"]["status_projeto"]
+          status_pagamento_parceiro?:
+            | Database["public"]["Enums"]["status_pagamento_comissao"]
+            | null
           telefone?: string
           updated_at?: string | null
           user_id?: string
@@ -1082,6 +1172,15 @@ export type Database = {
     }
     Enums: {
       avaliacao: "EXCELENTE" | "BOM" | "REGULAR" | "RUIM"
+      categoria_parceiro:
+        | "ARQUITETO"
+        | "DESIGNER_INTERIORES"
+        | "CONSTRUTORA"
+        | "CORRETOR_IMOVEIS"
+        | "LOJA_MATERIAIS"
+        | "DECORADOR"
+        | "ENGENHEIRO"
+        | "OUTRO"
       categoria_transacao:
         | "VENDA"
         | "SERVICO"
@@ -1115,6 +1214,7 @@ export type Database = {
         | "ENTREGUE"
         | "CANCELADO"
       status_montagem: "AGENDADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO"
+      status_pagamento_comissao: "PENDENTE" | "PAGO" | "CANCELADO"
       status_producao:
         | "PLANEJADO"
         | "EM_ANDAMENTO"
@@ -1133,6 +1233,7 @@ export type Database = {
         | "ACABAMENTO"
         | "FERRAMENTA"
         | "OUTROS"
+      tipo_remuneracao: "PERCENTUAL" | "VALOR_FIXO"
       tipo_transacao: "RECEITA" | "DESPESA"
       unidade_medida:
         | "UNIDADE"
@@ -1269,6 +1370,16 @@ export const Constants = {
   public: {
     Enums: {
       avaliacao: ["EXCELENTE", "BOM", "REGULAR", "RUIM"],
+      categoria_parceiro: [
+        "ARQUITETO",
+        "DESIGNER_INTERIORES",
+        "CONSTRUTORA",
+        "CORRETOR_IMOVEIS",
+        "LOJA_MATERIAIS",
+        "DECORADOR",
+        "ENGENHEIRO",
+        "OUTRO",
+      ],
       categoria_transacao: [
         "VENDA",
         "SERVICO",
@@ -1306,6 +1417,7 @@ export const Constants = {
         "CANCELADO",
       ],
       status_montagem: ["AGENDADO", "EM_ANDAMENTO", "CONCLUIDO", "CANCELADO"],
+      status_pagamento_comissao: ["PENDENTE", "PAGO", "CANCELADO"],
       status_producao: [
         "PLANEJADO",
         "EM_ANDAMENTO",
@@ -1327,6 +1439,7 @@ export const Constants = {
         "FERRAMENTA",
         "OUTROS",
       ],
+      tipo_remuneracao: ["PERCENTUAL", "VALOR_FIXO"],
       tipo_transacao: ["RECEITA", "DESPESA"],
       unidade_medida: [
         "UNIDADE",
