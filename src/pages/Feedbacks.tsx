@@ -126,11 +126,11 @@ export default function Feedbacks() {
     setFormData({
       project_id: feedback.project_id,
       data_feedback: feedback.data_feedback || new Date().toISOString().split("T")[0],
-      avaliacao_vendedor: feedback.avaliacao_vendedor || "EXCELENTE",
-      avaliacao_equipe_projetos: feedback.avaliacao_equipe_projetos || "EXCELENTE",
-      avaliacao_fabricacao: feedback.avaliacao_fabricacao || "EXCELENTE",
-      avaliacao_montagem: feedback.avaliacao_montagem || "EXCELENTE",
-      avaliacao_atendimento_geral: feedback.avaliacao_atendimento_geral || "EXCELENTE",
+      avaliacao_vendedor: (feedback.avaliacao_vendedor || "EXCELENTE") as string,
+      avaliacao_equipe_projetos: (feedback.avaliacao_equipe_projetos || "EXCELENTE") as string,
+      avaliacao_fabricacao: (feedback.avaliacao_fabricacao || "EXCELENTE") as string,
+      avaliacao_montagem: (feedback.avaliacao_montagem || "EXCELENTE") as string,
+      avaliacao_atendimento_geral: (feedback.avaliacao_atendimento_geral || "EXCELENTE") as string,
       recomendaria_servico: feedback.recomendaria_servico ?? true,
       sugestoes_melhoria: feedback.sugestoes_melhoria || "",
     });
@@ -228,7 +228,7 @@ export default function Feedbacks() {
                   <Label htmlFor="avaliacao_vendedor">Avaliação Vendedor</Label>
                   <Select
                     value={formData.avaliacao_vendedor}
-                    onValueChange={(value) => setFormData({ ...formData, avaliacao_vendedor: value })}
+                    onValueChange={(value) => setFormData({ ...formData, avaliacao_vendedor: value as string })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -247,7 +247,7 @@ export default function Feedbacks() {
                   <Label htmlFor="avaliacao_equipe_projetos">Avaliação Equipe Projetos</Label>
                   <Select
                     value={formData.avaliacao_equipe_projetos}
-                    onValueChange={(value) => setFormData({ ...formData, avaliacao_equipe_projetos: value })}
+                    onValueChange={(value) => setFormData({ ...formData, avaliacao_equipe_projetos: value as string })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -266,7 +266,7 @@ export default function Feedbacks() {
                   <Label htmlFor="avaliacao_fabricacao">Avaliação Fabricação</Label>
                   <Select
                     value={formData.avaliacao_fabricacao}
-                    onValueChange={(value) => setFormData({ ...formData, avaliacao_fabricacao: value })}
+                    onValueChange={(value) => setFormData({ ...formData, avaliacao_fabricacao: value as string })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -285,7 +285,7 @@ export default function Feedbacks() {
                   <Label htmlFor="avaliacao_montagem">Avaliação Montagem</Label>
                   <Select
                     value={formData.avaliacao_montagem}
-                    onValueChange={(value) => setFormData({ ...formData, avaliacao_montagem: value })}
+                    onValueChange={(value) => setFormData({ ...formData, avaliacao_montagem: value as string })}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -304,7 +304,7 @@ export default function Feedbacks() {
                   <Label htmlFor="avaliacao_atendimento_geral">Avaliação Atendimento Geral</Label>
                   <Select
                     value={formData.avaliacao_atendimento_geral}
-                    onValueChange={(value) => setFormData({ ...formData, avaliacao_atendimento_geral: value })}
+                    onValueChange={(value) => setFormData({ ...formData, avaliacao_atendimento_geral: value as string })}
                   >
                     <SelectTrigger>
                       <SelectValue />
