@@ -24,6 +24,7 @@ import {
   SidebarHeader,
 } from '@/components/ui/sidebar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Separator } from '@/components/ui/separator';
 
 const menuItems = [
   {
@@ -105,6 +106,23 @@ export function AppSidebar() {
             </SidebarGroup>
           </Collapsible>
         ))}
+        
+        <Separator className="my-2" />
+        
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/dados-teste">
+                    <Package className="h-4 w-4" />
+                    <span className="text-xs">Dados de Teste</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
