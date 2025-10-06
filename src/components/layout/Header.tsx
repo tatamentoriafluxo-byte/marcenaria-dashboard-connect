@@ -30,17 +30,23 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         </div>
 
         <nav className="flex items-center gap-2">
-          <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
             <Link to="/">Dashboard</Link>
           </Button>
-          <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
             <Link to="/projetos">Projetos</Link>
           </Button>
-          <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
             <Link to="/vendedores">Vendedores</Link>
           </Button>
-          <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
             <Link to="/clientes">Clientes</Link>
+          </Button>
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
+            <Link to="/materiais">Materiais</Link>
+          </Button>
+          <Button variant="ghost" asChild className="hidden lg:inline-flex">
+            <Link to="/fornecedores">Fornecedores</Link>
           </Button>
           <Button variant="ghost" onClick={signOut} size="icon">
             <LogOut className="h-5 w-5" />
