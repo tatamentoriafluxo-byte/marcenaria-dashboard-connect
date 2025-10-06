@@ -54,6 +54,11 @@ const App = () => (
           <Route path="/estoque" element={<ProtectedRoute><AppLayout><Estoque /></AppLayout></ProtectedRoute>} />
           <Route path="/compras" element={<ProtectedRoute><AppLayout><Compras /></AppLayout></ProtectedRoute>} />
           <Route path="/fornecedores" element={<ProtectedRoute><AppLayout><Fornecedores /></AppLayout></ProtectedRoute>} />
+          <Route path="/producao" element={<ProtectedRoute><AppLayout><Producao /></AppLayout></ProtectedRoute>} />
+          <Route path="/montagem" element={<ProtectedRoute><AppLayout><Montagem /></AppLayout></ProtectedRoute>} />
+          <Route path="/fluxo-caixa" element={<ProtectedRoute><AppLayout><FluxoCaixa /></AppLayout></ProtectedRoute>} />
+          <Route path="/metas" element={<ProtectedRoute><AppLayout><Metas /></AppLayout></ProtectedRoute>} />
+          <Route path="/feedbacks" element={<ProtectedRoute><AppLayout><Feedbacks /></AppLayout></ProtectedRoute>} />
           <Route path="/dados-teste" element={<ProtectedRoute><AppLayout><DadosTeste /></AppLayout></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

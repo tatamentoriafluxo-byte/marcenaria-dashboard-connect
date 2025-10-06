@@ -41,11 +41,11 @@ export default function Feedbacks() {
   const [formData, setFormData] = useState({
     project_id: "",
     data_feedback: new Date().toISOString().split("T")[0],
-    avaliacao_vendedor: "EXCELENTE" as const,
-    avaliacao_equipe_projetos: "EXCELENTE" as const,
-    avaliacao_fabricacao: "EXCELENTE" as const,
-    avaliacao_montagem: "EXCELENTE" as const,
-    avaliacao_atendimento_geral: "EXCELENTE" as const,
+    avaliacao_vendedor: "EXCELENTE",
+    avaliacao_equipe_projetos: "EXCELENTE",
+    avaliacao_fabricacao: "EXCELENTE",
+    avaliacao_montagem: "EXCELENTE",
+    avaliacao_atendimento_geral: "EXCELENTE",
     recomendaria_servico: true,
     sugestoes_melhoria: "",
   });
