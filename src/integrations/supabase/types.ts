@@ -70,6 +70,189 @@ export type Database = {
           },
         ]
       }
+      compras: {
+        Row: {
+          created_at: string | null
+          data_compra: string
+          data_entrega_prevista: string | null
+          data_entrega_real: string | null
+          fornecedor_id: string
+          id: string
+          observacoes: string | null
+          status: Database["public"]["Enums"]["status_compra"]
+          updated_at: string | null
+          user_id: string
+          valor_total: number
+        }
+        Insert: {
+          created_at?: string | null
+          data_compra?: string
+          data_entrega_prevista?: string | null
+          data_entrega_real?: string | null
+          fornecedor_id: string
+          id?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["status_compra"]
+          updated_at?: string | null
+          user_id: string
+          valor_total?: number
+        }
+        Update: {
+          created_at?: string | null
+          data_compra?: string
+          data_entrega_prevista?: string | null
+          data_entrega_real?: string | null
+          fornecedor_id?: string
+          id?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["status_compra"]
+          updated_at?: string | null
+          user_id?: string
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compras_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estoque: {
+        Row: {
+          created_at: string | null
+          id: string
+          material_id: string
+          quantidade_atual: number
+          quantidade_maxima: number | null
+          quantidade_minima: number
+          ultima_atualizacao: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          material_id: string
+          quantidade_atual?: number
+          quantidade_maxima?: number | null
+          quantidade_minima?: number
+          ultima_atualizacao?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          material_id?: string
+          quantidade_atual?: number
+          quantidade_maxima?: number | null
+          quantidade_minima?: number
+          ultima_atualizacao?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estoque_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materiais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estoque_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedbacks: {
+        Row: {
+          avaliacao_atendimento_geral:
+            | Database["public"]["Enums"]["avaliacao"]
+            | null
+          avaliacao_equipe_projetos:
+            | Database["public"]["Enums"]["avaliacao"]
+            | null
+          avaliacao_fabricacao: Database["public"]["Enums"]["avaliacao"] | null
+          avaliacao_montagem: Database["public"]["Enums"]["avaliacao"] | null
+          avaliacao_vendedor: Database["public"]["Enums"]["avaliacao"] | null
+          created_at: string | null
+          data_feedback: string | null
+          id: string
+          project_id: string
+          recomendaria_servico: boolean | null
+          sugestoes_melhoria: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avaliacao_atendimento_geral?:
+            | Database["public"]["Enums"]["avaliacao"]
+            | null
+          avaliacao_equipe_projetos?:
+            | Database["public"]["Enums"]["avaliacao"]
+            | null
+          avaliacao_fabricacao?: Database["public"]["Enums"]["avaliacao"] | null
+          avaliacao_montagem?: Database["public"]["Enums"]["avaliacao"] | null
+          avaliacao_vendedor?: Database["public"]["Enums"]["avaliacao"] | null
+          created_at?: string | null
+          data_feedback?: string | null
+          id?: string
+          project_id: string
+          recomendaria_servico?: boolean | null
+          sugestoes_melhoria?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avaliacao_atendimento_geral?:
+            | Database["public"]["Enums"]["avaliacao"]
+            | null
+          avaliacao_equipe_projetos?:
+            | Database["public"]["Enums"]["avaliacao"]
+            | null
+          avaliacao_fabricacao?: Database["public"]["Enums"]["avaliacao"] | null
+          avaliacao_montagem?: Database["public"]["Enums"]["avaliacao"] | null
+          avaliacao_vendedor?: Database["public"]["Enums"]["avaliacao"] | null
+          created_at?: string | null
+          data_feedback?: string | null
+          id?: string
+          project_id?: string
+          recomendaria_servico?: boolean | null
+          sugestoes_melhoria?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fornecedores: {
         Row: {
           ativo: boolean | null
@@ -173,6 +356,51 @@ export type Database = {
           },
         ]
       }
+      itens_compra: {
+        Row: {
+          compra_id: string
+          created_at: string | null
+          id: string
+          material_id: string
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+        }
+        Insert: {
+          compra_id: string
+          created_at?: string | null
+          id?: string
+          material_id: string
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+        }
+        Update: {
+          compra_id?: string
+          created_at?: string | null
+          id?: string
+          material_id?: string
+          preco_unitario?: number
+          quantidade?: number
+          subtotal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_compra_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_compra_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materiais"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materiais: {
         Row: {
           codigo: string | null
@@ -213,6 +441,200 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "materiais_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metas: {
+        Row: {
+          created_at: string | null
+          id: string
+          mes_referencia: string
+          meta_faturamento: number | null
+          meta_lucro: number | null
+          meta_projetos: number | null
+          updated_at: string | null
+          user_id: string
+          vendedor_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mes_referencia: string
+          meta_faturamento?: number | null
+          meta_lucro?: number | null
+          meta_projetos?: number | null
+          updated_at?: string | null
+          user_id: string
+          vendedor_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mes_referencia?: string
+          meta_faturamento?: number | null
+          meta_lucro?: number | null
+          meta_projetos?: number | null
+          updated_at?: string | null
+          user_id?: string
+          vendedor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metas_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      montagem: {
+        Row: {
+          created_at: string | null
+          data_montagem: string | null
+          desafios: string | null
+          id: string
+          montador_id: string | null
+          project_id: string
+          status: Database["public"]["Enums"]["status_montagem"]
+          tempo_estimado: number | null
+          tempo_real: number | null
+          updated_at: string | null
+          user_id: string
+          valor_montagem: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_montagem?: string | null
+          desafios?: string | null
+          id?: string
+          montador_id?: string | null
+          project_id: string
+          status?: Database["public"]["Enums"]["status_montagem"]
+          tempo_estimado?: number | null
+          tempo_real?: number | null
+          updated_at?: string | null
+          user_id: string
+          valor_montagem?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data_montagem?: string | null
+          desafios?: string | null
+          id?: string
+          montador_id?: string | null
+          project_id?: string
+          status?: Database["public"]["Enums"]["status_montagem"]
+          tempo_estimado?: number | null
+          tempo_real?: number | null
+          updated_at?: string | null
+          user_id?: string
+          valor_montagem?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "montagem_montador_id_fkey"
+            columns: ["montador_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "montagem_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "montagem_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      producao: {
+        Row: {
+          created_at: string | null
+          data_fim_prevista: string | null
+          data_fim_real: string | null
+          data_inicio: string | null
+          id: string
+          marceneiro_id: string | null
+          observacoes: string | null
+          project_id: string
+          status: Database["public"]["Enums"]["status_producao"]
+          taxa_rejeicao: number | null
+          tempo_estimado: number | null
+          tempo_real: number | null
+          updated_at: string | null
+          user_id: string
+          valor_producao: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_fim_prevista?: string | null
+          data_fim_real?: string | null
+          data_inicio?: string | null
+          id?: string
+          marceneiro_id?: string | null
+          observacoes?: string | null
+          project_id: string
+          status?: Database["public"]["Enums"]["status_producao"]
+          taxa_rejeicao?: number | null
+          tempo_estimado?: number | null
+          tempo_real?: number | null
+          updated_at?: string | null
+          user_id: string
+          valor_producao?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data_fim_prevista?: string | null
+          data_fim_real?: string | null
+          data_inicio?: string | null
+          id?: string
+          marceneiro_id?: string | null
+          observacoes?: string | null
+          project_id?: string
+          status?: Database["public"]["Enums"]["status_producao"]
+          taxa_rejeicao?: number | null
+          tempo_estimado?: number | null
+          tempo_real?: number | null
+          updated_at?: string | null
+          user_id?: string
+          valor_producao?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "producao_marceneiro_id_fkey"
+            columns: ["marceneiro_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "producao_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "producao_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -324,6 +746,83 @@ export type Database = {
           },
         ]
       }
+      transacoes_financeiras: {
+        Row: {
+          categoria: Database["public"]["Enums"]["categoria_transacao"]
+          compra_id: string | null
+          created_at: string | null
+          data_transacao: string
+          descricao: string | null
+          forma_pagamento: Database["public"]["Enums"]["forma_pagamento"] | null
+          id: string
+          numero_nf: string | null
+          project_id: string | null
+          status_pagamento: string | null
+          tipo: Database["public"]["Enums"]["tipo_transacao"]
+          updated_at: string | null
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["categoria_transacao"]
+          compra_id?: string | null
+          created_at?: string | null
+          data_transacao?: string
+          descricao?: string | null
+          forma_pagamento?:
+            | Database["public"]["Enums"]["forma_pagamento"]
+            | null
+          id?: string
+          numero_nf?: string | null
+          project_id?: string | null
+          status_pagamento?: string | null
+          tipo: Database["public"]["Enums"]["tipo_transacao"]
+          updated_at?: string | null
+          user_id: string
+          valor: number
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["categoria_transacao"]
+          compra_id?: string | null
+          created_at?: string | null
+          data_transacao?: string
+          descricao?: string | null
+          forma_pagamento?:
+            | Database["public"]["Enums"]["forma_pagamento"]
+            | null
+          id?: string
+          numero_nf?: string | null
+          project_id?: string | null
+          status_pagamento?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_transacao"]
+          updated_at?: string | null
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacoes_financeiras_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacoes_financeiras_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacoes_financeiras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendedores: {
         Row: {
           ativo: boolean | null
@@ -379,6 +878,25 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      avaliacao: "EXCELENTE" | "BOM" | "REGULAR" | "RUIM"
+      categoria_transacao:
+        | "VENDA"
+        | "SERVICO"
+        | "COMPRA_MATERIAL"
+        | "SALARIO"
+        | "ALUGUEL"
+        | "ENERGIA"
+        | "MARKETING"
+        | "MANUTENCAO"
+        | "OUTROS"
+      forma_pagamento:
+        | "DINHEIRO"
+        | "CARTAO_CREDITO"
+        | "CARTAO_DEBITO"
+        | "PIX"
+        | "BOLETO"
+        | "TRANSFERENCIA"
+        | "CREDITO_PARCELADO"
       origem_lead:
         | "LOJA"
         | "INSTAGRAM"
@@ -387,6 +905,19 @@ export type Database = {
         | "INDICACAO"
         | "GOOGLE"
         | "OUTROS"
+      status_compra:
+        | "PENDENTE"
+        | "CONFIRMADO"
+        | "EM_TRANSITO"
+        | "ENTREGUE"
+        | "CANCELADO"
+      status_montagem: "AGENDADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO"
+      status_producao:
+        | "PLANEJADO"
+        | "EM_ANDAMENTO"
+        | "PAUSADO"
+        | "CONCLUIDO"
+        | "REJEITADO"
       status_projeto:
         | "ORCAMENTO"
         | "CONVERTIDO"
@@ -399,6 +930,7 @@ export type Database = {
         | "ACABAMENTO"
         | "FERRAMENTA"
         | "OUTROS"
+      tipo_transacao: "RECEITA" | "DESPESA"
       unidade_medida:
         | "UNIDADE"
         | "METRO"
@@ -533,6 +1065,27 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      avaliacao: ["EXCELENTE", "BOM", "REGULAR", "RUIM"],
+      categoria_transacao: [
+        "VENDA",
+        "SERVICO",
+        "COMPRA_MATERIAL",
+        "SALARIO",
+        "ALUGUEL",
+        "ENERGIA",
+        "MARKETING",
+        "MANUTENCAO",
+        "OUTROS",
+      ],
+      forma_pagamento: [
+        "DINHEIRO",
+        "CARTAO_CREDITO",
+        "CARTAO_DEBITO",
+        "PIX",
+        "BOLETO",
+        "TRANSFERENCIA",
+        "CREDITO_PARCELADO",
+      ],
       origem_lead: [
         "LOJA",
         "INSTAGRAM",
@@ -541,6 +1094,21 @@ export const Constants = {
         "INDICACAO",
         "GOOGLE",
         "OUTROS",
+      ],
+      status_compra: [
+        "PENDENTE",
+        "CONFIRMADO",
+        "EM_TRANSITO",
+        "ENTREGUE",
+        "CANCELADO",
+      ],
+      status_montagem: ["AGENDADO", "EM_ANDAMENTO", "CONCLUIDO", "CANCELADO"],
+      status_producao: [
+        "PLANEJADO",
+        "EM_ANDAMENTO",
+        "PAUSADO",
+        "CONCLUIDO",
+        "REJEITADO",
       ],
       status_projeto: [
         "ORCAMENTO",
@@ -556,6 +1124,7 @@ export const Constants = {
         "FERRAMENTA",
         "OUTROS",
       ],
+      tipo_transacao: ["RECEITA", "DESPESA"],
       unidade_medida: [
         "UNIDADE",
         "METRO",
