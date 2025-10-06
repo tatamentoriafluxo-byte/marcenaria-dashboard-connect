@@ -7,6 +7,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Projetos from "./pages/Projetos";
 import NovoProjeto from "./pages/NovoProjeto";
@@ -45,7 +46,8 @@ const App = () => (
       <AuthProvider>
         <Routes>
           <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><AppLayout><Home /></AppLayout></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
           <Route path="/projetos" element={<ProtectedRoute><AppLayout><Projetos /></AppLayout></ProtectedRoute>} />
           <Route path="/novo-projeto" element={<ProtectedRoute><AppLayout><NovoProjeto /></AppLayout></ProtectedRoute>} />
           <Route path="/vendedores" element={<ProtectedRoute><AppLayout><Vendedores /></AppLayout></ProtectedRoute>} />

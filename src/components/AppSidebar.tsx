@@ -1,22 +1,10 @@
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  Users, 
-  UserCircle, 
-  Users as TeamIcon,
-  Package, 
-  Warehouse, 
-  ShoppingCart, 
-  Building2,
-  Factory,
-  Wrench,
-  DollarSign,
-  Target,
-  MessageSquare,
-  Gauge,
-  ChevronRight
-} from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
+import {
+  Home, BarChart3, Box, Truck, Users, UserCheck,
+  User, FolderKanban, ShoppingCart, Package,
+  Factory, Wrench, Wallet, MessageSquare,
+  Target, TrendingUp
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -26,57 +14,61 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
   SidebarHeader,
-} from '@/components/ui/sidebar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Separator } from '@/components/ui/separator';
-
-const menuItems = [
-  {
-    title: 'Visão Geral',
-    items: [
-      { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-      { title: 'Projetos', url: '/projetos', icon: FolderKanban },
-    ]
-  },
-  {
-    title: 'Cadastros',
-    items: [
-      { title: 'Vendedores', url: '/vendedores', icon: Users },
-      { title: 'Clientes', url: '/clientes', icon: UserCircle },
-      { title: 'Funcionários', url: '/funcionarios', icon: TeamIcon },
-    ]
-  },
-  {
-    title: 'Estoque & Compras',
-    items: [
-      { title: 'Materiais', url: '/materiais', icon: Package },
-      { title: 'Estoque', url: '/estoque', icon: Warehouse },
-      { title: 'Compras', url: '/compras', icon: ShoppingCart },
-      { title: 'Fornecedores', url: '/fornecedores', icon: Building2 },
-    ]
-  },
-  {
-    title: 'Produção',
-    items: [
-      { title: 'Produção', url: '/producao', icon: Factory },
-      { title: 'Montagem', url: '/montagem', icon: Wrench },
-      { title: 'Capacidade', url: '/capacidade-producao', icon: Gauge },
-    ]
-  },
-  {
-    title: 'Financeiro & Metas',
-    items: [
-      { title: 'Fluxo de Caixa', url: '/fluxo-caixa', icon: DollarSign },
-      { title: 'Metas', url: '/metas', icon: Target },
-      { title: 'Feedbacks', url: '/feedbacks', icon: MessageSquare },
-    ]
-  }
-];
+} from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function AppSidebar() {
   const { open } = useSidebar();
+
+  const menuSections = [
+    {
+      label: "Principal",
+      items: [
+        { title: "Início", url: "/", icon: Home },
+        { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+      ]
+    },
+    {
+      label: "1. Configuração Inicial",
+      items: [
+        { title: "Materiais", url: "/materiais", icon: Box },
+        { title: "Fornecedores", url: "/fornecedores", icon: Truck },
+        { title: "Funcionários", url: "/funcionarios", icon: Users },
+        { title: "Vendedores", url: "/vendedores", icon: UserCheck },
+      ]
+    },
+    {
+      label: "2. Operação Comercial",
+      items: [
+        { title: "Clientes", url: "/clientes", icon: User },
+        { title: "Projetos", url: "/projetos", icon: FolderKanban },
+      ]
+    },
+    {
+      label: "3. Gestão de Recursos",
+      items: [
+        { title: "Compras", url: "/compras", icon: ShoppingCart },
+        { title: "Estoque", url: "/estoque", icon: Package },
+      ]
+    },
+    {
+      label: "4. Execução",
+      items: [
+        { title: "Produção", url: "/producao", icon: Factory },
+        { title: "Montagem", url: "/montagem", icon: Wrench },
+      ]
+    },
+    {
+      label: "5. Controle e Crescimento",
+      items: [
+        { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Wallet },
+        { title: "Feedbacks", url: "/feedbacks", icon: MessageSquare },
+        { title: "Metas", url: "/metas", icon: Target },
+        { title: "Capacidade de Produção", url: "/capacidade-producao", icon: TrendingUp },
+      ]
+    },
+  ];
 
   return (
     <Sidebar collapsible="icon">
@@ -87,64 +79,42 @@ export function AppSidebar() {
           </div>
           {open && (
             <span className="font-bold text-foreground">
-              Painel Marcenaria
+              Sistema Marcenaria
             </span>
           )}
         </div>
       </SidebarHeader>
 
       <SidebarContent>
-        {menuItems.map((section) => (
-          <Collapsible key={section.title} defaultOpen className="group/collapsible">
-            <SidebarGroup>
-              <CollapsibleTrigger asChild>
-                <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent">
-                  {section.title}
-                  <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarGroupLabel>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {section.items.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <NavLink 
-                            to={item.url}
-                            end={item.url === '/'}
-                            className={({ isActive }) =>
-                              isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
-                            }
-                          >
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
+        {menuSections.map((section, sectionIdx) => (
+          <SidebarGroup key={sectionIdx}>
+            <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider">
+              {section.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {section.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.url === '/'}
+                        className={({ isActive }) =>
+                          isActive
+                            ? "bg-accent text-accent-foreground"
+                            : "hover:bg-accent/50"
+                        }
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         ))}
-        
-        <Separator className="my-2" />
-        
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <NavLink to="/dados-teste">
-                    <Package className="h-4 w-4" />
-                    <span className="text-xs">Dados de Teste</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

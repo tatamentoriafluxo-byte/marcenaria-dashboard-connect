@@ -15,7 +15,7 @@ import DashboardMontagem from "@/components/dashboard/DashboardMontagem";
 import DashboardFluxoCaixa from "@/components/dashboard/DashboardFluxoCaixa";
 import DashboardMetas from "@/components/dashboard/DashboardMetas";
 import DashboardFeedbacks from "@/components/dashboard/DashboardFeedbacks";
-import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare } from "lucide-react";
+import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Home } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -28,66 +28,66 @@ export default function Dashboard() {
       </div>
 
       <Tabs defaultValue="vendas" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-8 xl:grid-cols-10 mb-6 h-auto flex-wrap">
-          <TabsTrigger value="vendas" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-8 xl:grid-cols-10 gap-1 mb-6 h-auto p-1">
+          <TabsTrigger value="vendas" className="flex items-center gap-2 text-xs">
             <BarChart3 className="h-4 w-4" />
-            Vendas
+            <span className="hidden sm:inline">Vendas</span>
           </TabsTrigger>
-          <TabsTrigger value="lucro" className="flex items-center gap-2">
+          <TabsTrigger value="lucro" className="flex items-center gap-2 text-xs">
             <TrendingUp className="h-4 w-4" />
-            Lucro
+            <span className="hidden sm:inline">Lucro</span>
           </TabsTrigger>
-          <TabsTrigger value="projetos" className="flex items-center gap-2">
+          <TabsTrigger value="projetos" className="flex items-center gap-2 text-xs">
             <FolderKanban className="h-4 w-4" />
-            Projetos
+            <span className="hidden sm:inline">Projetos</span>
           </TabsTrigger>
-          <TabsTrigger value="producao" className="flex items-center gap-2">
-            <Factory className="h-4 w-4" />
-            Produção
-          </TabsTrigger>
-          <TabsTrigger value="estoque" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            Estoque
-          </TabsTrigger>
-          <TabsTrigger value="clientes" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Clientes
-          </TabsTrigger>
-          <TabsTrigger value="fornecedores" className="flex items-center gap-2">
-            <Truck className="h-4 w-4" />
-            Fornecedores
-          </TabsTrigger>
-          <TabsTrigger value="funcionarios" className="flex items-center gap-2">
-            <UserCog className="h-4 w-4" />
-            Funcionários
-          </TabsTrigger>
-          <TabsTrigger value="materiais" className="flex items-center gap-2">
-            <Box className="h-4 w-4" />
-            Materiais
-          </TabsTrigger>
-          <TabsTrigger value="vendedores" className="flex items-center gap-2">
-            <UserCheck className="h-4 w-4" />
-            Vendedores
-          </TabsTrigger>
-          <TabsTrigger value="compras" className="flex items-center gap-2">
+          <TabsTrigger value="compras" className="flex items-center gap-2 text-xs">
             <ShoppingCart className="h-4 w-4" />
-            Compras
+            <span className="hidden sm:inline">Compras</span>
           </TabsTrigger>
-          <TabsTrigger value="montagem" className="flex items-center gap-2">
+          <TabsTrigger value="estoque" className="flex items-center gap-2 text-xs">
+            <Package className="h-4 w-4" />
+            <span className="hidden sm:inline">Estoque</span>
+          </TabsTrigger>
+          <TabsTrigger value="producao" className="flex items-center gap-2 text-xs">
+            <Factory className="h-4 w-4" />
+            <span className="hidden sm:inline">Produção</span>
+          </TabsTrigger>
+          <TabsTrigger value="montagem" className="flex items-center gap-2 text-xs">
             <Wrench className="h-4 w-4" />
-            Montagem
+            <span className="hidden sm:inline">Montagem</span>
           </TabsTrigger>
-          <TabsTrigger value="fluxocaixa" className="flex items-center gap-2">
+          <TabsTrigger value="fluxocaixa" className="flex items-center gap-2 text-xs">
             <Wallet className="h-4 w-4" />
-            Fluxo de Caixa
+            <span className="hidden sm:inline">Fluxo Caixa</span>
           </TabsTrigger>
-          <TabsTrigger value="metas" className="flex items-center gap-2">
+          <TabsTrigger value="clientes" className="flex items-center gap-2 text-xs">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Clientes</span>
+          </TabsTrigger>
+          <TabsTrigger value="fornecedores" className="flex items-center gap-2 text-xs">
+            <Truck className="h-4 w-4" />
+            <span className="hidden sm:inline">Fornecedores</span>
+          </TabsTrigger>
+          <TabsTrigger value="funcionarios" className="flex items-center gap-2 text-xs">
+            <UserCog className="h-4 w-4" />
+            <span className="hidden sm:inline">Funcionários</span>
+          </TabsTrigger>
+          <TabsTrigger value="materiais" className="flex items-center gap-2 text-xs">
+            <Box className="h-4 w-4" />
+            <span className="hidden sm:inline">Materiais</span>
+          </TabsTrigger>
+          <TabsTrigger value="vendedores" className="flex items-center gap-2 text-xs">
+            <UserCheck className="h-4 w-4" />
+            <span className="hidden sm:inline">Vendedores</span>
+          </TabsTrigger>
+          <TabsTrigger value="metas" className="flex items-center gap-2 text-xs">
             <Target className="h-4 w-4" />
-            Metas
+            <span className="hidden sm:inline">Metas</span>
           </TabsTrigger>
-          <TabsTrigger value="feedbacks" className="flex items-center gap-2">
+          <TabsTrigger value="feedbacks" className="flex items-center gap-2 text-xs">
             <MessageSquare className="h-4 w-4" />
-            Feedbacks
+            <span className="hidden sm:inline">Feedbacks</span>
           </TabsTrigger>
         </TabsList>
 
@@ -101,6 +101,54 @@ export default function Dashboard() {
 
         <TabsContent value="projetos">
           <DashboardProjetos userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="compras">
+          <DashboardCompras userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="estoque">
+          <DashboardEstoque userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="producao">
+          <DashboardProducao userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="montagem">
+          <DashboardMontagem userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="fluxocaixa">
+          <DashboardFluxoCaixa userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="clientes">
+          <DashboardClientes userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="fornecedores">
+          <DashboardFornecedores userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="funcionarios">
+          <DashboardFuncionarios userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="materiais">
+          <DashboardMateriais userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="vendedores">
+          <DashboardVendedores userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="metas">
+          <DashboardMetas userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="feedbacks">
+          <DashboardFeedbacks userId={user!.id} />
         </TabsContent>
 
         <TabsContent value="producao">
