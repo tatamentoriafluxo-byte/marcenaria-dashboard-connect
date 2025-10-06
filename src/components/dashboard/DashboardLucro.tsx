@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from "recharts";
 import { DollarSign, TrendingDown, Percent, AlertCircle } from "lucide-react";
 
 type DashboardLucroProps = {
@@ -11,6 +12,7 @@ type DashboardLucroProps = {
 export default function DashboardLucro({ userId }: DashboardLucroProps) {
   const [lucroMes, setLucroMes] = useState<any[]>([]);
   const [lucroVendedor, setLucroVendedor] = useState<any[]>([]);
+  const [lucroPorAmbiente, setLucroPorAmbiente] = useState<any[]>([]);
   const [stats, setStats] = useState({
     lucroTotal: 0,
     margemMedia: 0,
@@ -36,6 +38,7 @@ export default function DashboardLucro({ userId }: DashboardLucroProps) {
       let receitaTotal = 0;
       const lucrosPorMes: any = {};
       const lucrosPorVendedor: any = {};
+      const lucrosPorAmbiente: any = {};
 
       projetos.forEach((projeto: any) => {
         const lucro = (projeto.valor_venda || 0) - (projeto.custo_materiais || 0) - (projeto.custo_mao_obra || 0) - (projeto.outros_custos || 0);
@@ -60,13 +63,31 @@ export default function DashboardLucro({ userId }: DashboardLucroProps) {
         // Lucro por vendedor
         const vendedor = projeto.vendedor_responsavel || "Sem vendedor";
         if (!lucrosPorVendedor[vendedor]) {
-          lucrosPorVendedor[vendedor] = { vendedor, lucro: 0 };
+          lucrosPorVendedor[vendedor] = { vendedor, lucro: 0, valorVenda: 0 };
         }
         lucrosPorVendedor[vendedor].lucro += lucro;
+        lucrosPorVendedor[vendedor].valorVenda += receita;
+
+        // Lucro por ambiente
+        const ambiente = projeto.ambiente || "Não informado";
+        if (!lucrosPorAmbiente[ambiente]) {
+          lucrosPorAmbiente[ambiente] = { ambiente, lucro: 0, percentual: 0 };
+        }
+        lucrosPorAmbiente[ambiente].lucro += lucro;
       });
 
       setLucroMes(Object.values(lucrosPorMes));
-      setLucroVendedor(Object.values(lucrosPorVendedor));
+      
+      // Calcular percentuais por ambiente
+      const ambientesComPercentual = Object.values(lucrosPorAmbiente).map((amb: any) => ({
+        ...amb,
+        percentual: lucroTotal > 0 ? (amb.lucro / lucroTotal) * 100 : 0
+      }));
+      setLucroPorAmbiente(ambientesComPercentual);
+
+      setLucroVendedor(
+        Object.values(lucrosPorVendedor).sort((a: any, b: any) => b.lucro - a.lucro)
+      );
 
       const margemMedia = receitaTotal > 0 ? (lucroTotal / receitaTotal) * 100 : 0;
 
@@ -150,21 +171,49 @@ export default function DashboardLucro({ userId }: DashboardLucroProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle>Lucro por Vendedor</CardTitle>
+            <CardTitle>Lucro e %Representatividade por Ambiente</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={lucroVendedor}>
+            <ResponsiveContainer width="100%" height={350}>
+              <ComposedChart data={lucroPorAmbiente}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="vendedor" />
-                <YAxis />
-                <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
+                <XAxis dataKey="ambiente" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip />
                 <Legend />
-                <Bar dataKey="lucro" fill="#8884d8" name="Lucro" />
-              </BarChart>
+                <Bar yAxisId="left" dataKey="lucro" fill="#8884d8" name="Lucro" />
+                <Line yAxisId="right" type="monotone" dataKey="percentual" stroke="#82ca9d" name="% Representatividade" strokeWidth={2} />
+              </ComposedChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Ranking Lucro por Vendedor</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vendedor</TableHead>
+                  <TableHead>Lucro</TableHead>
+                  <TableHead>Valor da Venda</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lucroVendedor.map((vendedor, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{vendedor.vendedor}</TableCell>
+                    <TableCell>R$ {vendedor.lucro.toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>R$ {vendedor.valorVenda.toLocaleString('pt-BR')}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 

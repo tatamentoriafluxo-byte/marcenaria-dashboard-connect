@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Wallet, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 
 type DashboardFluxoCaixaProps = {
   userId: string;
 };
 
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe'];
+
 export default function DashboardFluxoCaixa({ userId }: DashboardFluxoCaixaProps) {
   const [fluxoPorMes, setFluxoPorMes] = useState<any[]>([]);
   const [transacoesPorCategoria, setTransacoesPorCategoria] = useState<any[]>([]);
+  const [transacoesPorSubcategoria, setTransacoesPorSubcategoria] = useState<any[]>([]);
+  const [formaPagamento, setFormaPagamento] = useState<any[]>([]);
+  const [detalheNF, setDetalheNF] = useState<any[]>([]);
   const [stats, setStats] = useState({
     saldoAtual: 0,
     totalEntradas: 0,
@@ -58,6 +64,41 @@ export default function DashboardFluxoCaixa({ userId }: DashboardFluxoCaixaProps
       }, {});
 
       setTransacoesPorCategoria(Object.values(porCategoria));
+
+      // Transações por subcategoria
+      const porSubcategoria = transacoes.reduce((acc: any, trans: any) => {
+        const subcategoria = trans.subcategoria || "Não informado";
+        if (!acc[subcategoria]) {
+          acc[subcategoria] = { subcategoria, valor: 0 };
+        }
+        acc[subcategoria].valor += trans.valor || 0;
+        return acc;
+      }, {});
+      setTransacoesPorSubcategoria(Object.values(porSubcategoria));
+
+      // Forma de pagamento (apenas entradas)
+      const porFormaPagamento = transacoes
+        .filter(t => t.tipo === 'RECEITA')
+        .reduce((acc: any, trans: any) => {
+          const forma = trans.forma_pagamento || "Não informado";
+          if (!acc[forma]) {
+            acc[forma] = { forma, valor: 0 };
+          }
+          acc[forma].valor += trans.valor || 0;
+          return acc;
+        }, {});
+      setFormaPagamento(Object.values(porFormaPagamento));
+
+      // Detalhe por NF
+      const nfData = transacoes
+        .filter(t => t.numero_nf)
+        .map(t => ({
+          nf: t.numero_nf,
+          status: t.status_pagamento || 'N/A',
+          valor: t.valor || 0,
+          tipo: t.tipo
+        }));
+      setDetalheNF(nfData);
 
       // Estatísticas
       const totalEntradas = transacoes
@@ -144,7 +185,7 @@ export default function DashboardFluxoCaixa({ userId }: DashboardFluxoCaixaProps
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Fluxo de Caixa Mensal</CardTitle>
+            <CardTitle>Receita x Saídas</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -154,7 +195,7 @@ export default function DashboardFluxoCaixa({ userId }: DashboardFluxoCaixaProps
                 <YAxis />
                 <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
                 <Legend />
-                <Line type="monotone" dataKey="entradas" stroke="#82ca9d" name="Entradas" strokeWidth={2} />
+                <Line type="monotone" dataKey="entradas" stroke="#82ca9d" name="Receita" strokeWidth={2} />
                 <Line type="monotone" dataKey="saidas" stroke="#ff8042" name="Saídas" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
@@ -176,6 +217,85 @@ export default function DashboardFluxoCaixa({ userId }: DashboardFluxoCaixaProps
                 <Bar dataKey="valor" fill="#8884d8" name="Valor" />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Transações por Subcategoria</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Subcategoria</TableHead>
+                  <TableHead>Valor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transacoesPorSubcategoria.slice(0, 5).map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.subcategoria}</TableCell>
+                    <TableCell>R$ {item.valor.toLocaleString('pt-BR')}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Forma de Pagamento (Entradas)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={formaPagamento}
+                  dataKey="valor"
+                  nameKey="forma"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {formaPagamento.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Detalhe por NF</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>NF</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Valor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {detalheNF.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.nf}</TableCell>
+                    <TableCell>{item.status}</TableCell>
+                    <TableCell>{item.tipo}</TableCell>
+                    <TableCell>R$ {item.valor.toLocaleString('pt-BR')}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

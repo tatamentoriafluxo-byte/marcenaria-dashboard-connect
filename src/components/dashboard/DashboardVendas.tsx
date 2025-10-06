@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from "recharts";
 import { DollarSign, TrendingUp, ShoppingCart, Target } from "lucide-react";
 
 type DashboardVendasProps = {
@@ -14,6 +15,9 @@ export default function DashboardVendas({ userId }: DashboardVendasProps) {
   const [vendasMes, setVendasMes] = useState<any[]>([]);
   const [vendasVendedor, setVendasVendedor] = useState<any[]>([]);
   const [origemLeads, setOrigemLeads] = useState<any[]>([]);
+  const [vendasPorAmbiente, setVendasPorAmbiente] = useState<any[]>([]);
+  const [rankingVendedores, setRankingVendedores] = useState<any[]>([]);
+  const [rankingClientes, setRankingClientes] = useState<any[]>([]);
   const [stats, setStats] = useState({
     faturamentoTotal: 0,
     ticketMedio: 0,
@@ -79,6 +83,70 @@ export default function DashboardVendas({ userId }: DashboardVendasProps) {
       }, {});
 
       setOrigemLeads(Object.entries(origemCount).map(([name, value]) => ({ name, value })));
+    }
+
+    // Vendas por ambiente (valor e quantidade)
+    const { data: ambienteData } = await supabase
+      .from("projects")
+      .select("ambiente, valor_venda")
+      .eq("user_id", userId)
+      .not("valor_venda", "is", null);
+
+    if (ambienteData) {
+      const porAmbiente = ambienteData.reduce((acc: any, projeto: any) => {
+        const ambiente = projeto.ambiente || "Não informado";
+        if (!acc[ambiente]) {
+          acc[ambiente] = { ambiente, valorVenda: 0, quantidade: 0 };
+        }
+        acc[ambiente].valorVenda += projeto.valor_venda;
+        acc[ambiente].quantidade++;
+        return acc;
+      }, {});
+      setVendasPorAmbiente(Object.values(porAmbiente));
+    }
+
+    // Ranking por vendedor
+    const { data: rankingVendedorData } = await supabase
+      .from("projects")
+      .select("vendedor_responsavel, valor_venda")
+      .eq("user_id", userId)
+      .not("valor_venda", "is", null);
+
+    if (rankingVendedorData) {
+      const porVendedor = rankingVendedorData.reduce((acc: any, projeto: any) => {
+        const vendedor = projeto.vendedor_responsavel || "Sem vendedor";
+        if (!acc[vendedor]) {
+          acc[vendedor] = { vendedor, valorVenda: 0, quantidade: 0 };
+        }
+        acc[vendedor].valorVenda += projeto.valor_venda;
+        acc[vendedor].quantidade++;
+        return acc;
+      }, {});
+      setRankingVendedores(
+        Object.values(porVendedor).sort((a: any, b: any) => b.valorVenda - a.valorVenda)
+      );
+    }
+
+    // Ranking por cliente
+    const { data: rankingClienteData } = await supabase
+      .from("projects")
+      .select("nome_cliente, valor_venda")
+      .eq("user_id", userId)
+      .not("valor_venda", "is", null);
+
+    if (rankingClienteData) {
+      const porCliente = rankingClienteData.reduce((acc: any, projeto: any) => {
+        const cliente = projeto.nome_cliente || "Não informado";
+        if (!acc[cliente]) {
+          acc[cliente] = { cliente, valorVenda: 0, quantidade: 0 };
+        }
+        acc[cliente].valorVenda += projeto.valor_venda;
+        acc[cliente].quantidade++;
+        return acc;
+      }, {});
+      setRankingClientes(
+        Object.values(porCliente).sort((a: any, b: any) => b.valorVenda - a.valorVenda).slice(0, 10)
+      );
     }
 
     // Calcular estatísticas
@@ -174,24 +242,6 @@ export default function DashboardVendas({ userId }: DashboardVendasProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Vendas por Vendedor</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={vendasVendedor}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="vendedor" />
-                <YAxis />
-                <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
-                <Legend />
-                <Bar dataKey="valor" fill="#82ca9d" name="Faturamento" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
             <CardTitle>Origem dos Leads</CardTitle>
           </CardHeader>
           <CardContent>
@@ -217,7 +267,79 @@ export default function DashboardVendas({ userId }: DashboardVendasProps) {
           </CardContent>
         </Card>
 
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Valor e Quantidade de Venda por Ambiente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={350}>
+              <ComposedChart data={vendasPorAmbiente}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="ambiente" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip />
+                <Legend />
+                <Bar yAxisId="left" dataKey="valorVenda" fill="#8884d8" name="Valor da Venda" />
+                <Line yAxisId="right" type="monotone" dataKey="quantidade" stroke="#82ca9d" name="Quantidade Venda" strokeWidth={2} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
         <Card>
+          <CardHeader>
+            <CardTitle>Ranking por Vendedor</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vendedor</TableHead>
+                  <TableHead>Valor da Venda</TableHead>
+                  <TableHead>Quantidade</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rankingVendedores.map((vendedor, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{vendedor.vendedor}</TableCell>
+                    <TableCell>R$ {vendedor.valorVenda.toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{vendedor.quantidade}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Ranking por Cliente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Valor da Venda</TableHead>
+                  <TableHead>Quantidade</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rankingClientes.map((cliente, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{cliente.cliente}</TableCell>
+                    <TableCell>R$ {cliente.valorVenda.toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{cliente.quantidade}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Desempenho vs Meta</CardTitle>
           </CardHeader>

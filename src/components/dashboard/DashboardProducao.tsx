@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Factory, Clock, AlertTriangle, TrendingUp } from "lucide-react";
 
@@ -10,6 +11,9 @@ type DashboardProducaoProps = {
 
 export default function DashboardProducao({ userId }: DashboardProducaoProps) {
   const [producoesMes, setProducoesMes] = useState<any[]>([]);
+  const [producaoPorMarceneiro, setProducaoPorMarceneiro] = useState<any[]>([]);
+  const [capacidadeProducao, setCapacidadeProducao] = useState<any[]>([]);
+  const [variacaoTempo, setVariacaoTempo] = useState<any[]>([]);
   const [stats, setStats] = useState({
     totalProducoes: 0,
     emAndamento: 0,
@@ -43,6 +47,61 @@ export default function DashboardProducao({ userId }: DashboardProducaoProps) {
       }, {});
 
       setProducoesMes(Object.values(producoesPorMes));
+
+      // Produção por marceneiro
+      const { data: funcionarios } = await supabase
+        .from("funcionarios")
+        .select("id, nome")
+        .eq("user_id", userId)
+        .eq("tipo", "Marceneiro");
+
+      if (funcionarios) {
+        const porMarceneiro = producoes.reduce((acc: any, prod: any) => {
+          if (prod.marceneiro_id) {
+            const marceneiro = funcionarios.find(f => f.id === prod.marceneiro_id);
+            const nome = marceneiro?.nome || "Sem nome";
+            if (!acc[nome]) {
+              acc[nome] = { nome, valorProd: 0, dataRealInicio: null };
+            }
+            acc[nome].valorProd += prod.valor_producao || 0;
+            if (prod.data_inicio && !acc[nome].dataRealInicio) {
+              acc[nome].dataRealInicio = new Date(prod.data_inicio).toLocaleDateString('pt-BR');
+            }
+          }
+          return acc;
+        }, {});
+        setProducaoPorMarceneiro(Object.values(porMarceneiro).sort((a: any, b: any) => b.valorProd - a.valorProd));
+      }
+
+      // Capacidade de produção
+      const { data: capacidade } = await supabase
+        .from("capacidade_producao")
+        .select("*")
+        .eq("user_id", userId)
+        .order("mes_referencia", { ascending: true });
+
+      if (capacidade) {
+        setCapacidadeProducao(
+          capacidade.map(c => ({
+            mes: new Date(c.mes_referencia).toLocaleDateString('pt-BR', { month: 'short' }),
+            capacidade: c.capacidade_mensal_projetos || 0,
+            realizado: c.projetos_realizados || 0
+          }))
+        );
+      }
+
+      // Variação tempo estimado x real
+      const variacoes = producoes
+        .filter(p => p.tempo_estimado && p.tempo_real)
+        .map(p => ({
+          ambiente: p.ambiente || "N/A",
+          tempoEstimado: p.tempo_estimado || 0,
+          tempoReal: p.tempo_real || 0,
+          valorProducao: p.valor_producao || 0,
+          codProjeto: p.project_id,
+          taxaRejeicao: p.taxa_rejeicao || 0
+        }));
+      setVariacaoTempo(variacoes);
 
       // Estatísticas
       const emAndamento = producoes.filter(p => p.status === 'EM_ANDAMENTO').length;
@@ -131,6 +190,81 @@ export default function DashboardProducao({ userId }: DashboardProducaoProps) {
                 <Bar dataKey="emAndamento" fill="#ffc658" name="Em Andamento" />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Produção por Marceneiro</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome do Marceneiro</TableHead>
+                  <TableHead>Valor Prod</TableHead>
+                  <TableHead>Data Real Início</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {producaoPorMarceneiro.map((marc, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{marc.nome}</TableCell>
+                    <TableCell>R$ {marc.valorProd.toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{marc.dataRealInicio || 'N/A'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Capacidade de Produção</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={capacidadeProducao}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mes" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="capacidade" fill="#82ca9d" name="Capacidade" />
+                <Bar dataKey="realizado" fill="#8884d8" name="Realizado" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Variação Tempo Estimado x Real</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Ambiente</TableHead>
+                  <TableHead>Tempo Estimado</TableHead>
+                  <TableHead>Tempo Real</TableHead>
+                  <TableHead>Valor Produção</TableHead>
+                  <TableHead>Taxa Rejeição</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {variacaoTempo.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.ambiente}</TableCell>
+                    <TableCell>{item.tempoEstimado}h</TableCell>
+                    <TableCell>{item.tempoReal}h</TableCell>
+                    <TableCell>R$ {item.valorProducao.toLocaleString('pt-BR')}</TableCell>
+                    <TableCell>{item.taxaRejeicao}%</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
