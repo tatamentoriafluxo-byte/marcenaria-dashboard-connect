@@ -63,7 +63,12 @@ export default function DashboardFornecedores({ userId }: DashboardFornecedoresP
         setEvolucaoCompras(Object.values(porMes));
 
         // Ranking fornecedores
-        const ranking = compras.reduce((acc: any, compra: any) => {
+        const ranking: Record<string, {
+          nome: string;
+          totalCompra: number;
+          quantidadeAdquirida: number;
+          percentualTotal: number;
+        }> = compras.reduce((acc: any, compra: any) => {
           const nome = compra.fornecedores?.nome || "Sem nome";
           if (!acc[nome]) {
             acc[nome] = { 
@@ -84,11 +89,11 @@ export default function DashboardFornecedores({ userId }: DashboardFornecedoresP
           return acc;
         }, {});
 
-        const totalGeral = Object.values(ranking).reduce((sum: number, r: any) => sum + r.totalCompra, 0);
-        const rankingArray = Object.values(ranking).map((r: any) => ({
+        const totalGeral: number = Object.values(ranking).reduce((sum: number, r) => sum + r.totalCompra, 0);
+        const rankingArray = Object.values(ranking).map((r) => ({
           ...r,
           percentualTotal: totalGeral > 0 ? (r.totalCompra / totalGeral) * 100 : 0
-        })).sort((a: any, b: any) => b.totalCompra - a.totalCompra);
+        })).sort((a, b) => b.totalCompra - a.totalCompra);
 
         setRankingFornecedores(rankingArray);
 
