@@ -14,6 +14,212 @@ export type Database = {
   }
   public: {
     Tables: {
+      clientes: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cpf_cnpj: string | null
+          created_at: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fornecedores: {
+        Row: {
+          ativo: boolean | null
+          cidade: string | null
+          cnpj: string | null
+          created_at: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          prazo_entrega_medio: number | null
+          telefone: string | null
+          tipo_material: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          prazo_entrega_medio?: number | null
+          telefone?: string | null
+          tipo_material?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          prazo_entrega_medio?: number | null
+          telefone?: string | null
+          tipo_material?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fornecedores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funcionarios: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          id: string
+          nome: string
+          salario: number | null
+          telefone: string | null
+          tipo: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          id?: string
+          nome: string
+          salario?: number | null
+          telefone?: string | null
+          tipo: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          id?: string
+          nome?: string
+          salario?: number | null
+          telefone?: string | null
+          tipo?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funcionarios_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiais: {
+        Row: {
+          codigo: string | null
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          preco_medio: number | null
+          tipo: Database["public"]["Enums"]["tipo_material"]
+          unidade: Database["public"]["Enums"]["unidade_medida"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          codigo?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          preco_medio?: number | null
+          tipo: Database["public"]["Enums"]["tipo_material"]
+          unidade?: Database["public"]["Enums"]["unidade_medida"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          codigo?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          preco_medio?: number | null
+          tipo?: Database["public"]["Enums"]["tipo_material"]
+          unidade?: Database["public"]["Enums"]["unidade_medida"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiais_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -118,6 +324,53 @@ export type Database = {
           },
         ]
       }
+      vendedores: {
+        Row: {
+          ativo: boolean | null
+          comissao_percentual: number | null
+          created_at: string | null
+          email: string | null
+          id: string
+          meta_mensal: number | null
+          nome: string
+          telefone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          comissao_percentual?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          meta_mensal?: number | null
+          nome: string
+          telefone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          comissao_percentual?: number | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          meta_mensal?: number | null
+          nome?: string
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendedores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -140,6 +393,19 @@ export type Database = {
         | "EM_PRODUCAO"
         | "ENTREGUE"
         | "CANCELADO"
+      tipo_material:
+        | "MADEIRA"
+        | "FERRAGEM"
+        | "ACABAMENTO"
+        | "FERRAMENTA"
+        | "OUTROS"
+      unidade_medida:
+        | "UNIDADE"
+        | "METRO"
+        | "METRO_QUADRADO"
+        | "LITRO"
+        | "KILO"
+        | "PACOTE"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -282,6 +548,21 @@ export const Constants = {
         "EM_PRODUCAO",
         "ENTREGUE",
         "CANCELADO",
+      ],
+      tipo_material: [
+        "MADEIRA",
+        "FERRAGEM",
+        "ACABAMENTO",
+        "FERRAMENTA",
+        "OUTROS",
+      ],
+      unidade_medida: [
+        "UNIDADE",
+        "METRO",
+        "METRO_QUADRADO",
+        "LITRO",
+        "KILO",
+        "PACOTE",
       ],
     },
   },
