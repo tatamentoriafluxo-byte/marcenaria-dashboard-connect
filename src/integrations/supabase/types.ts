@@ -245,6 +245,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "feedbacks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "feedbacks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -558,6 +565,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "montagem_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "montagem_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -634,6 +648,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "producao_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "producao_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -666,6 +687,7 @@ export type Database = {
       projects: {
         Row: {
           ambiente: string
+          cliente_id: string | null
           cod_projeto: string
           created_at: string | null
           custo_mao_obra: number
@@ -685,11 +707,13 @@ export type Database = {
           user_id: string
           valor_orcamento: number
           valor_venda: number | null
+          vendedor_id: string | null
           vendedor_responsavel: string
           visualizado_cliente: boolean | null
         }
         Insert: {
           ambiente: string
+          cliente_id?: string | null
           cod_projeto: string
           created_at?: string | null
           custo_mao_obra?: number
@@ -709,11 +733,13 @@ export type Database = {
           user_id: string
           valor_orcamento?: number
           valor_venda?: number | null
+          vendedor_id?: string | null
           vendedor_responsavel: string
           visualizado_cliente?: boolean | null
         }
         Update: {
           ambiente?: string
+          cliente_id?: string | null
           cod_projeto?: string
           created_at?: string | null
           custo_mao_obra?: number
@@ -733,15 +759,30 @@ export type Database = {
           user_id?: string
           valor_orcamento?: number
           valor_venda?: number | null
+          vendedor_id?: string | null
           vendedor_responsavel?: string
           visualizado_cliente?: boolean | null
         }
         Relationships: [
           {
+            foreignKeyName: "projects_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "projects_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
             referencedColumns: ["id"]
           },
         ]
@@ -815,6 +856,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transacoes_financeiras_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transacoes_financeiras_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -872,10 +920,68 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      dashboard_vendas: {
+        Row: {
+          faturamento_total: number | null
+          lucro_total: number | null
+          mes: string | null
+          ticket_medio: number | null
+          total_vendas: number | null
+          user_id: string | null
+          vendedor_nome: string | null
+          vendedor_responsavel: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resumo_projetos: {
+        Row: {
+          ambiente: string | null
+          cliente_nome: string | null
+          cliente_telefone: string | null
+          cod_projeto: string | null
+          created_at: string | null
+          custo_mao_obra: number | null
+          custo_materiais: number | null
+          data_contato: string | null
+          data_venda: string | null
+          id: string | null
+          lucro: number | null
+          nome_cliente: string | null
+          origem_lead: Database["public"]["Enums"]["origem_lead"] | null
+          outros_custos: number | null
+          preencheu_formulario: boolean | null
+          status: Database["public"]["Enums"]["status_projeto"] | null
+          user_id: string | null
+          valor_orcamento: number | null
+          valor_venda: number | null
+          vendedor_nome: string | null
+          vendedor_responsavel: string | null
+          visualizado_cliente: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      calcular_lucro_projeto: {
+        Args: { project_id: string }
+        Returns: number
+      }
     }
     Enums: {
       avaliacao: "EXCELENTE" | "BOM" | "REGULAR" | "RUIM"
