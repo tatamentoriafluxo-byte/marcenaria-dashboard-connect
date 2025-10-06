@@ -4,7 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { Charts } from '@/components/dashboard/Charts';
+import { VendasCharts } from '@/components/dashboard/VendasCharts';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,40 +15,44 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
+  const [dashboardVendas, setDashboardVendas] = useState<any[]>([]);
 
   useEffect(() => {
-    loadProjects();
+    loadData();
   }, [user]);
 
-  const loadProjects = async () => {
+  const loadData = async () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', user.id);
+      const [projectsResult, vendasResult] = await Promise.all([
+        supabase.from('projects').select('*').eq('user_id', user.id),
+        supabase.from('dashboard_vendas').select('*').eq('user_id', user.id)
+      ]);
 
-      if (error) throw error;
-      setProjects(data || []);
+      if (projectsResult.error) throw projectsResult.error;
+      if (vendasResult.error) throw vendasResult.error;
+      
+      setProjects(projectsResult.data || []);
+      setDashboardVendas(vendasResult.data || []);
     } catch (error) {
-      console.error('Erro ao carregar projetos:', error);
+      console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const calculateStats = () => {
+    // Calcular estatísticas a partir da view dashboard_vendas
+    const faturamentoTotal = dashboardVendas.reduce((acc, v) => acc + (parseFloat(v.faturamento_total || 0)), 0);
+    const totalVendas = dashboardVendas.reduce((acc, v) => acc + (parseInt(v.total_vendas || 0)), 0);
+    const lucroTotal = dashboardVendas.reduce((acc, v) => acc + (parseFloat(v.lucro_total || 0)), 0);
+    const ticketMedio = dashboardVendas.reduce((acc, v) => acc + (parseFloat(v.ticket_medio || 0)), 0) / (dashboardVendas.length || 1);
+    
     const totalProjetos = projects.length;
-    const projetosConvertidos = projects.filter(p => p.status === 'CONVERTIDO').length;
+    const projetosConvertidos = projects.filter(p => p.status === 'CONVERTIDO' || p.status === 'APROVADO').length;
     const taxaConversao = totalProjetos > 0 ? (projetosConvertidos / totalProjetos) * 100 : 0;
-    
-    const faturamentoTotal = projects
-      .filter(p => p.valor_venda)
-      .reduce((acc, p) => acc + parseFloat(p.valor_venda || 0), 0);
-    
-    const ticketMedio = projetosConvertidos > 0 ? faturamentoTotal / projetosConvertidos : 0;
 
     return { totalProjetos, taxaConversao, faturamentoTotal, ticketMedio };
   };
@@ -117,11 +123,24 @@ const Dashboard = () => {
           <StatsCards {...stats} />
           
           {projects.length > 0 ? (
-            <Charts
-              projetosPorStatus={getProjetosPorStatus()}
-              projetosPorOrigem={getProjetosPorOrigem()}
-              projetosPorAmbiente={getProjetosPorAmbiente()}
-            />
+            <Tabs defaultValue="vendas" className="space-y-4">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="vendas">Vendas</TabsTrigger>
+                <TabsTrigger value="projetos">Projetos</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="vendas">
+                <VendasCharts dashboardVendas={dashboardVendas} />
+              </TabsContent>
+              
+              <TabsContent value="projetos">
+                <Charts
+                  projetosPorStatus={getProjetosPorStatus()}
+                  projetosPorOrigem={getProjetosPorOrigem()}
+                  projetosPorAmbiente={getProjetosPorAmbiente()}
+                />
+              </TabsContent>
+            </Tabs>
           ) : (
             <div className="rounded-lg border-2 border-dashed p-12 text-center">
               <p className="text-lg text-muted-foreground mb-4">
