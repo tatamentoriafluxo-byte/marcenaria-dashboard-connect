@@ -34,7 +34,7 @@ export default function DashboardFeedbacks({ userId }: DashboardFeedbacksProps) 
   const fetchFeedbacksData = async () => {
     const { data: feedbacks } = await supabase
       .from("feedbacks")
-      .select("*, projects!inner(nome_cliente, telefone, cod_projeto)")
+      .select("*, projects!feedbacks_project_fkey(nome_cliente, telefone, cod_projeto)")
       .eq("user_id", userId);
 
     if (feedbacks) {

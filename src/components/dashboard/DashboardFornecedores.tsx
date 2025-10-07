@@ -47,7 +47,7 @@ export default function DashboardFornecedores({ userId }: DashboardFornecedoresP
       // Buscar compras
       const { data: compras } = await supabase
         .from("compras")
-        .select("*, fornecedores!inner(nome), itens_compra(*)")
+        .select("*, fornecedores!compras_fornecedor_fkey(nome), itens_compra(*)")
         .eq("user_id", userId);
 
       if (compras) {

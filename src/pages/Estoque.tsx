@@ -68,12 +68,12 @@ const Estoque = () => {
           .from('estoque')
           .select(`
             *,
-            materiais (
+            materiais!estoque_material_fkey (
               nome,
               codigo,
               unidade
             ),
-            fornecedores (
+            fornecedores!estoque_fornecedor_fkey (
               nome
             )
           `)

@@ -4,7 +4,7 @@ import {
   User, FolderKanban, ShoppingCart, Package,
   Factory, Wrench, Wallet, MessageSquare,
   Target, TrendingUp, Handshake, Settings,
-  CreditCard, DollarSign, FileText
+  CreditCard, DollarSign, FileText, Calculator
 } from "lucide-react";
 import {
   Sidebar,
@@ -44,6 +44,8 @@ export function AppSidebar() {
       label: "2. Operação Comercial",
       items: [
         { title: "Clientes", url: "/clientes", icon: User },
+        { title: "Orçamentos", url: "/orcamentos", icon: Calculator },
+        { title: "Catálogo de Preços", url: "/catalogo-precos", icon: FileText },
         { title: "Projetos", url: "/projetos", icon: FolderKanban },
       ]
     },

@@ -116,7 +116,7 @@ export default function ContasPagar() {
       .from("contas")
       .select(`
         *,
-        fornecedores:fornecedor_id(nome)
+        fornecedores!contas_fornecedor_fkey(nome)
       `)
       .eq("user_id", user!.id)
       .eq("tipo", "PAGAR")

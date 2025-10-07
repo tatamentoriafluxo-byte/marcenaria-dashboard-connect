@@ -31,6 +31,9 @@ import Metas from "./pages/Metas";
 import Feedbacks from "./pages/Feedbacks";
 import CapacidadeProducao from "./pages/CapacidadeProducao";
 import DadosTeste from "./pages/DadosTeste";
+import Orcamentos from "./pages/Orcamentos";
+import CatalogoPrecos from "./pages/CatalogoPrecos";
+import NovoOrcamento from "./pages/NovoOrcamento";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +79,10 @@ const App = () => (
           <Route path="/dados-teste" element={<ProtectedRoute><AppLayout><DadosTeste /></AppLayout></ProtectedRoute>} />
           <Route path="/ferramentas" element={<ProtectedRoute><AppLayout><Ferramentas /></AppLayout></ProtectedRoute>} />
           <Route path="/fretistas" element={<ProtectedRoute><AppLayout><Fretistas /></AppLayout></ProtectedRoute>} />
+          <Route path="/orcamentos" element={<ProtectedRoute><AppLayout><Orcamentos /></AppLayout></ProtectedRoute>} />
+          <Route path="/orcamentos/novo" element={<ProtectedRoute><AppLayout><NovoOrcamento /></AppLayout></ProtectedRoute>} />
+          <Route path="/orcamentos/:id" element={<ProtectedRoute><AppLayout><NovoOrcamento /></AppLayout></ProtectedRoute>} />
+          <Route path="/catalogo-precos" element={<ProtectedRoute><AppLayout><CatalogoPrecos /></AppLayout></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

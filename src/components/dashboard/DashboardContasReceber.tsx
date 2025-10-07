@@ -51,7 +51,7 @@ export default function DashboardContasReceber({ userId }: DashboardContasRecebe
       .from("contas")
       .select(`
         *,
-        clientes:cliente_id(nome)
+        clientes!contas_cliente_fkey(nome)
       `)
       .eq("user_id", userId)
       .eq("tipo", "RECEBER");

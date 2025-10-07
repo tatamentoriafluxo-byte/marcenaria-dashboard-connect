@@ -138,7 +138,7 @@ export default function ContasReceber() {
       .from("contas")
       .select(`
         *,
-        clientes:cliente_id(nome)
+        clientes!contas_cliente_fkey(nome)
       `)
       .eq("user_id", user!.id)
       .eq("tipo", "RECEBER")

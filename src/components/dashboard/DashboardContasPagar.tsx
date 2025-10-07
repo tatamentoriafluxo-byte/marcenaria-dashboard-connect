@@ -51,7 +51,7 @@ export default function DashboardContasPagar({ userId }: DashboardContasPagarPro
       .from("contas")
       .select(`
         *,
-        fornecedores:fornecedor_id(nome)
+        fornecedores!contas_fornecedor_fkey(nome)
       `)
       .eq("user_id", userId)
       .eq("tipo", "PAGAR");
