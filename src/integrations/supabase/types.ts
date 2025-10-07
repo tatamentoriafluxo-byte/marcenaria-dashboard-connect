@@ -110,6 +110,54 @@ export type Database = {
         }
         Relationships: []
       }
+      catalogo_itens: {
+        Row: {
+          ativo: boolean | null
+          categoria: Database["public"]["Enums"]["categoria_item"]
+          codigo: string | null
+          created_at: string | null
+          custo_estimado: number | null
+          descricao: string | null
+          id: string
+          margem_lucro: number | null
+          nome: string
+          preco_base: number
+          unidade_medida: Database["public"]["Enums"]["unidade_orcamento"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria?: Database["public"]["Enums"]["categoria_item"]
+          codigo?: string | null
+          created_at?: string | null
+          custo_estimado?: number | null
+          descricao?: string | null
+          id?: string
+          margem_lucro?: number | null
+          nome: string
+          preco_base: number
+          unidade_medida?: Database["public"]["Enums"]["unidade_orcamento"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria?: Database["public"]["Enums"]["categoria_item"]
+          codigo?: string | null
+          created_at?: string | null
+          custo_estimado?: number | null
+          descricao?: string | null
+          id?: string
+          margem_lucro?: number | null
+          nome?: string
+          preco_base?: number
+          unidade_medida?: Database["public"]["Enums"]["unidade_orcamento"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cheques: {
         Row: {
           agencia: string | null
@@ -286,7 +334,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "compras_fornecedor_id_fkey"
+            foreignKeyName: "compras_fornecedor_fkey"
             columns: ["fornecedor_id"]
             isOneToOne: false
             referencedRelation: "fornecedores"
@@ -374,35 +422,35 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "contas_cliente_id_fkey"
+            foreignKeyName: "contas_cliente_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "contas_compra_id_fkey"
+            foreignKeyName: "contas_compra_fkey"
             columns: ["compra_id"]
             isOneToOne: false
             referencedRelation: "compras"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "contas_fornecedor_id_fkey"
+            foreignKeyName: "contas_fornecedor_fkey"
             columns: ["fornecedor_id"]
             isOneToOne: false
             referencedRelation: "fornecedores"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "contas_project_id_fkey"
+            foreignKeyName: "contas_project_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "contas_project_id_fkey"
+            foreignKeyName: "contas_project_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "resumo_projetos"
@@ -493,14 +541,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "estoque_fornecedor_principal_id_fkey"
+            foreignKeyName: "estoque_fornecedor_fkey"
             columns: ["fornecedor_principal_id"]
             isOneToOne: false
             referencedRelation: "fornecedores"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "estoque_material_id_fkey"
+            foreignKeyName: "estoque_material_fkey"
             columns: ["material_id"]
             isOneToOne: false
             referencedRelation: "materiais"
@@ -589,14 +637,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "feedbacks_project_id_fkey"
+            foreignKeyName: "feedbacks_project_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "feedbacks_project_id_fkey"
+            foreignKeyName: "feedbacks_project_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "resumo_projetos"
@@ -1476,6 +1524,154 @@ export type Database = {
           },
         ]
       }
+      orcamentos: {
+        Row: {
+          cliente_id: string | null
+          created_at: string | null
+          data_orcamento: string
+          data_validade: string | null
+          desconto_percentual: number | null
+          desconto_valor: number | null
+          email_cliente: string | null
+          id: string
+          nome_cliente: string
+          numero_orcamento: string | null
+          observacoes: string | null
+          observacoes_internas: string | null
+          project_id: string | null
+          status: Database["public"]["Enums"]["status_orcamento"]
+          telefone_cliente: string | null
+          updated_at: string | null
+          user_id: string
+          validade_dias: number
+          valor_subtotal: number
+          valor_total: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string | null
+          data_orcamento?: string
+          data_validade?: string | null
+          desconto_percentual?: number | null
+          desconto_valor?: number | null
+          email_cliente?: string | null
+          id?: string
+          nome_cliente: string
+          numero_orcamento?: string | null
+          observacoes?: string | null
+          observacoes_internas?: string | null
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["status_orcamento"]
+          telefone_cliente?: string | null
+          updated_at?: string | null
+          user_id: string
+          validade_dias?: number
+          valor_subtotal?: number
+          valor_total?: number
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string | null
+          data_orcamento?: string
+          data_validade?: string | null
+          desconto_percentual?: number | null
+          desconto_valor?: number | null
+          email_cliente?: string | null
+          id?: string
+          nome_cliente?: string
+          numero_orcamento?: string | null
+          observacoes?: string | null
+          observacoes_internas?: string | null
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["status_orcamento"]
+          telefone_cliente?: string | null
+          updated_at?: string | null
+          user_id?: string
+          validade_dias?: number
+          valor_subtotal?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orcamentos_itens: {
+        Row: {
+          catalogo_item_id: string | null
+          created_at: string | null
+          descricao: string | null
+          id: string
+          nome_item: string
+          orcamento_id: string
+          ordem: number
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+          unidade_medida: Database["public"]["Enums"]["unidade_orcamento"]
+        }
+        Insert: {
+          catalogo_item_id?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome_item: string
+          orcamento_id: string
+          ordem?: number
+          preco_unitario: number
+          quantidade: number
+          subtotal?: number
+          unidade_medida?: Database["public"]["Enums"]["unidade_orcamento"]
+        }
+        Update: {
+          catalogo_item_id?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          nome_item?: string
+          orcamento_id?: string
+          ordem?: number
+          preco_unitario?: number
+          quantidade?: number
+          subtotal?: number
+          unidade_medida?: Database["public"]["Enums"]["unidade_orcamento"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_itens_catalogo_item_id_fkey"
+            columns: ["catalogo_item_id"]
+            isOneToOne: false
+            referencedRelation: "catalogo_itens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orcamentos_itens_orcamento_id_fkey"
+            columns: ["orcamento_id"]
+            isOneToOne: false
+            referencedRelation: "orcamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pagamentos: {
         Row: {
           cheque_banco: string | null
@@ -2279,6 +2475,17 @@ export type Database = {
         | "LIXAMENTO"
         | "FURACAO"
         | "OUTRO"
+      categoria_item:
+        | "ARMARIO"
+        | "BALCAO"
+        | "PORTA"
+        | "GAVETA"
+        | "ACESSORIO"
+        | "ACABAMENTO"
+        | "FERRAGEM"
+        | "VIDRO"
+        | "ILUMINACAO"
+        | "OUTROS"
       categoria_parceiro:
         | "ARQUITETO"
         | "DESIGNER_INTERIORES"
@@ -2336,6 +2543,13 @@ export type Database = {
         | "QUEBRADA"
         | "VENDIDA"
       status_montagem: "AGENDADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO"
+      status_orcamento:
+        | "RASCUNHO"
+        | "ENVIADO"
+        | "APROVADO"
+        | "REJEITADO"
+        | "EXPIRADO"
+        | "CONVERTIDO"
       status_pagamento_comissao: "PENDENTE" | "PAGO" | "CANCELADO"
       status_parcela: "PENDENTE" | "PAGA" | "ATRASADA" | "CANCELADA"
       status_producao:
@@ -2392,6 +2606,7 @@ export type Database = {
         | "LITRO"
         | "KILO"
         | "PACOTE"
+      unidade_orcamento: "M2" | "ML" | "UNIDADE" | "M3" | "KG"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2529,6 +2744,18 @@ export const Constants = {
         "FURACAO",
         "OUTRO",
       ],
+      categoria_item: [
+        "ARMARIO",
+        "BALCAO",
+        "PORTA",
+        "GAVETA",
+        "ACESSORIO",
+        "ACABAMENTO",
+        "FERRAGEM",
+        "VIDRO",
+        "ILUMINACAO",
+        "OUTROS",
+      ],
       categoria_parceiro: [
         "ARQUITETO",
         "DESIGNER_INTERIORES",
@@ -2593,6 +2820,14 @@ export const Constants = {
         "VENDIDA",
       ],
       status_montagem: ["AGENDADO", "EM_ANDAMENTO", "CONCLUIDO", "CANCELADO"],
+      status_orcamento: [
+        "RASCUNHO",
+        "ENVIADO",
+        "APROVADO",
+        "REJEITADO",
+        "EXPIRADO",
+        "CONVERTIDO",
+      ],
       status_pagamento_comissao: ["PENDENTE", "PAGO", "CANCELADO"],
       status_parcela: ["PENDENTE", "PAGA", "ATRASADA", "CANCELADA"],
       status_producao: [
@@ -2656,6 +2891,7 @@ export const Constants = {
         "KILO",
         "PACOTE",
       ],
+      unidade_orcamento: ["M2", "ML", "UNIDADE", "M3", "KG"],
     },
   },
 } as const
