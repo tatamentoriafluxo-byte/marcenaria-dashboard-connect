@@ -303,8 +303,13 @@ export default function NovoOrcamento() {
           <CardContent className="space-y-4">
             <div>
               <Label>Cliente Existente (opcional)</Label>
-              <Select value={clienteId || ""} onValueChange={(val) => {
-                if (val) {
+              <Select value={clienteId || "novo"} onValueChange={(val) => {
+                if (val === "novo") {
+                  setClienteId(null);
+                  setNomeCliente("");
+                  setTelefoneCliente("");
+                  setEmailCliente("");
+                } else {
                   setClienteId(val);
                   const cliente = clientes.find(c => c.id === val);
                   if (cliente) {
@@ -312,15 +317,13 @@ export default function NovoOrcamento() {
                     setTelefoneCliente(cliente.telefone || "");
                     setEmailCliente(cliente.email || "");
                   }
-                } else {
-                  setClienteId(null);
                 }
               }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um cliente ou deixe vazio para criar novo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Novo cliente</SelectItem>
+                  <SelectItem value="novo">Novo cliente</SelectItem>
                   {clientes.map((c: any) => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}
