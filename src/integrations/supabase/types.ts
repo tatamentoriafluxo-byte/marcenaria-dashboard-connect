@@ -1533,12 +1533,17 @@ export type Database = {
           desconto_percentual: number | null
           desconto_valor: number | null
           email_cliente: string | null
+          entrada_percentual: number | null
+          forma_pagamento: string | null
           id: string
           nome_cliente: string
+          num_parcelas: number | null
           numero_orcamento: string | null
           observacoes: string | null
           observacoes_internas: string | null
+          prazo_entrega_dias: number | null
           project_id: string | null
+          projetista: string | null
           status: Database["public"]["Enums"]["status_orcamento"]
           telefone_cliente: string | null
           updated_at: string | null
@@ -1546,6 +1551,7 @@ export type Database = {
           validade_dias: number
           valor_subtotal: number
           valor_total: number
+          vendedor_id: string | null
         }
         Insert: {
           cliente_id?: string | null
@@ -1555,12 +1561,17 @@ export type Database = {
           desconto_percentual?: number | null
           desconto_valor?: number | null
           email_cliente?: string | null
+          entrada_percentual?: number | null
+          forma_pagamento?: string | null
           id?: string
           nome_cliente: string
+          num_parcelas?: number | null
           numero_orcamento?: string | null
           observacoes?: string | null
           observacoes_internas?: string | null
+          prazo_entrega_dias?: number | null
           project_id?: string | null
+          projetista?: string | null
           status?: Database["public"]["Enums"]["status_orcamento"]
           telefone_cliente?: string | null
           updated_at?: string | null
@@ -1568,6 +1579,7 @@ export type Database = {
           validade_dias?: number
           valor_subtotal?: number
           valor_total?: number
+          vendedor_id?: string | null
         }
         Update: {
           cliente_id?: string | null
@@ -1577,12 +1589,17 @@ export type Database = {
           desconto_percentual?: number | null
           desconto_valor?: number | null
           email_cliente?: string | null
+          entrada_percentual?: number | null
+          forma_pagamento?: string | null
           id?: string
           nome_cliente?: string
+          num_parcelas?: number | null
           numero_orcamento?: string | null
           observacoes?: string | null
           observacoes_internas?: string | null
+          prazo_entrega_dias?: number | null
           project_id?: string | null
+          projetista?: string | null
           status?: Database["public"]["Enums"]["status_orcamento"]
           telefone_cliente?: string | null
           updated_at?: string | null
@@ -1590,6 +1607,7 @@ export type Database = {
           validade_dias?: number
           valor_subtotal?: number
           valor_total?: number
+          vendedor_id?: string | null
         }
         Relationships: [
           {
@@ -1613,46 +1631,68 @@ export type Database = {
             referencedRelation: "resumo_projetos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "orcamentos_vendedor_id_fkey"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
         ]
       }
       orcamentos_itens: {
         Row: {
+          altura_metros: number | null
+          area_m2: number | null
           catalogo_item_id: string | null
           created_at: string | null
           descricao: string | null
           id: string
+          largura_metros: number | null
           nome_item: string
           orcamento_id: string
           ordem: number
           preco_unitario: number
           quantidade: number
+          quantidade_pecas: number | null
           subtotal: number
+          tipo_calculo: string | null
           unidade_medida: Database["public"]["Enums"]["unidade_orcamento"]
         }
         Insert: {
+          altura_metros?: number | null
+          area_m2?: number | null
           catalogo_item_id?: string | null
           created_at?: string | null
           descricao?: string | null
           id?: string
+          largura_metros?: number | null
           nome_item: string
           orcamento_id: string
           ordem?: number
           preco_unitario: number
           quantidade: number
+          quantidade_pecas?: number | null
           subtotal?: number
+          tipo_calculo?: string | null
           unidade_medida?: Database["public"]["Enums"]["unidade_orcamento"]
         }
         Update: {
+          altura_metros?: number | null
+          area_m2?: number | null
           catalogo_item_id?: string | null
           created_at?: string | null
           descricao?: string | null
           id?: string
+          largura_metros?: number | null
           nome_item?: string
           orcamento_id?: string
           ordem?: number
           preco_unitario?: number
           quantidade?: number
+          quantidade_pecas?: number | null
           subtotal?: number
+          tipo_calculo?: string | null
           unidade_medida?: Database["public"]["Enums"]["unidade_orcamento"]
         }
         Relationships: [
