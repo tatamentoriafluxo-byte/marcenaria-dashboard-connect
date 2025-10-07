@@ -103,6 +103,74 @@ export type Database = {
         }
         Relationships: []
       }
+      cheques: {
+        Row: {
+          agencia: string | null
+          banco: string
+          conta: string | null
+          created_at: string
+          data_compensacao: string
+          data_emissao: string
+          id: string
+          numero_cheque: string
+          observacoes: string | null
+          pagamento_id: string | null
+          repassado_para: string | null
+          status: Database["public"]["Enums"]["status_cheque"]
+          tipo: Database["public"]["Enums"]["tipo_cheque"]
+          titular: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          agencia?: string | null
+          banco: string
+          conta?: string | null
+          created_at?: string
+          data_compensacao: string
+          data_emissao?: string
+          id?: string
+          numero_cheque: string
+          observacoes?: string | null
+          pagamento_id?: string | null
+          repassado_para?: string | null
+          status?: Database["public"]["Enums"]["status_cheque"]
+          tipo: Database["public"]["Enums"]["tipo_cheque"]
+          titular: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          agencia?: string | null
+          banco?: string
+          conta?: string | null
+          created_at?: string
+          data_compensacao?: string
+          data_emissao?: string
+          id?: string
+          numero_cheque?: string
+          observacoes?: string | null
+          pagamento_id?: string | null
+          repassado_para?: string | null
+          status?: Database["public"]["Enums"]["status_cheque"]
+          tipo?: Database["public"]["Enums"]["tipo_cheque"]
+          titular?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cheques_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           cep: string | null
@@ -215,6 +283,108 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contas: {
+        Row: {
+          cliente_id: string | null
+          compra_id: string | null
+          created_at: string
+          data_emissao: string
+          data_vencimento: string
+          descricao: string
+          fornecedor_id: string | null
+          id: string
+          numero_documento: string | null
+          observacoes: string | null
+          project_id: string | null
+          saldo_devedor: number | null
+          status: Database["public"]["Enums"]["status_conta"]
+          tipo: Database["public"]["Enums"]["tipo_conta"]
+          tipo_documento: Database["public"]["Enums"]["tipo_documento"]
+          updated_at: string
+          user_id: string
+          valor_pago: number
+          valor_total: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          compra_id?: string | null
+          created_at?: string
+          data_emissao?: string
+          data_vencimento: string
+          descricao: string
+          fornecedor_id?: string | null
+          id?: string
+          numero_documento?: string | null
+          observacoes?: string | null
+          project_id?: string | null
+          saldo_devedor?: number | null
+          status?: Database["public"]["Enums"]["status_conta"]
+          tipo: Database["public"]["Enums"]["tipo_conta"]
+          tipo_documento?: Database["public"]["Enums"]["tipo_documento"]
+          updated_at?: string
+          user_id: string
+          valor_pago?: number
+          valor_total?: number
+        }
+        Update: {
+          cliente_id?: string | null
+          compra_id?: string | null
+          created_at?: string
+          data_emissao?: string
+          data_vencimento?: string
+          descricao?: string
+          fornecedor_id?: string | null
+          id?: string
+          numero_documento?: string | null
+          observacoes?: string | null
+          project_id?: string | null
+          saldo_devedor?: number | null
+          status?: Database["public"]["Enums"]["status_conta"]
+          tipo?: Database["public"]["Enums"]["tipo_conta"]
+          tipo_documento?: Database["public"]["Enums"]["tipo_documento"]
+          updated_at?: string
+          user_id?: string
+          valor_pago?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_compra_id_fkey"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_fornecedor_id_fkey"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
             referencedColumns: ["id"]
           },
         ]
@@ -1101,6 +1271,72 @@ export type Database = {
           },
         ]
       }
+      pagamentos: {
+        Row: {
+          cheque_banco: string | null
+          cheque_data_compensacao: string | null
+          cheque_numero: string | null
+          cheque_titular: string | null
+          comprovante_url: string | null
+          conta_id: string
+          created_at: string
+          data_pagamento: string
+          forma_pagamento: Database["public"]["Enums"]["forma_pagamento"]
+          id: string
+          observacoes: string | null
+          parcela_id: string | null
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          cheque_banco?: string | null
+          cheque_data_compensacao?: string | null
+          cheque_numero?: string | null
+          cheque_titular?: string | null
+          comprovante_url?: string | null
+          conta_id: string
+          created_at?: string
+          data_pagamento?: string
+          forma_pagamento: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          observacoes?: string | null
+          parcela_id?: string | null
+          user_id: string
+          valor: number
+        }
+        Update: {
+          cheque_banco?: string | null
+          cheque_data_compensacao?: string | null
+          cheque_numero?: string | null
+          cheque_titular?: string | null
+          comprovante_url?: string | null
+          conta_id?: string
+          created_at?: string
+          data_pagamento?: string
+          forma_pagamento?: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          observacoes?: string | null
+          parcela_id?: string | null
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_conta_id_fkey"
+            columns: ["conta_id"]
+            isOneToOne: false
+            referencedRelation: "contas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_parcela_id_fkey"
+            columns: ["parcela_id"]
+            isOneToOne: false
+            referencedRelation: "parcelas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parceiros: {
         Row: {
           ativo: boolean | null
@@ -1175,6 +1411,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      parcelas: {
+        Row: {
+          conta_id: string
+          created_at: string
+          data_pagamento: string | null
+          data_vencimento: string
+          desconto: number
+          id: string
+          juros_multa: number
+          numero_parcela: number
+          observacoes: string | null
+          status: Database["public"]["Enums"]["status_parcela"]
+          updated_at: string
+          valor_pago: number
+          valor_parcela: number
+        }
+        Insert: {
+          conta_id: string
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento: string
+          desconto?: number
+          id?: string
+          juros_multa?: number
+          numero_parcela: number
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["status_parcela"]
+          updated_at?: string
+          valor_pago?: number
+          valor_parcela: number
+        }
+        Update: {
+          conta_id?: string
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string
+          desconto?: number
+          id?: string
+          juros_multa?: number
+          numero_parcela?: number
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["status_parcela"]
+          updated_at?: string
+          valor_pago?: number
+          valor_parcela?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parcelas_conta_id_fkey"
+            columns: ["conta_id"]
+            isOneToOne: false
+            referencedRelation: "contas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       producao: {
         Row: {
@@ -1678,6 +1970,15 @@ export type Database = {
         Args: { project_id: string }
         Returns: number
       }
+      calcular_projecao_fluxo: {
+        Args: { _data_fim: string; _data_inicio: string; _user_id: string }
+        Returns: {
+          data: string
+          entradas_previstas: number
+          saidas_previstas: number
+          saldo_projetado: number
+        }[]
+      }
     }
     Enums: {
       avaliacao: "EXCELENTE" | "BOM" | "REGULAR" | "RUIM"
@@ -1725,12 +2026,19 @@ export type Database = {
         | "INDICACAO"
         | "GOOGLE"
         | "OUTROS"
+      status_cheque: "PENDENTE" | "COMPENSADO" | "DEVOLVIDO" | "REPASSADO"
       status_compra:
         | "PENDENTE"
         | "CONFIRMADO"
         | "EM_TRANSITO"
         | "ENTREGUE"
         | "CANCELADO"
+      status_conta:
+        | "ABERTA"
+        | "PAGA_PARCIAL"
+        | "PAGA_TOTAL"
+        | "VENCIDA"
+        | "CANCELADA"
       status_ferramenta:
         | "DISPONIVEL"
         | "EM_USO"
@@ -1739,6 +2047,7 @@ export type Database = {
         | "VENDIDA"
       status_montagem: "AGENDADO" | "EM_ANDAMENTO" | "CONCLUIDO" | "CANCELADO"
       status_pagamento_comissao: "PENDENTE" | "PAGO" | "CANCELADO"
+      status_parcela: "PENDENTE" | "PAGA" | "ATRASADA" | "CANCELADA"
       status_producao:
         | "PLANEJADO"
         | "EM_ANDAMENTO"
@@ -1752,6 +2061,15 @@ export type Database = {
         | "ENTREGUE"
         | "CANCELADO"
       status_veiculo: "ATIVO" | "MANUTENCAO" | "INATIVO" | "VENDIDO"
+      tipo_cheque: "RECEBIDO" | "EMITIDO"
+      tipo_conta: "PAGAR" | "RECEBER"
+      tipo_documento:
+        | "NOTA_FISCAL"
+        | "BOLETO"
+        | "CONTRATO"
+        | "CHEQUE"
+        | "RECIBO"
+        | "OUTRO"
       tipo_ferramenta: "ESTACIONARIA" | "MANUAL" | "ELETRICA" | "PNEUMATICA"
       tipo_manutencao: "PREVENTIVA" | "CORRETIVA" | "TROCA_PECA" | "CALIBRACAO"
       tipo_material:
@@ -1961,12 +2279,20 @@ export const Constants = {
         "GOOGLE",
         "OUTROS",
       ],
+      status_cheque: ["PENDENTE", "COMPENSADO", "DEVOLVIDO", "REPASSADO"],
       status_compra: [
         "PENDENTE",
         "CONFIRMADO",
         "EM_TRANSITO",
         "ENTREGUE",
         "CANCELADO",
+      ],
+      status_conta: [
+        "ABERTA",
+        "PAGA_PARCIAL",
+        "PAGA_TOTAL",
+        "VENCIDA",
+        "CANCELADA",
       ],
       status_ferramenta: [
         "DISPONIVEL",
@@ -1977,6 +2303,7 @@ export const Constants = {
       ],
       status_montagem: ["AGENDADO", "EM_ANDAMENTO", "CONCLUIDO", "CANCELADO"],
       status_pagamento_comissao: ["PENDENTE", "PAGO", "CANCELADO"],
+      status_parcela: ["PENDENTE", "PAGA", "ATRASADA", "CANCELADA"],
       status_producao: [
         "PLANEJADO",
         "EM_ANDAMENTO",
@@ -1992,6 +2319,16 @@ export const Constants = {
         "CANCELADO",
       ],
       status_veiculo: ["ATIVO", "MANUTENCAO", "INATIVO", "VENDIDO"],
+      tipo_cheque: ["RECEBIDO", "EMITIDO"],
+      tipo_conta: ["PAGAR", "RECEBER"],
+      tipo_documento: [
+        "NOTA_FISCAL",
+        "BOLETO",
+        "CONTRATO",
+        "CHEQUE",
+        "RECIBO",
+        "OUTRO",
+      ],
       tipo_ferramenta: ["ESTACIONARIA", "MANUAL", "ELETRICA", "PNEUMATICA"],
       tipo_manutencao: ["PREVENTIVA", "CORRETIVA", "TROCA_PECA", "CALIBRACAO"],
       tipo_material: [
