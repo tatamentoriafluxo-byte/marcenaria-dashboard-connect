@@ -29,6 +29,11 @@ type OrcamentoItem = {
   preco_unitario: number;
   subtotal: number;
   ordem: number;
+  tipo_calculo: 'UNITARIO' | 'METRO_QUADRADO';
+  quantidade_pecas?: number;
+  largura_metros?: number;
+  altura_metros?: number;
+  area_m2?: number;
 };
 
 export default function NovoOrcamento() {
@@ -40,11 +45,49 @@ export default function NovoOrcamento() {
   const [nomeCliente, setNomeCliente] = useState("");
   const [telefoneCliente, setTelefoneCliente] = useState("");
   const [emailCliente, setEmailCliente] = useState("");
+  const [clienteId, setClienteId] = useState<string | null>(null);
   const [observacoes, setObservacoes] = useState("");
+  const [projetista, setProjetista] = useState("");
+  const [vendedorId, setVendedorId] = useState<string | null>(null);
   const [descontoPercentual, setDescontoPercentual] = useState(0);
   const [descontoValor, setDescontoValor] = useState(0);
   const [itens, setItens] = useState<OrcamentoItem[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [prazoEntregaDias, setPrazoEntregaDias] = useState(15);
+  const [formaPagamento, setFormaPagamento] = useState("50% entrada + saldo em 1x");
+  const [entradaPercentual, setEntradaPercentual] = useState(50);
+  const [numParcelas, setNumParcelas] = useState(1);
+
+  // Buscar clientes para autocomplete
+  const { data: clientes = [] } = useQuery({
+    queryKey: ["clientes", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("*")
+        .eq("user_id", user!.id)
+        .order("nome");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Buscar vendedores
+  const { data: vendedores = [] } = useQuery({
+    queryKey: ["vendedores", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vendedores")
+        .select("*")
+        .eq("user_id", user!.id)
+        .eq("ativo", true)
+        .order("nome");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
 
   // Carregar orçamento existente se estiver editando
   useQuery({
@@ -68,13 +111,26 @@ export default function NovoOrcamento() {
 
       if (itensError) throw itensError;
 
+      // Mapear itens com tipos corretos
+      const itensFormatados = orcItens.map((item: any) => ({
+        ...item,
+        tipo_calculo: item.tipo_calculo as 'UNITARIO' | 'METRO_QUADRADO',
+      }));
+
       setNomeCliente(orcamento.nome_cliente);
       setTelefoneCliente(orcamento.telefone_cliente || "");
       setEmailCliente(orcamento.email_cliente || "");
+      setClienteId(orcamento.cliente_id);
       setObservacoes(orcamento.observacoes || "");
+      setProjetista(orcamento.projetista || "");
+      setVendedorId(orcamento.vendedor_id);
       setDescontoPercentual(orcamento.desconto_percentual);
       setDescontoValor(orcamento.desconto_valor);
-      setItens(orcItens);
+      setPrazoEntregaDias(orcamento.prazo_entrega_dias || 15);
+      setFormaPagamento(orcamento.forma_pagamento || "50% entrada + saldo em 1x");
+      setEntradaPercentual(orcamento.entrada_percentual || 50);
+      setNumParcelas(orcamento.num_parcelas || 1);
+      setItens(itensFormatados);
 
       return orcamento;
     },
@@ -87,14 +143,41 @@ export default function NovoOrcamento() {
 
   const saveMutation = useMutation({
     mutationFn: async (status: string) => {
+      // Se selecionou cliente existente mas não criou, validar
+      if (clienteId) {
+        // Usar cliente existente
+      } else if (nomeCliente && telefoneCliente) {
+        // Criar novo cliente
+        const { data: novoCliente, error: clienteError } = await supabase
+          .from("clientes")
+          .insert({
+            user_id: user!.id,
+            nome: nomeCliente,
+            telefone: telefoneCliente,
+            email: emailCliente || null,
+          })
+          .select()
+          .single();
+        
+        if (clienteError) throw clienteError;
+        setClienteId(novoCliente.id);
+      }
+
       const orcamentoData = {
         user_id: user!.id,
         nome_cliente: nomeCliente,
         telefone_cliente: telefoneCliente,
         email_cliente: emailCliente,
+        cliente_id: clienteId,
+        vendedor_id: vendedorId,
+        projetista,
         observacoes,
         desconto_percentual: descontoPercentual,
         desconto_valor: descontoValor,
+        prazo_entrega_dias: prazoEntregaDias,
+        forma_pagamento: formaPagamento,
+        entrada_percentual: entradaPercentual,
+        num_parcelas: numParcelas,
         status,
       } as any;
 
@@ -130,6 +213,10 @@ export default function NovoOrcamento() {
         quantidade: item.quantidade,
         unidade_medida: item.unidade_medida,
         preco_unitario: item.preco_unitario,
+        tipo_calculo: item.tipo_calculo || 'UNITARIO',
+        quantidade_pecas: item.quantidade_pecas || 1,
+        largura_metros: item.largura_metros,
+        altura_metros: item.altura_metros,
         ordem: index,
       }));
 
@@ -161,6 +248,10 @@ export default function NovoOrcamento() {
       preco_unitario: item.preco_base,
       subtotal: item.preco_base,
       ordem: itens.length,
+      tipo_calculo: 'METRO_QUADRADO',
+      quantidade_pecas: 1,
+      largura_metros: undefined,
+      altura_metros: undefined,
     };
     setItens([...itens, novoItem]);
   };
@@ -169,9 +260,18 @@ export default function NovoOrcamento() {
     const novosItens = [...itens];
     novosItens[index] = { ...novosItens[index], [campo]: valor };
     
-    if (campo === "quantidade" || campo === "preco_unitario") {
-      novosItens[index].subtotal =
-        novosItens[index].quantidade * novosItens[index].preco_unitario;
+    const item = novosItens[index];
+    
+    // Recalcular subtotal baseado no tipo de cálculo
+    if (item.tipo_calculo === 'METRO_QUADRADO') {
+      const qtdPecas = item.quantidade_pecas || 1;
+      const largura = item.largura_metros || 0;
+      const altura = item.altura_metros || 0;
+      const area = qtdPecas * largura * altura;
+      novosItens[index].area_m2 = area;
+      novosItens[index].subtotal = area * item.preco_unitario;
+    } else {
+      novosItens[index].subtotal = item.quantidade * item.preco_unitario;
     }
     
     setItens(novosItens);
@@ -201,7 +301,33 @@ export default function NovoOrcamento() {
             <CardTitle>Dados do Cliente</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label>Cliente Existente (opcional)</Label>
+              <Select value={clienteId || ""} onValueChange={(val) => {
+                if (val) {
+                  setClienteId(val);
+                  const cliente = clientes.find(c => c.id === val);
+                  if (cliente) {
+                    setNomeCliente(cliente.nome);
+                    setTelefoneCliente(cliente.telefone || "");
+                    setEmailCliente(cliente.email || "");
+                  }
+                } else {
+                  setClienteId(null);
+                }
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um cliente ou deixe vazio para criar novo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Novo cliente</SelectItem>
+                  {clientes.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Nome do Cliente *</Label>
                 <Input
@@ -211,7 +337,7 @@ export default function NovoOrcamento() {
                 />
               </div>
               <div>
-                <Label>Telefone</Label>
+                <Label>Telefone *</Label>
                 <Input
                   value={telefoneCliente}
                   onChange={(e) => setTelefoneCliente(e.target.value)}
@@ -225,6 +351,36 @@ export default function NovoOrcamento() {
                   value={emailCliente}
                   onChange={(e) => setEmailCliente(e.target.value)}
                   placeholder="email@exemplo.com"
+                />
+              </div>
+              <div>
+                <Label>Projetista</Label>
+                <Input
+                  value={projetista}
+                  onChange={(e) => setProjetista(e.target.value)}
+                  placeholder="Nome do projetista"
+                />
+              </div>
+              <div>
+                <Label>Vendedor</Label>
+                <Select value={vendedorId || ""} onValueChange={setVendedorId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o vendedor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vendedores.map((v: any) => (
+                      <SelectItem key={v.id} value={v.id}>{v.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Validade (dias)</Label>
+                <Input
+                  type="number"
+                  value={prazoEntregaDias}
+                  onChange={(e) => setPrazoEntregaDias(parseInt(e.target.value) || 15)}
+                  placeholder="15"
                 />
               </div>
             </div>
@@ -249,52 +405,124 @@ export default function NovoOrcamento() {
             ) : (
               <div className="space-y-4">
                 {itens.map((item, index) => (
-                  <div key={index} className="flex gap-4 items-start border-b pb-4">
-                    <div className="flex-1 grid grid-cols-5 gap-2">
-                      <div className="col-span-2">
+                  <div key={index} className="border-b pb-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
                         <Label>Item</Label>
                         <div className="font-medium">{item.nome_item}</div>
                       </div>
-                      <div>
-                        <Label>Quantidade</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={item.quantidade}
-                          onChange={(e) =>
-                            atualizarItem(index, "quantidade", parseFloat(e.target.value) || 0)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label>Preço Unit.</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={item.preco_unitario}
-                          onChange={(e) =>
-                            atualizarItem(index, "preco_unitario", parseFloat(e.target.value) || 0)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label>Subtotal</Label>
-                        <div className="h-10 flex items-center font-medium">
-                          {new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(item.subtotal)}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removerItem(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex gap-2 items-center">
+                      <Label className="text-xs">Tipo de Cálculo:</Label>
+                      <Select 
+                        value={item.tipo_calculo} 
+                        onValueChange={(val: 'UNITARIO' | 'METRO_QUADRADO') => atualizarItem(index, "tipo_calculo", val)}
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="UNITARIO">Unitário</SelectItem>
+                          <SelectItem value="METRO_QUADRADO">Metro Quadrado (M²)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {item.tipo_calculo === 'METRO_QUADRADO' ? (
+                      <div className="grid grid-cols-6 gap-2">
+                        <div>
+                          <Label className="text-xs">Qtd. Peças</Label>
+                          <Input
+                            type="number"
+                            step="1"
+                            value={item.quantidade_pecas || 1}
+                            onChange={(e) => atualizarItem(index, "quantidade_pecas", parseFloat(e.target.value) || 1)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Largura (m)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={item.largura_metros || ""}
+                            onChange={(e) => atualizarItem(index, "largura_metros", parseFloat(e.target.value) || 0)}
+                            placeholder="2.40"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Altura (m)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={item.altura_metros || ""}
+                            onChange={(e) => atualizarItem(index, "altura_metros", parseFloat(e.target.value) || 0)}
+                            placeholder="0.60"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Área (M²)</Label>
+                          <div className="h-10 flex items-center font-medium text-sm bg-muted px-3 rounded-md">
+                            {(item.area_m2 || 0).toFixed(2)} m²
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Preço/M²</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={item.preco_unitario}
+                            onChange={(e) => atualizarItem(index, "preco_unitario", parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Subtotal</Label>
+                          <div className="h-10 flex items-center font-medium text-sm">
+                            {new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(item.subtotal)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removerItem(index)}
-                      className="mt-6"
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    ) : (
+                      <div className="grid grid-cols-4 gap-2">
+                        <div>
+                          <Label className="text-xs">Quantidade</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={item.quantidade}
+                            onChange={(e) => atualizarItem(index, "quantidade", parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Preço Unit.</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={item.preco_unitario}
+                            onChange={(e) => atualizarItem(index, "preco_unitario", parseFloat(e.target.value) || 0)}
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <Label className="text-xs">Subtotal</Label>
+                          <div className="h-10 flex items-center font-medium">
+                            {new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(item.subtotal)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
