@@ -6,19 +6,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, FileText, Eye, Pencil, Download } from "lucide-react";
+import { Plus, Search, FileText, Pencil, Download, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Orcamento = {
   id: string;
   numero_orcamento: string;
   nome_cliente: string;
+  telefone_cliente: string;
   data_orcamento: string;
   data_validade: string;
   status: string;
   valor_total: number;
+  project_id?: string;
 };
 
 const statusColors = {
@@ -33,7 +47,10 @@ const statusColors = {
 export default function Orcamentos() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [selectedOrcamento, setSelectedOrcamento] = useState<Orcamento | null>(null);
 
   const { data: orcamentos = [], isLoading } = useQuery({
     queryKey: ["orcamentos", user?.id, searchTerm],
@@ -56,6 +73,67 @@ export default function Orcamentos() {
     },
     enabled: !!user,
   });
+
+  const converterMutation = useMutation({
+    mutationFn: async (orcamentoId: string) => {
+      const orc = orcamentos.find(o => o.id === orcamentoId);
+      if (!orc) throw new Error("Orçamento não encontrado");
+
+      // Buscar itens do orçamento
+      const { data: itens, error: itensError } = await supabase
+        .from("orcamentos_itens")
+        .select("*")
+        .eq("orcamento_id", orcamentoId);
+
+      if (itensError) throw itensError;
+
+      // Criar projeto
+      const { data: projeto, error: projetoError } = await supabase
+        .from("projects")
+        .insert({
+          user_id: user!.id,
+          cod_projeto: `PROJ-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000)}`,
+          nome_cliente: orc.nome_cliente,
+          telefone: orc.telefone_cliente || "",
+          ambiente: "Convertido de Orçamento",
+          origem_lead: "ORCAMENTO" as any,
+          vendedor_responsavel: "Sistema",
+          data_contato: new Date().toISOString().split('T')[0],
+          status: "ORCAMENTO" as any,
+          valor_orcamento: orc.valor_total,
+        })
+        .select()
+        .single();
+
+      if (projetoError) throw projetoError;
+
+      // Atualizar orçamento com project_id e status CONVERTIDO
+      const { error: updateError } = await supabase
+        .from("orcamentos")
+        .update({ 
+          project_id: projeto.id,
+          status: "CONVERTIDO" as any
+        })
+        .eq("id", orcamentoId);
+
+      if (updateError) throw updateError;
+
+      return projeto;
+    },
+    onSuccess: (projeto) => {
+      queryClient.invalidateQueries({ queryKey: ["orcamentos"] });
+      toast.success("Orçamento convertido em projeto com sucesso!");
+      navigate(`/projetos`);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao converter orçamento");
+    },
+  });
+
+  const handleConvert = (orc: Orcamento) => {
+    setSelectedOrcamento(orc);
+    setConvertDialogOpen(true);
+  };
 
   return (
     <div className="container mx-auto py-6">
@@ -150,6 +228,16 @@ export default function Orcamentos() {
                     <Pencil className="mr-2 h-4 w-4" />
                     Editar
                   </Button>
+                  {(orc.status === "APROVADO" || orc.status === "ENVIADO") && !orc.project_id && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleConvert(orc)}
+                      disabled={converterMutation.isPending}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Converter
+                    </Button>
+                  )}
                   <Button variant="outline" size="icon">
                     <Download className="h-4 w-4" />
                   </Button>
@@ -159,6 +247,37 @@ export default function Orcamentos() {
           ))}
         </div>
       )}
+
+      <AlertDialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Converter Orçamento em Projeto</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja converter o orçamento <strong>{selectedOrcamento?.numero_orcamento}</strong> em um projeto?
+              <br /><br />
+              Isso irá:
+              <ul className="list-disc list-inside mt-2">
+                <li>Criar um novo projeto vinculado</li>
+                <li>Marcar o orçamento como CONVERTIDO</li>
+                <li>Permitir acompanhamento completo do projeto</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (selectedOrcamento) {
+                  converterMutation.mutate(selectedOrcamento.id);
+                  setConvertDialogOpen(false);
+                }
+              }}
+            >
+              Converter
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -19,7 +19,8 @@ import DashboardCheques from "@/components/dashboard/DashboardCheques";
 import DashboardMetas from "@/components/dashboard/DashboardMetas";
 import DashboardFeedbacks from "@/components/dashboard/DashboardFeedbacks";
 import DashboardParceiros from "@/components/dashboard/DashboardParceiros";
-import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake, CreditCard, DollarSign, FileText } from "lucide-react";
+import DashboardOrcamentos from "@/components/dashboard/DashboardOrcamentos";
+import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake, CreditCard, DollarSign, FileText, Calculator } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -33,6 +34,10 @@ export default function Dashboard() {
 
       <Tabs defaultValue="vendas" className="w-full">
         <TabsList className="grid w-full grid-cols-5 lg:grid-cols-8 xl:grid-cols-10 gap-1 mb-6 h-auto p-1">
+          <TabsTrigger value="orcamentos" className="flex items-center gap-2 text-xs">
+            <Calculator className="h-4 w-4" />
+            <span className="hidden sm:inline">Orçamentos</span>
+          </TabsTrigger>
           <TabsTrigger value="vendas" className="flex items-center gap-2 text-xs">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Vendas</span>
@@ -110,6 +115,10 @@ export default function Dashboard() {
             <span className="hidden sm:inline">Parceiros</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="orcamentos">
+          <DashboardOrcamentos userId={user!.id} />
+        </TabsContent>
 
         <TabsContent value="vendas">
           <DashboardVendas userId={user!.id} />
