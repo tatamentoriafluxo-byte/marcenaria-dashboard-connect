@@ -544,7 +544,8 @@ export type Database = {
       ferramentas: {
         Row: {
           categoria: Database["public"]["Enums"]["categoria_ferramenta"]
-          codigo_patrimonio: string
+          categoria_customizada: string | null
+          codigo_patrimonio: string | null
           created_at: string | null
           data_aquisicao: string | null
           foto_url: string | null
@@ -552,6 +553,7 @@ export type Database = {
           localizacao: Database["public"]["Enums"]["localizacao_ferramenta"]
           marca: string | null
           modelo: string | null
+          moeda: Database["public"]["Enums"]["moeda"]
           nome: string
           numero_serie: string | null
           observacoes: string | null
@@ -560,6 +562,7 @@ export type Database = {
           status: Database["public"]["Enums"]["status_ferramenta"]
           taxa_depreciacao_anual: number | null
           tipo: Database["public"]["Enums"]["tipo_ferramenta"]
+          tipo_customizado: string | null
           ultima_manutencao: string | null
           updated_at: string | null
           user_id: string
@@ -569,7 +572,8 @@ export type Database = {
         }
         Insert: {
           categoria: Database["public"]["Enums"]["categoria_ferramenta"]
-          codigo_patrimonio: string
+          categoria_customizada?: string | null
+          codigo_patrimonio?: string | null
           created_at?: string | null
           data_aquisicao?: string | null
           foto_url?: string | null
@@ -577,6 +581,7 @@ export type Database = {
           localizacao?: Database["public"]["Enums"]["localizacao_ferramenta"]
           marca?: string | null
           modelo?: string | null
+          moeda?: Database["public"]["Enums"]["moeda"]
           nome: string
           numero_serie?: string | null
           observacoes?: string | null
@@ -585,6 +590,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["status_ferramenta"]
           taxa_depreciacao_anual?: number | null
           tipo: Database["public"]["Enums"]["tipo_ferramenta"]
+          tipo_customizado?: string | null
           ultima_manutencao?: string | null
           updated_at?: string | null
           user_id: string
@@ -594,7 +600,8 @@ export type Database = {
         }
         Update: {
           categoria?: Database["public"]["Enums"]["categoria_ferramenta"]
-          codigo_patrimonio?: string
+          categoria_customizada?: string | null
+          codigo_patrimonio?: string | null
           created_at?: string | null
           data_aquisicao?: string | null
           foto_url?: string | null
@@ -602,6 +609,7 @@ export type Database = {
           localizacao?: Database["public"]["Enums"]["localizacao_ferramenta"]
           marca?: string | null
           modelo?: string | null
+          moeda?: Database["public"]["Enums"]["moeda"]
           nome?: string
           numero_serie?: string | null
           observacoes?: string | null
@@ -610,6 +618,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["status_ferramenta"]
           taxa_depreciacao_anual?: number | null
           tipo?: Database["public"]["Enums"]["tipo_ferramenta"]
+          tipo_customizado?: string | null
           ultima_manutencao?: string | null
           updated_at?: string | null
           user_id?: string
@@ -2018,6 +2027,7 @@ export type Database = {
         | "TRANSFERENCIA"
         | "CREDITO_PARCELADO"
       localizacao_ferramenta: "MARCENARIA" | "OBRA" | "MANUTENCAO_EXTERNA"
+      moeda: "BRL" | "USD" | "EUR" | "GBP" | "JPY" | "CHF" | "CAD" | "AUD"
       origem_lead:
         | "LOJA"
         | "INSTAGRAM"
@@ -2270,6 +2280,7 @@ export const Constants = {
         "CREDITO_PARCELADO",
       ],
       localizacao_ferramenta: ["MARCENARIA", "OBRA", "MANUTENCAO_EXTERNA"],
+      moeda: ["BRL", "USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD"],
       origem_lead: [
         "LOJA",
         "INSTAGRAM",
