@@ -24,6 +24,9 @@ import Fretistas from "./pages/Fretistas";
 import Producao from "./pages/Producao";
 import Montagem from "./pages/Montagem";
 import FluxoCaixa from "./pages/FluxoCaixa";
+import ContasPagar from "./pages/ContasPagar";
+import ContasReceber from "./pages/ContasReceber";
+import Cheques from "./pages/Cheques";
 import Metas from "./pages/Metas";
 import Feedbacks from "./pages/Feedbacks";
 import CapacidadeProducao from "./pages/CapacidadeProducao";
@@ -64,6 +67,9 @@ const App = () => (
           <Route path="/producao" element={<ProtectedRoute><AppLayout><Producao /></AppLayout></ProtectedRoute>} />
           <Route path="/montagem" element={<ProtectedRoute><AppLayout><Montagem /></AppLayout></ProtectedRoute>} />
           <Route path="/fluxo-caixa" element={<ProtectedRoute><AppLayout><FluxoCaixa /></AppLayout></ProtectedRoute>} />
+          <Route path="/contas-pagar" element={<ProtectedRoute><AppLayout><ContasPagar /></AppLayout></ProtectedRoute>} />
+          <Route path="/contas-receber" element={<ProtectedRoute><AppLayout><ContasReceber /></AppLayout></ProtectedRoute>} />
+          <Route path="/cheques" element={<ProtectedRoute><AppLayout><Cheques /></AppLayout></ProtectedRoute>} />
           <Route path="/metas" element={<ProtectedRoute><AppLayout><Metas /></AppLayout></ProtectedRoute>} />
           <Route path="/feedbacks" element={<ProtectedRoute><AppLayout><Feedbacks /></AppLayout></ProtectedRoute>} />
           <Route path="/capacidade-producao" element={<ProtectedRoute><AppLayout><CapacidadeProducao /></AppLayout></ProtectedRoute>} />

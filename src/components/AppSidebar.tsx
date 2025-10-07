@@ -3,7 +3,8 @@ import {
   Home, BarChart3, Box, Truck, Users, UserCheck,
   User, FolderKanban, ShoppingCart, Package,
   Factory, Wrench, Wallet, MessageSquare,
-  Target, TrendingUp, Handshake, Settings
+  Target, TrendingUp, Handshake, Settings,
+  CreditCard, DollarSign, FileText
 } from "lucide-react";
 import {
   Sidebar,
@@ -63,9 +64,17 @@ export function AppSidebar() {
       ]
     },
     {
+      label: "💰 Financeiro",
+      items: [
+        { title: "Contas a Pagar", url: "/contas-pagar", icon: CreditCard },
+        { title: "Contas a Receber", url: "/contas-receber", icon: DollarSign },
+        { title: "Cheques", url: "/cheques", icon: FileText },
+        { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Wallet },
+      ]
+    },
+    {
       label: "5. Controle e Crescimento",
       items: [
-        { title: "Fluxo de Caixa", url: "/fluxo-caixa", icon: Wallet },
         { title: "Feedbacks", url: "/feedbacks", icon: MessageSquare },
         { title: "Metas", url: "/metas", icon: Target },
         { title: "Capacidade de Produção", url: "/capacidade-producao", icon: TrendingUp },

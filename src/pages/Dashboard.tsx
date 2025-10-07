@@ -13,10 +13,13 @@ import DashboardVendedores from "@/components/dashboard/DashboardVendedores";
 import DashboardCompras from "@/components/dashboard/DashboardCompras";
 import DashboardMontagem from "@/components/dashboard/DashboardMontagem";
 import DashboardFluxoCaixa from "@/components/dashboard/DashboardFluxoCaixa";
+import DashboardContasPagar from "@/components/dashboard/DashboardContasPagar";
+import DashboardContasReceber from "@/components/dashboard/DashboardContasReceber";
+import DashboardCheques from "@/components/dashboard/DashboardCheques";
 import DashboardMetas from "@/components/dashboard/DashboardMetas";
 import DashboardFeedbacks from "@/components/dashboard/DashboardFeedbacks";
 import DashboardParceiros from "@/components/dashboard/DashboardParceiros";
-import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake } from "lucide-react";
+import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake, CreditCard, DollarSign, FileText } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -57,6 +60,18 @@ export default function Dashboard() {
           <TabsTrigger value="montagem" className="flex items-center gap-2 text-xs">
             <Wrench className="h-4 w-4" />
             <span className="hidden sm:inline">Montagem</span>
+          </TabsTrigger>
+          <TabsTrigger value="contaspagar" className="flex items-center gap-2 text-xs">
+            <CreditCard className="h-4 w-4" />
+            <span className="hidden sm:inline">Pagar</span>
+          </TabsTrigger>
+          <TabsTrigger value="contasreceber" className="flex items-center gap-2 text-xs">
+            <DollarSign className="h-4 w-4" />
+            <span className="hidden sm:inline">Receber</span>
+          </TabsTrigger>
+          <TabsTrigger value="cheques" className="flex items-center gap-2 text-xs">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Cheques</span>
           </TabsTrigger>
           <TabsTrigger value="fluxocaixa" className="flex items-center gap-2 text-xs">
             <Wallet className="h-4 w-4" />
@@ -124,6 +139,18 @@ export default function Dashboard() {
           <DashboardMontagem userId={user!.id} />
         </TabsContent>
 
+        <TabsContent value="contaspagar">
+          <DashboardContasPagar userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="contasreceber">
+          <DashboardContasReceber userId={user!.id} />
+        </TabsContent>
+
+        <TabsContent value="cheques">
+          <DashboardCheques userId={user!.id} />
+        </TabsContent>
+
         <TabsContent value="fluxocaixa">
           <DashboardFluxoCaixa userId={user!.id} />
         </TabsContent>
@@ -158,54 +185,6 @@ export default function Dashboard() {
 
         <TabsContent value="parceiros">
           <DashboardParceiros userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="producao">
-          <DashboardProducao userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="estoque">
-          <DashboardEstoque userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="clientes">
-          <DashboardClientes userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="fornecedores">
-          <DashboardFornecedores userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="funcionarios">
-          <DashboardFuncionarios userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="materiais">
-          <DashboardMateriais userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="vendedores">
-          <DashboardVendedores userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="compras">
-          <DashboardCompras userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="montagem">
-          <DashboardMontagem userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="fluxocaixa">
-          <DashboardFluxoCaixa userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="metas">
-          <DashboardMetas userId={user!.id} />
-        </TabsContent>
-
-        <TabsContent value="feedbacks">
-          <DashboardFeedbacks userId={user!.id} />
         </TabsContent>
       </Tabs>
     </div>
