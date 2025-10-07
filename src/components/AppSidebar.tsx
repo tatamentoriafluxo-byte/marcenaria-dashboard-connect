@@ -4,7 +4,8 @@ import {
   User, FolderKanban, ShoppingCart, Package,
   Factory, Wrench, Wallet, MessageSquare,
   Target, TrendingUp, Handshake, Settings,
-  CreditCard, DollarSign, FileText, Calculator
+  CreditCard, DollarSign, FileText, Calculator,
+  Upload
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +34,7 @@ export function AppSidebar() {
     {
       label: "1. Configuração Inicial",
       items: [
+        { title: "Importar Dados", url: "/importar-dados", icon: Upload },
         { title: "Materiais", url: "/materiais", icon: Box },
         { title: "Fornecedores", url: "/fornecedores", icon: Truck },
         { title: "Funcionários", url: "/funcionarios", icon: Users },
