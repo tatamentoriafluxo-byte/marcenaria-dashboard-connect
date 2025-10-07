@@ -59,6 +59,13 @@ export type Database = {
             referencedRelation: "veiculos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_abastecimentos_veiculo"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
         ]
       }
       capacidade_producao: {
@@ -164,6 +171,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "cheques_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_cheques_pagamento"
             columns: ["pagamento_id"]
             isOneToOne: false
             referencedRelation: "pagamentos"
@@ -285,6 +299,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_compras_fornecedor"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contas: {
@@ -387,6 +408,41 @@ export type Database = {
             referencedRelation: "resumo_projetos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_contas_cliente"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_compra"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_fornecedor"
+            columns: ["fornecedor_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_contas_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
         ]
       }
       estoque: {
@@ -455,6 +511,20 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_estoque_fornecedor_principal"
+            columns: ["fornecedor_principal_id"]
+            isOneToOne: false
+            referencedRelation: "fornecedores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_estoque_material"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materiais"
             referencedColumns: ["id"]
           },
         ]
@@ -537,6 +607,20 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_feedbacks_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_feedbacks_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
             referencedColumns: ["id"]
           },
         ]
@@ -744,6 +828,41 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_fretes_fretista"
+            columns: ["fretista_id"]
+            isOneToOne: false
+            referencedRelation: "fretistas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_fretes_montagem"
+            columns: ["montagem_id"]
+            isOneToOne: false
+            referencedRelation: "montagem"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_fretes_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_fretes_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_fretes_veiculo"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fretes_fretista_id_fkey"
             columns: ["fretista_id"]
             isOneToOne: false
@@ -923,6 +1042,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_itens_compra_compra"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_itens_compra_material"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materiais"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "itens_compra_compra_id_fkey"
             columns: ["compra_id"]
             isOneToOne: false
@@ -977,6 +1110,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_manutencoes_ferramentas_ferramenta"
+            columns: ["ferramenta_id"]
+            isOneToOne: false
+            referencedRelation: "ferramentas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "manutencoes_ferramentas_ferramenta_id_fkey"
             columns: ["ferramenta_id"]
             isOneToOne: false
@@ -1026,6 +1166,13 @@ export type Database = {
           veiculo_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_manutencoes_veiculos_veiculo"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "manutencoes_veiculos_veiculo_id_fkey"
             columns: ["veiculo_id"]
@@ -1118,6 +1265,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_metas_vendedor"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "metas_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1186,6 +1340,27 @@ export type Database = {
           valor_montagem?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_montagem_montador"
+            columns: ["montador_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_montagem_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_montagem_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "montagem_montador_id_fkey"
             columns: ["montador_id"]
@@ -1257,6 +1432,27 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_movimentacoes_ferramentas_ferramenta"
+            columns: ["ferramenta_id"]
+            isOneToOne: false
+            referencedRelation: "ferramentas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_movimentacoes_ferramentas_funcionario"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_movimentacoes_ferramentas_montagem"
+            columns: ["montagem_id"]
+            isOneToOne: false
+            referencedRelation: "montagem"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "movimentacoes_ferramentas_ferramenta_id_fkey"
             columns: ["ferramenta_id"]
@@ -1330,6 +1526,20 @@ export type Database = {
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_pagamentos_conta"
+            columns: ["conta_id"]
+            isOneToOne: false
+            referencedRelation: "contas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_pagamentos_parcela"
+            columns: ["parcela_id"]
+            isOneToOne: false
+            referencedRelation: "parcelas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pagamentos_conta_id_fkey"
             columns: ["conta_id"]
@@ -1469,6 +1679,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_parcelas_conta"
+            columns: ["conta_id"]
+            isOneToOne: false
+            referencedRelation: "contas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "parcelas_conta_id_fkey"
             columns: ["conta_id"]
             isOneToOne: false
@@ -1548,6 +1765,27 @@ export type Database = {
           valor_producao?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_producao_marceneiro"
+            columns: ["marceneiro_id"]
+            isOneToOne: false
+            referencedRelation: "funcionarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_producao_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_producao_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "producao_marceneiro_id_fkey"
             columns: ["marceneiro_id"]
@@ -1695,6 +1933,27 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_projects_cliente"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_projects_parceiro"
+            columns: ["parceiro_id"]
+            isOneToOne: false
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_projects_vendedor"
+            columns: ["vendedor_id"]
+            isOneToOne: false
+            referencedRelation: "vendedores"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "projects_cliente_id_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
@@ -1777,6 +2036,27 @@ export type Database = {
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_transacoes_compra"
+            columns: ["compra_id"]
+            isOneToOne: false
+            referencedRelation: "compras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_transacoes_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_transacoes_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "resumo_projetos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transacoes_financeiras_compra_id_fkey"
             columns: ["compra_id"]
