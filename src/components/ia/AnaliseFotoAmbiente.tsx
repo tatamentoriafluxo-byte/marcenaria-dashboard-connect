@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Camera, Sparkles, Eye, Settings } from "lucide-react";
+import { Loader2, Camera, Sparkles, Eye, Settings, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { UploadFotoAmbiente } from "./UploadFotoAmbiente";
 import { VisaoCliente } from "./VisaoCliente";
 import { VisaoVendedor } from "./VisaoVendedor";
+import { HistoricoAnalises } from "./HistoricoAnalises";
 
 type AnaliseResultado = {
   analise_ambiente?: {
@@ -47,6 +49,7 @@ type AnaliseResultado = {
 
 export function AnaliseFotoAmbiente() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [uploadingReferencia, setUploadingReferencia] = useState(false);
   const [analisando, setAnalisando] = useState(false);
@@ -56,6 +59,7 @@ export function AnaliseFotoAmbiente() {
   const [resultado, setResultado] = useState<AnaliseResultado | null>(null);
   const [imagemSimuladaUrl, setImagemSimuladaUrl] = useState<string | null>(null);
   const [visaoAtiva, setVisaoAtiva] = useState<"cliente" | "vendedor">("cliente");
+  const [showHistorico, setShowHistorico] = useState(false);
 
   const handleFileUpload = useCallback(async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -139,6 +143,8 @@ export function AnaliseFotoAmbiente() {
         if (response.data.imagem_simulada_url) {
           setImagemSimuladaUrl(response.data.imagem_simulada_url);
         }
+        // Invalidar cache do histórico para mostrar a nova análise
+        queryClient.invalidateQueries({ queryKey: ["analises-ambiente", user?.id] });
         toast.success("Análise concluída!");
       } else {
         throw new Error("Resposta inválida da análise");
@@ -163,17 +169,31 @@ export function AnaliseFotoAmbiente() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Camera className="h-6 w-6" />
-        <h2 className="text-2xl font-bold">Análise de Foto com IA</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Camera className="h-6 w-6" />
+          <h2 className="text-2xl font-bold">Análise de Foto com IA</h2>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowHistorico(!showHistorico)}
+          className="gap-2"
+        >
+          <History className="h-4 w-4" />
+          {showHistorico ? "Nova Análise" : "Histórico"}
+        </Button>
       </div>
       <p className="text-muted-foreground">
         Envie uma foto do ambiente e a IA irá analisar, sugerir móveis e gerar uma simulação visual do projeto
       </p>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Coluna de Upload e Configurações */}
-        <div className="space-y-4">
+      {showHistorico ? (
+        <HistoricoAnalises />
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Coluna de Upload e Configurações */}
+          <div className="space-y-4">
           <UploadFotoAmbiente
             imageUrl={imageUrl}
             referenciaUrl={referenciaUrl}
@@ -268,6 +288,7 @@ export function AnaliseFotoAmbiente() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
