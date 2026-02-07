@@ -7,12 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Camera, Sparkles, Eye, Settings, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { UploadFotoAmbiente } from "./UploadFotoAmbiente";
 import { VisaoCliente } from "./VisaoCliente";
 import { VisaoVendedor } from "./VisaoVendedor";
 import { HistoricoAnalises } from "./HistoricoAnalises";
+import { TemplatesPreferencias } from "./TemplatesPreferencias";
+import { ComparacaoAnalises } from "./ComparacaoAnalises";
 
 type AnaliseResultado = {
   analise_ambiente?: {
@@ -58,8 +60,24 @@ export function AnaliseFotoAmbiente() {
   const [preferencias, setPreferencias] = useState("");
   const [resultado, setResultado] = useState<AnaliseResultado | null>(null);
   const [imagemSimuladaUrl, setImagemSimuladaUrl] = useState<string | null>(null);
+  const [analiseId, setAnaliseId] = useState<string | null>(null);
   const [visaoAtiva, setVisaoAtiva] = useState<"cliente" | "vendedor">("cliente");
   const [showHistorico, setShowHistorico] = useState(false);
+
+  // Buscar nome da marcenaria do perfil
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("nome_marcenaria")
+        .eq("id", user!.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const handleFileUpload = useCallback(async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -126,6 +144,7 @@ export function AnaliseFotoAmbiente() {
       setAnalisando(true);
       setResultado(null);
       setImagemSimuladaUrl(null);
+      setAnaliseId(null);
 
       const response = await supabase.functions.invoke("analisar-foto-ambiente", {
         body: {
@@ -142,6 +161,9 @@ export function AnaliseFotoAmbiente() {
         setResultado(response.data.analise);
         if (response.data.imagem_simulada_url) {
           setImagemSimuladaUrl(response.data.imagem_simulada_url);
+        }
+        if (response.data.analise_id) {
+          setAnaliseId(response.data.analise_id);
         }
         // Invalidar cache do histórico para mostrar a nova análise
         queryClient.invalidateQueries({ queryKey: ["analises-ambiente", user?.id] });
@@ -161,6 +183,7 @@ export function AnaliseFotoAmbiente() {
     setImageUrl(null);
     setResultado(null);
     setImagemSimuladaUrl(null);
+    setAnaliseId(null);
   };
 
   const handleRemoveReferencia = () => {
@@ -169,20 +192,23 @@ export function AnaliseFotoAmbiente() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Camera className="h-6 w-6" />
           <h2 className="text-2xl font-bold">Análise de Foto com IA</h2>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowHistorico(!showHistorico)}
-          className="gap-2"
-        >
-          <History className="h-4 w-4" />
-          {showHistorico ? "Nova Análise" : "Histórico"}
-        </Button>
+        <div className="flex gap-2">
+          <ComparacaoAnalises />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowHistorico(!showHistorico)}
+            className="gap-2"
+          >
+            <History className="h-4 w-4" />
+            {showHistorico ? "Nova Análise" : "Histórico"}
+          </Button>
+        </div>
       </div>
       <p className="text-muted-foreground">
         Envie uma foto do ambiente e a IA irá analisar, sugerir móveis e gerar uma simulação visual do projeto
@@ -207,8 +233,11 @@ export function AnaliseFotoAmbiente() {
 
           {/* Preferências */}
           <Card>
-            <CardContent className="pt-4 space-y-2">
-              <Label htmlFor="preferencias">Preferências do Cliente (opcional)</Label>
+            <CardContent className="pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="preferencias">Preferências do Cliente (opcional)</Label>
+                <TemplatesPreferencias value={preferencias} onChange={setPreferencias} />
+              </div>
               <Textarea
                 id="preferencias"
                 placeholder="Ex: Prefere cores claras, precisa de muito espaço de armazenamento, estilo moderno..."
@@ -259,10 +288,17 @@ export function AnaliseFotoAmbiente() {
                   imagemSimuladaUrl={imagemSimuladaUrl}
                   valorTotalEstimado={resultado.valor_total_estimado || null}
                   gerandoImagem={false}
+                  tipoAmbiente={resultado.analise_ambiente?.tipo_ambiente}
                 />
               </TabsContent>
               <TabsContent value="vendedor" className="mt-4">
-                <VisaoVendedor resultado={resultado} />
+                <VisaoVendedor 
+                  resultado={resultado} 
+                  fotoAmbienteUrl={imageUrl || undefined}
+                  imagemSimuladaUrl={imagemSimuladaUrl}
+                  analiseId={analiseId || undefined}
+                  nomeMarcenaria={profile?.nome_marcenaria}
+                />
               </TabsContent>
             </Tabs>
           ) : analisando ? (

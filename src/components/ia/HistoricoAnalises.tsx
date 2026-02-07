@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { History, Image as ImageIcon, Calendar, Trash2, Eye, Loader2 } from "lucide-react";
+import { History, Image as ImageIcon, Calendar, Trash2, Eye, Loader2, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useLinkPublico } from "@/hooks/useLinkPublico";
 
 type AnaliseHistorico = {
   id: string;
@@ -22,12 +23,14 @@ type AnaliseHistorico = {
   tipo_ambiente: string | null;
   data_analise: string;
   created_at: string;
+  link_publico: string | null;
 };
 
 export function HistoricoAnalises() {
   const { user } = useAuth();
   const [selectedAnalise, setSelectedAnalise] = useState<AnaliseHistorico | null>(null);
   const [deletando, setDeletando] = useState<string | null>(null);
+  const { gerarLink, gerando: gerandoLink } = useLinkPublico();
 
   const { data: analises = [], isLoading, refetch } = useQuery({
     queryKey: ["analises-ambiente", user?.id],
@@ -164,14 +167,29 @@ export function HistoricoAnalises() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setSelectedAnalise(analise)}
+                      title="Ver detalhes"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={() => gerarLink(analise.id)}
+                      disabled={gerandoLink}
+                      title={analise.link_publico ? "Copiar link" : "Gerar link público"}
+                    >
+                      {gerandoLink ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Link2 className={`h-4 w-4 ${analise.link_publico ? "text-primary" : ""}`} />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleDeletar(analise.id)}
                       disabled={deletando === analise.id}
+                      title="Excluir"
                     >
                       {deletando === analise.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

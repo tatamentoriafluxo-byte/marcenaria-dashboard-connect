@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Home, Ruler, Package, DollarSign, AlertCircle, CheckCircle, Plus, Loader2, Tag, FileText } from "lucide-react";
+import { Home, Ruler, Package, DollarSign, AlertCircle, CheckCircle, Plus, Loader2, Tag, FileText, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { ExportarPDF } from "./ExportarPDF";
+import { useLinkPublico } from "@/hooks/useLinkPublico";
 
 type SugestaoMovel = {
   nome: string;
@@ -48,6 +50,10 @@ type AnaliseResultado = {
 
 interface VisaoVendedorProps {
   resultado: AnaliseResultado;
+  fotoAmbienteUrl?: string;
+  imagemSimuladaUrl?: string | null;
+  analiseId?: string;
+  nomeMarcenaria?: string;
 }
 
 // Mapeamento de tipo de móvel para categoria do catálogo
@@ -78,12 +84,13 @@ const mapearCategoria = (tipo: string): "ACABAMENTO" | "ACESSORIO" | "ARMARIO" |
   return "OUTROS";
 };
 
-export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
+export function VisaoVendedor({ resultado, fotoAmbienteUrl, imagemSimuladaUrl, analiseId, nomeMarcenaria }: VisaoVendedorProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
   const [adicionando, setAdicionando] = useState(false);
   const [criandoOrcamento, setCriandoOrcamento] = useState(false);
+  const { gerarLink, gerando: gerandoLink } = useLinkPublico();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -487,6 +494,41 @@ export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Ações de Compartilhamento */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Compartilhar Análise</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <ExportarPDF
+            resultado={resultado}
+            fotoAmbienteUrl={fotoAmbienteUrl}
+            imagemSimuladaUrl={imagemSimuladaUrl}
+            nomeMarcenaria={nomeMarcenaria || "Marcenaria"}
+          />
+          {analiseId && (
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => gerarLink(analiseId)}
+              disabled={gerandoLink}
+            >
+              {gerandoLink ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-4 w-4" />
+                  Gerar Link Público
+                </>
+              )}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

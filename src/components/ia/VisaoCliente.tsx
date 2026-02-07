@@ -1,15 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Share2, Image as ImageIcon, Loader2, Download } from "lucide-react";
+import { DollarSign, Share2, Image as ImageIcon, Loader2, Download, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface VisaoClienteProps {
   imagemSimuladaUrl: string | null;
   valorTotalEstimado: number | null;
   gerandoImagem: boolean;
+  tipoAmbiente?: string;
 }
 
-export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoImagem }: VisaoClienteProps) {
+export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoImagem, tipoAmbiente }: VisaoClienteProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -26,6 +27,19 @@ export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoIma
         window.open(imagemSimuladaUrl, "_blank");
       }
     }
+  };
+
+  const handleWhatsApp = () => {
+    const tipo = tipoAmbiente || "ambiente";
+    const valor = valorTotalEstimado ? formatCurrency(valorTotalEstimado) : "a calcular";
+    
+    const mensagem = `Olá! Segue a simulação do seu ${tipo}:\n\n` +
+      `🏠 Tipo: ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}\n` +
+      `💰 Valor estimado: ${valor}\n\n` +
+      (imagemSimuladaUrl ? `🔗 Ver imagem: ${imagemSimuladaUrl}\n\n` : "") +
+      `Aguardo seu retorno!`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensagem)}`, "_blank");
   };
 
   const handleBaixar = async () => {
@@ -93,14 +107,14 @@ export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoIma
                 alt="Simulação do ambiente com móveis"
                 className="w-full rounded-lg object-contain max-h-[400px]"
               />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button 
                   variant="outline" 
                   className="gap-2"
                   onClick={handleBaixar}
                 >
                   <Download className="h-4 w-4" />
-                  Baixar Imagem
+                  Baixar
                 </Button>
                 <Button 
                   variant="outline" 
@@ -108,7 +122,14 @@ export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoIma
                   onClick={handleCompartilhar}
                 >
                   <Share2 className="h-4 w-4" />
-                  Compartilhar
+                  Copiar Link
+                </Button>
+                <Button 
+                  className="gap-2 bg-green-600 hover:bg-green-700"
+                  onClick={handleWhatsApp}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp
                 </Button>
               </div>
             </div>
