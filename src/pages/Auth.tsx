@@ -14,10 +14,10 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [nomeMarcenaria, setNomeMarcenaria] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState<'login' | 'cadastro'>('login');
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -47,11 +47,29 @@ const Auth = () => {
         description: 'Você já pode fazer login.',
       });
     } catch (error: any) {
-      toast({
-        title: 'Erro ao criar conta',
-        description: error.message,
-        variant: 'destructive',
-      });
+      const message = String(error?.message ?? '');
+      const status = Number(error?.status ?? error?.statusCode ?? NaN);
+
+      const isAlreadyRegistered =
+        status === 422 ||
+        /already registered/i.test(message) ||
+        /user already registered/i.test(message) ||
+        /already exists/i.test(message);
+
+      if (isAlreadyRegistered) {
+        toast({
+          title: 'Email já cadastrado',
+          description: 'Esse email já possui conta. Faça login para entrar.',
+          variant: 'destructive',
+        });
+        setTab('login');
+      } else {
+        toast({
+          title: 'Erro ao criar conta',
+          description: message || 'Não foi possível criar a conta.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -89,7 +107,7 @@ const Auth = () => {
           <CardDescription>Gerencie seus projetos e vendas</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as 'login' | 'cadastro')} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="cadastro">Cadastro</TabsTrigger>

@@ -2491,10 +2491,7 @@ export type Database = {
         Args: { ferramenta_id: string }
         Returns: number
       }
-      calcular_lucro_projeto: {
-        Args: { project_id: string }
-        Returns: number
-      }
+      calcular_lucro_projeto: { Args: { project_id: string }; Returns: number }
       calcular_projecao_fluxo: {
         Args: { _data_fim: string; _data_inicio: string; _user_id: string }
         Returns: {
