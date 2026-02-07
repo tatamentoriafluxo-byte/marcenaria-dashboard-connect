@@ -89,7 +89,7 @@ const NovoProjeto = () => {
           data_entrega: formData.data_entrega || null,
           visualizado_cliente: formData.visualizado_cliente,
           preencheu_formulario: formData.preencheu_formulario,
-          parceiro_id: formData.parceiro_id || null,
+          parceiro_id: formData.parceiro_id && formData.parceiro_id !== 'none' ? formData.parceiro_id : null,
           comissao_parceiro: comissaoParceiro,
         },
       ]);
@@ -350,7 +350,7 @@ const NovoProjeto = () => {
                       <SelectValue placeholder="Selecione um parceiro" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sem parceiro</SelectItem>
+                      <SelectItem value="none">Sem parceiro</SelectItem>
                       {parceiros.map(p => (
                         <SelectItem key={p.id} value={p.id}>
                           {p.nome} ({p.percentual_comissao}%)

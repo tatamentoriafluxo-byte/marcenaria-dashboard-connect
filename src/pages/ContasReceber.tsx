@@ -105,10 +105,12 @@ export default function ContasReceber() {
   }, [user]);
 
   const loadClientes = async () => {
+    if (!user?.id) return;
+    
     const { data, error } = await supabase
       .from("clientes")
       .select("id, nome")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .order("nome");
 
     if (error) {
@@ -119,10 +121,12 @@ export default function ContasReceber() {
   };
 
   const loadProjetos = async () => {
+    if (!user?.id) return;
+    
     const { data, error } = await supabase
       .from("projects")
       .select("id, cod_projeto, nome_cliente")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .order("cod_projeto");
 
     if (error) {
@@ -185,7 +189,7 @@ export default function ContasReceber() {
         user_id: user!.id,
         tipo: "RECEBER",
         cliente_id: formData.cliente_id || null,
-        project_id: formData.project_id || null,
+        project_id: formData.project_id && formData.project_id !== 'none' ? formData.project_id : null,
         descricao: formData.descricao,
         numero_documento: formData.numero_documento,
         tipo_documento: formData.tipo_documento as any,
@@ -371,7 +375,7 @@ export default function ContasReceber() {
                           <SelectValue placeholder="Selecione o projeto" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Nenhum</SelectItem>
+                          <SelectItem value="none">Nenhum</SelectItem>
                           {projetos.map((p) => (
                             <SelectItem key={p.id} value={p.id}>
                               {p.cod_projeto} - {p.nome_cliente}
