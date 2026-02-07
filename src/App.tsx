@@ -35,6 +35,7 @@ import Orcamentos from "./pages/Orcamentos";
 import CatalogoPrecos from "./pages/CatalogoPrecos";
 import NovoOrcamento from "./pages/NovoOrcamento";
 import ImportarDados from "./pages/ImportarDados";
+import AnaliseFoto from "./pages/AnaliseFoto";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -85,6 +86,7 @@ const App = () => (
           <Route path="/orcamentos/:id" element={<ProtectedRoute><AppLayout><NovoOrcamento /></AppLayout></ProtectedRoute>} />
           <Route path="/catalogo-precos" element={<ProtectedRoute><AppLayout><CatalogoPrecos /></AppLayout></ProtectedRoute>} />
           <Route path="/importar-dados" element={<ProtectedRoute><AppLayout><ImportarDados /></AppLayout></ProtectedRoute>} />
+          <Route path="/analise-foto" element={<ProtectedRoute><AppLayout><AnaliseFoto /></AppLayout></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

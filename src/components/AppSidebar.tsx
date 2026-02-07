@@ -5,7 +5,7 @@ import {
   Factory, Wrench, Wallet, MessageSquare,
   Target, TrendingUp, Handshake, Settings,
   CreditCard, DollarSign, FileText, Calculator,
-  Upload
+  Upload, Camera
 } from "lucide-react";
 import {
   Sidebar,
@@ -48,6 +48,7 @@ export function AppSidebar() {
         { title: "Clientes", url: "/clientes", icon: User },
         { title: "Orçamentos", url: "/orcamentos", icon: Calculator },
         { title: "Catálogo de Preços", url: "/catalogo-precos", icon: FileText },
+        { title: "Análise Foto IA", url: "/analise-foto", icon: Camera },
         { title: "Projetos", url: "/projetos", icon: FolderKanban },
       ]
     },
