@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { decode as decodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,7 +23,7 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { image_url, user_id, preferencias } = await req.json();
+    const { image_url, referencia_url, user_id, preferencias } = await req.json();
 
     if (!image_url || !user_id) {
       throw new Error("image_url e user_id são obrigatórios");
@@ -76,14 +77,28 @@ RESPONDA SEMPRE EM FORMATO JSON com a seguinte estrutura:
   "layout_sugerido": "descrição textual do layout ideal",
   "valor_total_estimado": número em reais,
   "observacoes": "observações importantes para o marceneiro",
-  "nivel_complexidade": "baixo/médio/alto"
+  "nivel_complexidade": "baixo/médio/alto",
+  "descricao_visual_completa": "descrição detalhada do ambiente com os móveis instalados para geração de imagem, incluindo cores, materiais, iluminação e estilo"
 }`;
 
-    const userPrompt = preferencias 
+    let userPromptContent: Array<{ type: string; text?: string; image_url?: { url: string } }> = [];
+    
+    let textPrompt = preferencias 
       ? `Analise este ambiente considerando as seguintes preferências do cliente: ${preferencias}`
       : "Analise este ambiente e sugira móveis planejados adequados.";
+    
+    if (referencia_url) {
+      textPrompt += "\n\nConsidere também a imagem de referência de estilo fornecida para inspirar as sugestões de design, cores e acabamentos.";
+    }
 
-    // Chamar Lovable AI com modelo de visão
+    userPromptContent.push({ type: "text", text: textPrompt });
+    userPromptContent.push({ type: "image_url", image_url: { url: image_url } });
+    
+    if (referencia_url) {
+      userPromptContent.push({ type: "image_url", image_url: { url: referencia_url } });
+    }
+
+    // Chamar Lovable AI com modelo de visão para análise
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -94,13 +109,7 @@ RESPONDA SEMPRE EM FORMATO JSON com a seguinte estrutura:
         model: "google/gemini-2.5-pro",
         messages: [
           { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: userPrompt },
-              { type: "image_url", image_url: { url: image_url } }
-            ]
-          }
+          { role: "user", content: userPromptContent }
         ],
         max_tokens: 4000,
       }),
@@ -147,10 +156,85 @@ RESPONDA SEMPRE EM FORMATO JSON com a seguinte estrutura:
       };
     }
 
+    // Gerar imagem simulada do ambiente com móveis
+    let imagem_simulada_url: string | null = null;
+    
+    if (!analise.erro_parse && analise.descricao_visual_completa) {
+      try {
+        const imagePrompt = `Gere uma imagem fotorrealista de um ambiente de ${analise.analise_ambiente?.tipo_ambiente || 'interior'} com móveis planejados instalados.
+
+DESCRIÇÃO DO AMBIENTE:
+${analise.descricao_visual_completa}
+
+MÓVEIS INCLUÍDOS:
+${analise.sugestoes_moveis?.map((m: { nome: string; material_sugerido?: string; acabamento_sugerido?: string }) => 
+  `- ${m.nome} em ${m.material_sugerido || 'MDF'} com acabamento ${m.acabamento_sugerido || 'laminado'}`
+).join('\n') || 'Móveis planejados sob medida'}
+
+ESTILO: Moderno, clean, iluminação natural, fotografia de arquitetura profissional.
+A imagem deve mostrar o ambiente pronto, com os móveis instalados, como se fosse uma foto real de um projeto concluído.`;
+
+        const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image",
+            messages: [
+              { role: "user", content: imagePrompt }
+            ],
+            modalities: ["image", "text"]
+          }),
+        });
+
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+          
+          if (generatedImage && generatedImage.startsWith("data:image/")) {
+            // Extrair o base64 da imagem
+            const base64Match = generatedImage.match(/^data:image\/(\w+);base64,(.+)$/);
+            if (base64Match) {
+              const imageFormat = base64Match[1];
+              const base64Data = base64Match[2];
+              const imageBytes = decodeBase64(base64Data);
+              
+              // Upload para o storage
+              const fileName = `${user_id}/simulacao_${Date.now()}.${imageFormat}`;
+              const { error: uploadError } = await supabase.storage
+                .from("fotos-ambientes")
+                .upload(fileName, imageBytes, {
+                  contentType: `image/${imageFormat}`,
+                  upsert: true
+                });
+
+              if (!uploadError) {
+                const { data: urlData } = supabase.storage
+                  .from("fotos-ambientes")
+                  .getPublicUrl(fileName);
+                
+                imagem_simulada_url = urlData.publicUrl;
+              } else {
+                console.error("Erro no upload da imagem:", uploadError);
+              }
+            }
+          }
+        } else {
+          console.error("Erro na geração de imagem:", await imageResponse.text());
+        }
+      } catch (imageError) {
+        console.error("Erro ao gerar imagem simulada:", imageError);
+        // Continua sem a imagem - não falha a operação principal
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         analise,
+        imagem_simulada_url,
         catalogo_usado: catalogoItens?.length || 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
