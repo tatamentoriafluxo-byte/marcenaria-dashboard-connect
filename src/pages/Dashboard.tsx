@@ -21,7 +21,8 @@ import DashboardFeedbacks from "@/components/dashboard/DashboardFeedbacks";
 import DashboardParceiros from "@/components/dashboard/DashboardParceiros";
 import DashboardOrcamentos from "@/components/dashboard/DashboardOrcamentos";
 import { PainelSemaforo } from "@/components/alertas/PainelSemaforo";
-import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake, CreditCard, DollarSign, FileText, Calculator, AlertTriangle } from "lucide-react";
+import { PainelScoreFechamento } from "@/components/ia/PainelScoreFechamento";
+import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake, CreditCard, DollarSign, FileText, Calculator, AlertTriangle, Brain } from "lucide-react";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -38,6 +39,10 @@ export default function Dashboard() {
           <TabsTrigger value="alertas" className="flex items-center gap-2 text-xs">
             <AlertTriangle className="h-4 w-4" />
             <span className="hidden sm:inline">Alertas</span>
+          </TabsTrigger>
+          <TabsTrigger value="score-ia" className="flex items-center gap-2 text-xs">
+            <Brain className="h-4 w-4" />
+            <span className="hidden sm:inline">Score IA</span>
           </TabsTrigger>
           <TabsTrigger value="orcamentos" className="flex items-center gap-2 text-xs">
             <Calculator className="h-4 w-4" />
@@ -123,6 +128,10 @@ export default function Dashboard() {
 
         <TabsContent value="alertas">
           <PainelSemaforo showTitle={false} />
+        </TabsContent>
+
+        <TabsContent value="score-ia">
+          <PainelScoreFechamento showTitle={false} />
         </TabsContent>
 
         <TabsContent value="orcamentos">
