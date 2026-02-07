@@ -1,6 +1,29 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Home, Ruler, Package, DollarSign, AlertCircle, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Home, Ruler, Package, DollarSign, AlertCircle, CheckCircle, Plus, Loader2, Tag } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+type SugestaoMovel = {
+  nome: string;
+  tipo: string;
+  dimensoes_sugeridas?: {
+    largura: number;
+    altura: number;
+    profundidade: number;
+  };
+  material_sugerido?: string;
+  acabamento_sugerido?: string;
+  item_catalogo_correspondente?: string | null;
+  catalogo_item_id?: string;
+  preco_estimado?: number;
+  preco_catalogo?: number;
+  preco_origem?: "catalogo" | "estimativa";
+};
 
 type AnaliseResultado = {
   analise_ambiente?: {
@@ -13,19 +36,7 @@ type AnaliseResultado = {
     caracteristicas: string[];
     pontos_atencao: string[];
   };
-  sugestoes_moveis?: Array<{
-    nome: string;
-    tipo: string;
-    dimensoes_sugeridas?: {
-      largura: number;
-      altura: number;
-      profundidade: number;
-    };
-    material_sugerido?: string;
-    acabamento_sugerido?: string;
-    item_catalogo_correspondente?: string | null;
-    preco_estimado?: number;
-  }>;
+  sugestoes_moveis?: SugestaoMovel[];
   layout_sugerido?: string;
   valor_total_estimado?: number;
   observacoes?: string;
@@ -38,7 +49,39 @@ interface VisaoVendedorProps {
   resultado: AnaliseResultado;
 }
 
+// Mapeamento de tipo de móvel para categoria do catálogo
+const mapearCategoria = (tipo: string): "ACABAMENTO" | "ACESSORIO" | "ARMARIO" | "BALCAO" | "FERRAGEM" | "GAVETA" | "ILUMINACAO" | "OUTROS" | "PORTA" | "VIDRO" => {
+  const tipoLower = tipo?.toLowerCase() || "";
+  
+  if (tipoLower.includes("armário") || tipoLower.includes("armario") || tipoLower.includes("guarda")) {
+    return "ARMARIO";
+  }
+  if (tipoLower.includes("bancada") || tipoLower.includes("balcão") || tipoLower.includes("balcao") || tipoLower.includes("mesa")) {
+    return "BALCAO";
+  }
+  if (tipoLower.includes("porta")) {
+    return "PORTA";
+  }
+  if (tipoLower.includes("gaveta")) {
+    return "GAVETA";
+  }
+  if (tipoLower.includes("vidro") || tipoLower.includes("espelho")) {
+    return "VIDRO";
+  }
+  if (tipoLower.includes("ferragem") || tipoLower.includes("dobradiça") || tipoLower.includes("puxador")) {
+    return "FERRAGEM";
+  }
+  if (tipoLower.includes("luz") || tipoLower.includes("led") || tipoLower.includes("luminária")) {
+    return "ILUMINACAO";
+  }
+  return "OUTROS";
+};
+
 export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
+  const { user } = useAuth();
+  const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
+  const [adicionando, setAdicionando] = useState(false);
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -57,6 +100,67 @@ export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
         return <Badge className="bg-red-100 text-red-800">Alta Complexidade</Badge>;
       default:
         return null;
+    }
+  };
+
+  // Móveis que NÃO têm correspondência no catálogo (podem ser adicionados)
+  const moveisNovos = resultado.sugestoes_moveis?.filter(
+    (m) => !m.catalogo_item_id && m.preco_origem !== "catalogo"
+  ) || [];
+
+  const toggleSelecionado = (index: number) => {
+    const newSet = new Set(selecionados);
+    if (newSet.has(index)) {
+      newSet.delete(index);
+    } else {
+      newSet.add(index);
+    }
+    setSelecionados(newSet);
+  };
+
+  const toggleTodos = () => {
+    if (selecionados.size === moveisNovos.length) {
+      setSelecionados(new Set());
+    } else {
+      setSelecionados(new Set(moveisNovos.map((_, i) => i)));
+    }
+  };
+
+  const handleAdicionarAoCatalogo = async () => {
+    if (!user || selecionados.size === 0) return;
+
+    try {
+      setAdicionando(true);
+
+      const itensParaAdicionar = moveisNovos
+        .filter((_, i) => selecionados.has(i))
+        .map((movel) => ({
+          user_id: user.id,
+          nome: movel.nome,
+          categoria: mapearCategoria(movel.tipo),
+          preco_base: movel.preco_estimado || 0,
+          descricao: [
+            movel.tipo && `Tipo: ${movel.tipo}`,
+            movel.material_sugerido && `Material: ${movel.material_sugerido}`,
+            movel.acabamento_sugerido && `Acabamento: ${movel.acabamento_sugerido}`,
+            movel.dimensoes_sugeridas && `Dimensões: ${movel.dimensoes_sugeridas.largura}m x ${movel.dimensoes_sugeridas.altura}m x ${movel.dimensoes_sugeridas.profundidade}m`,
+          ].filter(Boolean).join(" | "),
+          ativo: true,
+        }));
+
+      const { error } = await supabase
+        .from("catalogo_itens")
+        .insert(itensParaAdicionar);
+
+      if (error) throw error;
+
+      toast.success(`${itensParaAdicionar.length} item(ns) adicionado(s) ao catálogo!`);
+      setSelecionados(new Set());
+    } catch (error) {
+      console.error("Erro ao adicionar ao catálogo:", error);
+      toast.error("Erro ao adicionar itens ao catálogo");
+    } finally {
+      setAdicionando(false);
     }
   };
 
@@ -144,54 +248,120 @@ export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {resultado.sugestoes_moveis.map((movel, index) => (
-              <div
-                key={index}
-                className="border rounded-lg p-4 space-y-2"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="font-medium">{movel.nome}</h4>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {movel.tipo}
-                    </p>
+            {resultado.sugestoes_moveis.map((movel, index) => {
+              const isNovo = !movel.catalogo_item_id && movel.preco_origem !== "catalogo";
+              const novoIndex = isNovo ? moveisNovos.findIndex(m => m.nome === movel.nome) : -1;
+              
+              return (
+                <div
+                  key={index}
+                  className="border rounded-lg p-4 space-y-2"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-3">
+                      {isNovo && novoIndex !== -1 && (
+                        <Checkbox
+                          checked={selecionados.has(novoIndex)}
+                          onCheckedChange={() => toggleSelecionado(novoIndex)}
+                          className="mt-1"
+                        />
+                      )}
+                      <div>
+                        <h4 className="font-medium">{movel.nome}</h4>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {movel.tipo}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {movel.preco_estimado && (
+                        <span className="font-bold text-primary">
+                          {formatCurrency(movel.preco_estimado)}
+                        </span>
+                      )}
+                      {movel.preco_origem === "catalogo" ? (
+                        <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
+                          <Tag className="h-3 w-3" />
+                          <span>Preço do catálogo</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <AlertCircle className="h-3 w-3" />
+                          <span>Estimativa IA</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  {movel.preco_estimado && (
-                    <span className="font-bold text-primary">
-                      {formatCurrency(movel.preco_estimado)}
-                    </span>
+
+                  {movel.dimensoes_sugeridas && (
+                    <p className="text-xs text-muted-foreground">
+                      Dimensões: {movel.dimensoes_sugeridas.largura}m x{" "}
+                      {movel.dimensoes_sugeridas.altura}m x{" "}
+                      {movel.dimensoes_sugeridas.profundidade}m
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-2">
+                    {movel.material_sugerido && (
+                      <Badge variant="outline" className="text-xs">
+                        {movel.material_sugerido}
+                      </Badge>
+                    )}
+                    {movel.acabamento_sugerido && (
+                      <Badge variant="outline" className="text-xs">
+                        {movel.acabamento_sugerido}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {movel.item_catalogo_correspondente && movel.preco_origem === "catalogo" && (
+                    <p className="text-xs flex items-center gap-1 text-green-600">
+                      <CheckCircle className="h-3 w-3" />
+                      Corresponde ao item: {movel.item_catalogo_correspondente}
+                    </p>
                   )}
                 </div>
+              );
+            })}
 
-                {movel.dimensoes_sugeridas && (
-                  <p className="text-xs text-muted-foreground">
-                    Dimensões: {movel.dimensoes_sugeridas.largura}m x{" "}
-                    {movel.dimensoes_sugeridas.altura}m x{" "}
-                    {movel.dimensoes_sugeridas.profundidade}m
-                  </p>
-                )}
-
-                <div className="flex flex-wrap gap-2">
-                  {movel.material_sugerido && (
-                    <Badge variant="outline" className="text-xs">
-                      {movel.material_sugerido}
-                    </Badge>
-                  )}
-                  {movel.acabamento_sugerido && (
-                    <Badge variant="outline" className="text-xs">
-                      {movel.acabamento_sugerido}
-                    </Badge>
-                  )}
+            {/* Botão para adicionar ao catálogo */}
+            {moveisNovos.length > 0 && (
+              <div className="border-t pt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleTodos}
+                    className="text-xs"
+                  >
+                    {selecionados.size === moveisNovos.length ? "Desmarcar todos" : "Selecionar todos"}
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {selecionados.size} de {moveisNovos.length} selecionado(s)
+                  </span>
                 </div>
-
-                {movel.item_catalogo_correspondente && (
-                  <p className="text-xs flex items-center gap-1 text-green-600">
-                    <CheckCircle className="h-3 w-3" />
-                    Corresponde ao item: {movel.item_catalogo_correspondente}
-                  </p>
-                )}
+                <Button
+                  className="w-full gap-2"
+                  onClick={handleAdicionarAoCatalogo}
+                  disabled={selecionados.size === 0 || adicionando}
+                >
+                  {adicionando ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Adicionando...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Adicionar Selecionados ao Catálogo ({selecionados.size})
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Itens já existentes no catálogo não serão duplicados
+                </p>
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
       )}

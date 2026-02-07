@@ -156,6 +156,70 @@ RESPONDA SEMPRE EM FORMATO JSON com a seguinte estrutura:
       };
     }
 
+    // Cruzar sugestões com catálogo para usar preços reais
+    if (!analise.erro_parse && analise.sugestoes_moveis && catalogoItens && catalogoItens.length > 0) {
+      let valorTotalCatalogo = 0;
+      
+      analise.sugestoes_moveis = analise.sugestoes_moveis.map((movel: any) => {
+        // Tentar encontrar correspondência no catálogo
+        const nomeNormalizado = movel.nome?.toLowerCase().trim() || "";
+        const tipoNormalizado = movel.tipo?.toLowerCase().trim() || "";
+        
+        // Busca correspondência por nome similar ou item_catalogo_correspondente
+        const itemCatalogo = catalogoItens.find(item => {
+          const itemNome = item.nome.toLowerCase().trim();
+          const itemCategoria = item.categoria?.toLowerCase() || "";
+          
+          // Match direto pelo nome
+          if (itemNome.includes(nomeNormalizado) || nomeNormalizado.includes(itemNome)) {
+            return true;
+          }
+          
+          // Match pelo item_catalogo_correspondente retornado pela IA
+          if (movel.item_catalogo_correspondente) {
+            const correspondente = movel.item_catalogo_correspondente.toLowerCase().trim();
+            if (itemNome.includes(correspondente) || correspondente.includes(itemNome)) {
+              return true;
+            }
+          }
+          
+          // Match por tipo/categoria similar
+          if (tipoNormalizado && (
+            itemCategoria.includes(tipoNormalizado) || 
+            tipoNormalizado.includes(itemCategoria) ||
+            itemNome.includes(tipoNormalizado)
+          )) {
+            return true;
+          }
+          
+          return false;
+        });
+        
+        if (itemCatalogo) {
+          // Usar preço real do catálogo
+          valorTotalCatalogo += itemCatalogo.preco_base;
+          return {
+            ...movel,
+            item_catalogo_correspondente: itemCatalogo.nome,
+            catalogo_item_id: itemCatalogo.id,
+            preco_catalogo: itemCatalogo.preco_base,
+            preco_estimado: itemCatalogo.preco_base,
+            preco_origem: "catalogo" as const,
+          };
+        } else {
+          // Manter preço estimado pela IA
+          valorTotalCatalogo += movel.preco_estimado || 0;
+          return {
+            ...movel,
+            preco_origem: "estimativa" as const,
+          };
+        }
+      });
+      
+      // Recalcular valor total usando preços do catálogo quando disponíveis
+      analise.valor_total_estimado = valorTotalCatalogo;
+    }
+
     // Gerar imagem simulada do ambiente com móveis (tentando edição da foto original)
     let imagem_simulada_url: string | null = null;
 
