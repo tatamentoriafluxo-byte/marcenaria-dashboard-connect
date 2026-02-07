@@ -432,11 +432,42 @@ ${analise.descricao_visual_completa ? `DETALHES EXTRAS: ${analise.descricao_visu
       }
     }
 
+    // Salvar análise no histórico
+    let analise_id: string | null = null;
+    try {
+      const tipoAmbienteHistorico = analise.analise_ambiente?.tipo_ambiente || null;
+      
+      const { data: analiseData, error: analiseError } = await supabase
+        .from("analises_ambiente")
+        .insert({
+          user_id,
+          foto_ambiente_url: image_url,
+          foto_referencia_url: referencia_url || null,
+          analise_json: analise,
+          imagem_simulada_url: imagem_simulada_url || null,
+          preferencias_cliente: preferencias || null,
+          tipo_ambiente: tipoAmbienteHistorico,
+        })
+        .select("id")
+        .single();
+
+      if (analiseError) {
+        console.error("Erro ao salvar histórico:", analiseError);
+      } else {
+        analise_id = analiseData.id;
+        console.log("Análise salva no histórico:", analise_id);
+      }
+    } catch (histError) {
+      console.error("Erro ao salvar no histórico:", histError);
+      // Não falha a operação principal
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         analise,
         imagem_simulada_url,
+        analise_id,
         catalogo_usado: catalogoItens?.length || 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

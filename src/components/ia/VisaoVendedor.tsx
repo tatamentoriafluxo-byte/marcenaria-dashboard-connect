@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Home, Ruler, Package, DollarSign, AlertCircle, CheckCircle, Plus, Loader2, Tag } from "lucide-react";
+import { Home, Ruler, Package, DollarSign, AlertCircle, CheckCircle, Plus, Loader2, Tag, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -79,8 +80,10 @@ const mapearCategoria = (tipo: string): "ACABAMENTO" | "ACESSORIO" | "ARMARIO" |
 
 export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selecionados, setSelecionados] = useState<Set<number>>(new Set());
   const [adicionando, setAdicionando] = useState(false);
+  const [criandoOrcamento, setCriandoOrcamento] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -161,6 +164,60 @@ export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
       toast.error("Erro ao adicionar itens ao catálogo");
     } finally {
       setAdicionando(false);
+    }
+  };
+
+  const handleCriarOrcamento = async () => {
+    if (!user || !resultado.sugestoes_moveis || resultado.sugestoes_moveis.length === 0) return;
+
+    try {
+      setCriandoOrcamento(true);
+
+      // Criar orçamento vazio primeiro
+      const { data: orcamento, error: orcError } = await supabase
+        .from("orcamentos")
+        .insert({
+          user_id: user.id,
+          nome_cliente: "Cliente da Análise IA",
+          status: "RASCUNHO",
+          observacoes: `Orçamento gerado a partir de análise de foto com IA.\nTipo de ambiente: ${resultado.analise_ambiente?.tipo_ambiente || "N/A"}\n${resultado.observacoes || ""}`,
+        })
+        .select("id")
+        .single();
+
+      if (orcError) throw orcError;
+
+      // Adicionar itens
+      const itensParaInserir = resultado.sugestoes_moveis.map((movel, index) => ({
+        orcamento_id: orcamento.id,
+        catalogo_item_id: movel.catalogo_item_id || null,
+        nome_item: movel.nome,
+        descricao: [
+          movel.tipo && `Tipo: ${movel.tipo}`,
+          movel.material_sugerido && `Material: ${movel.material_sugerido}`,
+          movel.acabamento_sugerido && `Acabamento: ${movel.acabamento_sugerido}`,
+          movel.dimensoes_sugeridas && `Dimensões: ${movel.dimensoes_sugeridas.largura}m x ${movel.dimensoes_sugeridas.altura}m x ${movel.dimensoes_sugeridas.profundidade}m`,
+        ].filter(Boolean).join(" | "),
+        quantidade: 1,
+        unidade_medida: "UNIDADE" as const,
+        preco_unitario: movel.preco_estimado || 0,
+        ordem: index,
+        tipo_calculo: "UNITARIO" as const,
+      }));
+
+      const { error: itensError } = await supabase
+        .from("orcamentos_itens")
+        .insert(itensParaInserir);
+
+      if (itensError) throw itensError;
+
+      toast.success("Orçamento criado! Redirecionando...");
+      navigate(`/novo-orcamento/${orcamento.id}`);
+    } catch (error) {
+      console.error("Erro ao criar orçamento:", error);
+      toast.error("Erro ao criar orçamento");
+    } finally {
+      setCriandoOrcamento(false);
     }
   };
 
@@ -366,10 +423,10 @@ export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
         </Card>
       )}
 
-      {/* Card de Valor Total */}
+      {/* Card de Valor Total + Criar Orçamento */}
       {resultado.valor_total_estimado && (
         <Card className="border-primary">
-          <CardContent className="py-6">
+          <CardContent className="py-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-6 w-6 text-primary" />
@@ -379,6 +436,26 @@ export function VisaoVendedor({ resultado }: VisaoVendedorProps) {
                 {formatCurrency(resultado.valor_total_estimado)}
               </span>
             </div>
+            
+            {/* Botão Criar Orçamento */}
+            <Button
+              className="w-full gap-2"
+              size="lg"
+              onClick={handleCriarOrcamento}
+              disabled={criandoOrcamento || !resultado.sugestoes_moveis?.length}
+            >
+              {criandoOrcamento ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Criando orçamento...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4" />
+                  Criar Orçamento com Esses Itens
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
       )}

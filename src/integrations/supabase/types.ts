@@ -68,6 +68,48 @@ export type Database = {
           },
         ]
       }
+      analises_ambiente: {
+        Row: {
+          analise_json: Json
+          created_at: string
+          data_analise: string
+          foto_ambiente_url: string
+          foto_referencia_url: string | null
+          id: string
+          imagem_simulada_url: string | null
+          preferencias_cliente: string | null
+          tipo_ambiente: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analise_json: Json
+          created_at?: string
+          data_analise?: string
+          foto_ambiente_url: string
+          foto_referencia_url?: string | null
+          id?: string
+          imagem_simulada_url?: string | null
+          preferencias_cliente?: string | null
+          tipo_ambiente?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analise_json?: Json
+          created_at?: string
+          data_analise?: string
+          foto_ambiente_url?: string
+          foto_referencia_url?: string | null
+          id?: string
+          imagem_simulada_url?: string | null
+          preferencias_cliente?: string | null
+          tipo_ambiente?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       capacidade_producao: {
         Row: {
           capacidade_mensal_horas: number | null
