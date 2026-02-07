@@ -2,3 +2,6 @@ project_id = "nbbubuerzghyukldvhza"
 
 [functions.calcular-score-fechamento]
 verify_jwt = false
+
+[functions.analisar-foto-ambiente]
+verify_jwt = false
