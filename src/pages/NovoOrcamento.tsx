@@ -163,6 +163,19 @@ export default function NovoOrcamento() {
         setClienteId(novoCliente.id);
       }
 
+      // Calcular os totais antes de salvar
+      const subtotalCalculado = itens.reduce((sum, item) => {
+        if (item.tipo_calculo === 'METRO_QUADRADO') {
+          const qtdPecas = item.quantidade_pecas || 1;
+          const largura = item.largura_metros || 0;
+          const altura = item.altura_metros || 0;
+          return sum + (qtdPecas * largura * altura * item.preco_unitario);
+        }
+        return sum + (item.quantidade * item.preco_unitario);
+      }, 0);
+      const descontoCalculado = descontoValor + (subtotalCalculado * descontoPercentual / 100);
+      const totalCalculado = Math.max(subtotalCalculado - descontoCalculado, 0);
+
       const orcamentoData = {
         user_id: user!.id,
         nome_cliente: nomeCliente,
@@ -178,6 +191,8 @@ export default function NovoOrcamento() {
         forma_pagamento: formaPagamento,
         entrada_percentual: entradaPercentual,
         num_parcelas: numParcelas,
+        valor_subtotal: subtotalCalculado,
+        valor_total: totalCalculado,
         status,
       } as any;
 
