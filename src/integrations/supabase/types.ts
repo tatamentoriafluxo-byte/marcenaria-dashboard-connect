@@ -1544,7 +1544,10 @@ export type Database = {
           prazo_entrega_dias: number | null
           project_id: string | null
           projetista: string | null
+          score_calculado_em: string | null
+          score_fechamento: number | null
           status: Database["public"]["Enums"]["status_orcamento"]
+          sugestoes_ia: string[] | null
           telefone_cliente: string | null
           updated_at: string | null
           user_id: string
@@ -1572,7 +1575,10 @@ export type Database = {
           prazo_entrega_dias?: number | null
           project_id?: string | null
           projetista?: string | null
+          score_calculado_em?: string | null
+          score_fechamento?: number | null
           status?: Database["public"]["Enums"]["status_orcamento"]
+          sugestoes_ia?: string[] | null
           telefone_cliente?: string | null
           updated_at?: string | null
           user_id: string
@@ -1600,7 +1606,10 @@ export type Database = {
           prazo_entrega_dias?: number | null
           project_id?: string | null
           projetista?: string | null
+          score_calculado_em?: string | null
+          score_fechamento?: number | null
           status?: Database["public"]["Enums"]["status_orcamento"]
+          sugestoes_ia?: string[] | null
           telefone_cliente?: string | null
           updated_at?: string | null
           user_id?: string
