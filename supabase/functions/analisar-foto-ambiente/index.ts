@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { decode as decodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts";
+import { decode as decodeBase64, encode as encodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -156,99 +156,211 @@ RESPONDA SEMPRE EM FORMATO JSON com a seguinte estrutura:
       };
     }
 
-    // Gerar imagem simulada do ambiente com móveis usando edição de imagem
+    // Gerar imagem simulada do ambiente com móveis (tentando edição da foto original)
     let imagem_simulada_url: string | null = null;
-    
+
+    const extractImageUrl = (imageData: any): string | null => {
+      const msg = imageData?.choices?.[0]?.message;
+
+      const direct = msg?.images?.[0]?.image_url?.url;
+      if (typeof direct === "string" && direct.length > 0) return direct;
+
+      const content = msg?.content;
+      if (Array.isArray(content)) {
+        const part = content.find(
+          (p: any) => p?.type === "image_url" && typeof p?.image_url?.url === "string",
+        );
+        if (part?.image_url?.url) return part.image_url.url;
+
+        // às vezes o data:image vem embutido em texto
+        const textPart = content.find((p: any) => typeof p?.text === "string" && p.text.includes("data:image/"));
+        if (typeof textPart?.text === "string") {
+          const match = textPart.text.match(/data:image\/\w+;base64,[A-Za-z0-9+/=]+/);
+          if (match) return match[0];
+        }
+      } else if (typeof content === "string") {
+        const match = content.match(/data:image\/\w+;base64,[A-Za-z0-9+/=]+/);
+        if (match) return match[0];
+      }
+
+      // fallback: alguns providers podem retornar em outro shape
+      const top = imageData?.images?.[0]?.image_url?.url ?? imageData?.images?.[0]?.url;
+      if (typeof top === "string" && top.length > 0) return top;
+
+      return null;
+    };
+
+    const toDataUrl = async (url: string) => {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Falha ao baixar imagem (${res.status})`);
+      const contentType = res.headers.get("content-type") || "image/jpeg";
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      const base64 = encodeBase64(bytes);
+      return `data:${contentType};base64,${base64}`;
+    };
+
+    const uploadImageBytes = async (bytes: Uint8Array, contentType: string) => {
+      const ext = contentType.includes("png")
+        ? "png"
+        : contentType.includes("webp")
+          ? "webp"
+          : contentType.includes("jpeg") || contentType.includes("jpg")
+            ? "jpeg"
+            : "png";
+
+      const fileName = `${user_id}/simulacao_${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("fotos-ambientes")
+        .upload(fileName, bytes, {
+          contentType,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("fotos-ambientes")
+        .getPublicUrl(fileName);
+
+      return urlData.publicUrl;
+    };
+
     if (!analise.erro_parse) {
       try {
         // Construir descrição dos móveis para o prompt
-        const moveisDescricao = analise.sugestoes_moveis?.map((m: { nome: string; tipo: string; material_sugerido?: string; acabamento_sugerido?: string; dimensoes_sugeridas?: { largura: number; altura: number; profundidade: number } }) => {
-          let desc = `${m.nome} (${m.tipo})`;
-          if (m.material_sugerido) desc += ` em ${m.material_sugerido}`;
-          if (m.acabamento_sugerido) desc += ` com acabamento ${m.acabamento_sugerido}`;
-          return desc;
-        }).join(', ') || 'móveis planejados sob medida';
+        const moveisDescricao = analise.sugestoes_moveis
+          ?.map(
+            (m: {
+              nome: string;
+              tipo: string;
+              material_sugerido?: string;
+              acabamento_sugerido?: string;
+            }) => {
+              let desc = `${m.nome} (${m.tipo})`;
+              if (m.material_sugerido) desc += ` em ${m.material_sugerido}`;
+              if (m.acabamento_sugerido) desc += ` com acabamento ${m.acabamento_sugerido}`;
+              return desc;
+            },
+          )
+          .join(", ") || "móveis planejados sob medida";
 
-        const tipoAmbiente = analise.analise_ambiente?.tipo_ambiente || 'ambiente';
-        
-        // Usar o modelo de edição/geração de imagem com a foto original como base
-        const imagePrompt = `Edite esta foto de ${tipoAmbiente} adicionando móveis planejados de marcenaria de alta qualidade.
+        const tipoAmbiente = analise.analise_ambiente?.tipo_ambiente || "ambiente";
+
+        // Prompt focado em IMAGEM (sem texto)
+        const imagePrompt = `Edite a PRIMEIRA imagem (foto real do ${tipoAmbiente}) adicionando móveis planejados de marcenaria de alta qualidade.
+${referencia_url ? "A SEGUNDA imagem (se enviada) é uma referência de estilo (cores, acabamentos e linguagem visual). Use-a como inspiração." : ""}
 
 MÓVEIS A ADICIONAR:
 ${moveisDescricao}
 
-INSTRUÇÕES:
-- Mantenha a estrutura e perspectiva original do ambiente
+REGRAS IMPORTANTES:
+- Mantenha a estrutura, a perspectiva e o enquadramento original do ambiente
+- Mantenha a iluminação coerente com a foto
 - Adicione os móveis de forma realista e proporcional ao espaço
-- Use acabamentos modernos e clean
-- Mantenha iluminação natural consistente
-- O resultado deve parecer uma foto profissional de arquitetura de interiores
-- Os móveis devem estar integrados harmoniosamente ao ambiente existente
+- Resultado deve parecer uma foto profissional de arquitetura de interiores
+- NÃO retorne texto: retorne APENAS a imagem final
 
-${analise.descricao_visual_completa ? `DESCRIÇÃO ADICIONAL: ${analise.descricao_visual_completa}` : ''}`;
+${analise.descricao_visual_completa ? `DETALHES EXTRAS: ${analise.descricao_visual_completa}` : ""}`;
 
-        // Chamar API com a imagem original para edição
-        const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash-image",
-            messages: [
-              { 
-                role: "user", 
-                content: [
-                  { type: "text", text: imagePrompt },
-                  { type: "image_url", image_url: { url: image_url } }
-                ]
-              }
-            ],
-            modalities: ["image", "text"]
-          }),
-        });
+        const callImageModelOnce = async (model: string, baseImg: string, refImg?: string) => {
+          const content: any[] = [
+            { type: "text", text: imagePrompt },
+            { type: "image_url", image_url: { url: baseImg } },
+          ];
+          if (refImg) {
+            content.push({ type: "image_url", image_url: { url: refImg } });
+          }
 
-        if (imageResponse.ok) {
+          const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: "user", content }],
+              modalities: ["image", "text"],
+              max_tokens: 512,
+              temperature: 0.4,
+            }),
+          });
+
+          if (!imageResponse.ok) {
+            const errorText = await imageResponse.text();
+            console.error("Erro na geração de imagem:", model, imageResponse.status, errorText);
+            return null;
+          }
+
           const imageData = await imageResponse.json();
-          console.log("Resposta da geração de imagem:", JSON.stringify(imageData).substring(0, 500));
-          
-          const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-          
-          if (generatedImage && generatedImage.startsWith("data:image/")) {
-            // Extrair o base64 da imagem
-            const base64Match = generatedImage.match(/^data:image\/(\w+);base64,(.+)$/);
-            if (base64Match) {
-              const imageFormat = base64Match[1];
-              const base64Data = base64Match[2];
-              const imageBytes = decodeBase64(base64Data);
-              
-              // Upload para o storage
-              const fileName = `${user_id}/simulacao_${Date.now()}.${imageFormat}`;
-              const { error: uploadError } = await supabase.storage
-                .from("fotos-ambientes")
-                .upload(fileName, imageBytes, {
-                  contentType: `image/${imageFormat}`,
-                  upsert: true
-                });
 
-              if (!uploadError) {
-                const { data: urlData } = supabase.storage
-                  .from("fotos-ambientes")
-                  .getPublicUrl(fileName);
-                
-                imagem_simulada_url = urlData.publicUrl;
-                console.log("Imagem simulada salva:", imagem_simulada_url);
-              } else {
-                console.error("Erro no upload da imagem:", uploadError);
-              }
-            }
+          // logs de debug sem vazar base64
+          try {
+            const msg = imageData?.choices?.[0]?.message;
+            console.log(
+              "Debug imagem -> model:",
+              model,
+              "keys:",
+              Object.keys(msg || {}),
+              "contentType:",
+              Array.isArray(msg?.content) ? "array" : typeof msg?.content,
+              "imagesLen:",
+              Array.isArray(msg?.images) ? msg.images.length : 0,
+            );
+          } catch {
+            // ignore
+          }
+
+          return extractImageUrl(imageData);
+        };
+
+        const callImageModel = async (baseImg: string, refImg?: string) => {
+          // 1) Nano Banana (rápido)
+          const fast = await callImageModelOnce("google/gemini-2.5-flash-image", baseImg, refImg);
+          if (fast) return fast;
+
+          // 2) Nano Banana Pro (mais consistente)
+          return await callImageModelOnce("google/gemini-3-pro-image-preview", baseImg, refImg);
+        };
+
+        // 1) tentativa padrão (URL pública)
+        let generatedImage = await callImageModel(image_url, referencia_url || undefined);
+
+        // 2) fallback: converte para dataURL (quando o modelo não consegue buscar a URL)
+        if (!generatedImage) {
+          const baseDataUrl = await toDataUrl(image_url);
+          const refDataUrl = referencia_url ? await toDataUrl(referencia_url) : undefined;
+          generatedImage = await callImageModel(baseDataUrl, refDataUrl);
+        }
+
+        if (!generatedImage) {
+          console.log("Modelo não retornou imagem nesta análise");
+        } else if (generatedImage.startsWith("data:image/")) {
+          const base64Match = generatedImage.match(/^data:image\/(\w+);base64,(.+)$/);
+          if (base64Match) {
+            const imageFormat = base64Match[1];
+            const base64Data = base64Match[2];
+            const imageBytes = decodeBase64(base64Data);
+            imagem_simulada_url = await uploadImageBytes(
+              imageBytes,
+              `image/${imageFormat === "jpg" ? "jpeg" : imageFormat}`,
+            );
+            console.log("Imagem simulada salva:", imagem_simulada_url);
           } else {
-            console.log("Imagem não retornada no formato esperado");
+            console.log("data:image retornado, mas não foi possível extrair base64");
+          }
+        } else if (generatedImage.startsWith("http")) {
+          const res = await fetch(generatedImage);
+          if (res.ok) {
+            const contentType = res.headers.get("content-type") || "image/png";
+            const bytes = new Uint8Array(await res.arrayBuffer());
+            imagem_simulada_url = await uploadImageBytes(bytes, contentType);
+            console.log("Imagem simulada salva (via URL):", imagem_simulada_url);
+          } else {
+            console.error("Falha ao baixar imagem gerada:", res.status);
           }
         } else {
-          const errorText = await imageResponse.text();
-          console.error("Erro na geração de imagem:", imageResponse.status, errorText);
+          console.log("Imagem retornada em formato inesperado");
         }
       } catch (imageError) {
         console.error("Erro ao gerar imagem simulada:", imageError);
