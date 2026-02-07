@@ -156,24 +156,38 @@ RESPONDA SEMPRE EM FORMATO JSON com a seguinte estrutura:
       };
     }
 
-    // Gerar imagem simulada do ambiente com móveis
+    // Gerar imagem simulada do ambiente com móveis usando edição de imagem
     let imagem_simulada_url: string | null = null;
     
-    if (!analise.erro_parse && analise.descricao_visual_completa) {
+    if (!analise.erro_parse) {
       try {
-        const imagePrompt = `Gere uma imagem fotorrealista de um ambiente de ${analise.analise_ambiente?.tipo_ambiente || 'interior'} com móveis planejados instalados.
+        // Construir descrição dos móveis para o prompt
+        const moveisDescricao = analise.sugestoes_moveis?.map((m: { nome: string; tipo: string; material_sugerido?: string; acabamento_sugerido?: string; dimensoes_sugeridas?: { largura: number; altura: number; profundidade: number } }) => {
+          let desc = `${m.nome} (${m.tipo})`;
+          if (m.material_sugerido) desc += ` em ${m.material_sugerido}`;
+          if (m.acabamento_sugerido) desc += ` com acabamento ${m.acabamento_sugerido}`;
+          return desc;
+        }).join(', ') || 'móveis planejados sob medida';
 
-DESCRIÇÃO DO AMBIENTE:
-${analise.descricao_visual_completa}
+        const tipoAmbiente = analise.analise_ambiente?.tipo_ambiente || 'ambiente';
+        
+        // Usar o modelo de edição/geração de imagem com a foto original como base
+        const imagePrompt = `Edite esta foto de ${tipoAmbiente} adicionando móveis planejados de marcenaria de alta qualidade.
 
-MÓVEIS INCLUÍDOS:
-${analise.sugestoes_moveis?.map((m: { nome: string; material_sugerido?: string; acabamento_sugerido?: string }) => 
-  `- ${m.nome} em ${m.material_sugerido || 'MDF'} com acabamento ${m.acabamento_sugerido || 'laminado'}`
-).join('\n') || 'Móveis planejados sob medida'}
+MÓVEIS A ADICIONAR:
+${moveisDescricao}
 
-ESTILO: Moderno, clean, iluminação natural, fotografia de arquitetura profissional.
-A imagem deve mostrar o ambiente pronto, com os móveis instalados, como se fosse uma foto real de um projeto concluído.`;
+INSTRUÇÕES:
+- Mantenha a estrutura e perspectiva original do ambiente
+- Adicione os móveis de forma realista e proporcional ao espaço
+- Use acabamentos modernos e clean
+- Mantenha iluminação natural consistente
+- O resultado deve parecer uma foto profissional de arquitetura de interiores
+- Os móveis devem estar integrados harmoniosamente ao ambiente existente
 
+${analise.descricao_visual_completa ? `DESCRIÇÃO ADICIONAL: ${analise.descricao_visual_completa}` : ''}`;
+
+        // Chamar API com a imagem original para edição
         const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -183,7 +197,13 @@ A imagem deve mostrar o ambiente pronto, com os móveis instalados, como se foss
           body: JSON.stringify({
             model: "google/gemini-2.5-flash-image",
             messages: [
-              { role: "user", content: imagePrompt }
+              { 
+                role: "user", 
+                content: [
+                  { type: "text", text: imagePrompt },
+                  { type: "image_url", image_url: { url: image_url } }
+                ]
+              }
             ],
             modalities: ["image", "text"]
           }),
@@ -191,6 +211,8 @@ A imagem deve mostrar o ambiente pronto, com os móveis instalados, como se foss
 
         if (imageResponse.ok) {
           const imageData = await imageResponse.json();
+          console.log("Resposta da geração de imagem:", JSON.stringify(imageData).substring(0, 500));
+          
           const generatedImage = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
           
           if (generatedImage && generatedImage.startsWith("data:image/")) {
@@ -216,13 +238,17 @@ A imagem deve mostrar o ambiente pronto, com os móveis instalados, como se foss
                   .getPublicUrl(fileName);
                 
                 imagem_simulada_url = urlData.publicUrl;
+                console.log("Imagem simulada salva:", imagem_simulada_url);
               } else {
                 console.error("Erro no upload da imagem:", uploadError);
               }
             }
+          } else {
+            console.log("Imagem não retornada no formato esperado");
           }
         } else {
-          console.error("Erro na geração de imagem:", await imageResponse.text());
+          const errorText = await imageResponse.text();
+          console.error("Erro na geração de imagem:", imageResponse.status, errorText);
         }
       } catch (imageError) {
         console.error("Erro ao gerar imagem simulada:", imageError);
