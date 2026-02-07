@@ -77,6 +77,7 @@ export type Database = {
           foto_referencia_url: string | null
           id: string
           imagem_simulada_url: string | null
+          link_publico: string | null
           preferencias_cliente: string | null
           tipo_ambiente: string | null
           updated_at: string
@@ -90,6 +91,7 @@ export type Database = {
           foto_referencia_url?: string | null
           id?: string
           imagem_simulada_url?: string | null
+          link_publico?: string | null
           preferencias_cliente?: string | null
           tipo_ambiente?: string | null
           updated_at?: string
@@ -103,6 +105,7 @@ export type Database = {
           foto_referencia_url?: string | null
           id?: string
           imagem_simulada_url?: string | null
+          link_publico?: string | null
           preferencias_cliente?: string | null
           tipo_ambiente?: string | null
           updated_at?: string
@@ -2262,6 +2265,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      templates_preferencias: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          preferencias_texto: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          preferencias_texto: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          preferencias_texto?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       transacoes_financeiras: {
         Row: {
