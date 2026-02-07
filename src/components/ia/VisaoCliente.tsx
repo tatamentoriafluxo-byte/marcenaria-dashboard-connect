@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Share2, Image as ImageIcon, Loader2 } from "lucide-react";
+import { DollarSign, Share2, Image as ImageIcon, Loader2, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface VisaoClienteProps {
@@ -25,6 +25,39 @@ export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoIma
       } catch {
         window.open(imagemSimuladaUrl, "_blank");
       }
+    }
+  };
+
+  const handleBaixar = async () => {
+    if (!imagemSimuladaUrl) return;
+
+    try {
+      toast.info("Preparando download...");
+      
+      const response = await fetch(imagemSimuladaUrl);
+      if (!response.ok) throw new Error("Falha ao baixar imagem");
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Nome amigável com data
+      const date = new Date().toISOString().split("T")[0];
+      const extension = blob.type.includes("png") ? "png" : "jpg";
+      link.download = `simulacao_ambiente_${date}.${extension}`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      window.URL.revokeObjectURL(url);
+      toast.success("Imagem baixada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao baixar imagem:", error);
+      toast.error("Erro ao baixar. Tente abrir o link e salvar manualmente.");
+      window.open(imagemSimuladaUrl, "_blank");
     }
   };
 
@@ -60,14 +93,24 @@ export function VisaoCliente({ imagemSimuladaUrl, valorTotalEstimado, gerandoIma
                 alt="Simulação do ambiente com móveis"
                 className="w-full rounded-lg object-contain max-h-[400px]"
               />
-              <Button 
-                variant="outline" 
-                className="w-full gap-2"
-                onClick={handleCompartilhar}
-              >
-                <Share2 className="h-4 w-4" />
-                Compartilhar Simulação
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={handleBaixar}
+                >
+                  <Download className="h-4 w-4" />
+                  Baixar Imagem
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={handleCompartilhar}
+                >
+                  <Share2 className="h-4 w-4" />
+                  Compartilhar
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
