@@ -1,222 +1,207 @@
 
-## Plano: Fase 3 - Melhorias Avançadas de Compartilhamento e Produtividade
+## Plano: Correção dos 5 Bugs Identificados no Teste
 
-### Resumo das 5 Funcionalidades
+### Diagnóstico Completo
 
-| # | Funcionalidade | Descrição |
-|---|----------------|-----------|
-| 1 | Compartilhamento WhatsApp | Enviar simulação + valor direto para o cliente |
-| 2 | Exportar PDF Profissional | Relatório com imagens, móveis e preços |
-| 3 | Comparação de Análises | Visualizar lado a lado diferentes simulações |
-| 4 | Templates de Preferências | Salvar estilos/budgets para reutilizar |
-| 5 | Link Compartilhável | Página pública para cliente ver análise |
+| # | Problema | Causa Raiz | Severidade |
+|---|----------|------------|------------|
+| 1 | Total do Orçamento R$ 0,00 na listagem | O `valor_total` está correto no DB (R$ 450), mas na listagem exibe 0. **Investigação adicional necessária** - pode ser cache ou timing | Media |
+| 2 | Página /novo-projeto em branco | Componente NovoProjeto.tsx existe e está completo. O problema pode ser erro de rota ou TypeScript | Alta |
+| 3 | Conta a pagar não aparece na listagem | A query retornou vazia do DB. O INSERT pode estar falhando silenciosamente ou há problema de RLS | Media |
+| 4 | Página de nova conta a receber em branco | O componente está dentro do mesmo arquivo ContasReceber.tsx via Dialog. Se não abre, pode ser erro de renderização | Alta |
+| 5 | Dropdown de fornecedor vazio em Compras | Os fornecedores existem no DB (2 ativos), mas a query está filtrando por `ativo = true`. Verificar se o filtro está correto | Baixa |
 
 ---
 
-### 1. Compartilhamento WhatsApp
+### Correção 1: Total do Orçamento na Listagem
 
-**Objetivo:** Permitir enviar a simulação diretamente para o cliente via WhatsApp Web.
+**Análise:**
+- O banco de dados mostra `valor_total: 450` corretamente
+- A listagem em `Orcamentos.tsx` (linha 213-217) exibe `orc.valor_total` diretamente
+- O problema pode ser:
+  1. Cache de react-query mostrando dados antigos
+  2. O valor não estava sendo salvo corretamente antes (mas agora está)
 
-**Fluxo:**
-```text
-┌────────────────────────────────────────────┐
-│  [📥 Baixar] [📤 Compartilhar] [💬 WhatsApp]│
-└────────────────────────────────────────────┘
-                     │
-                     ▼
-     ┌───────────────────────────────────┐
-     │  Olá! Segue a simulação do seu   │
-     │  ambiente:                        │
-     │                                   │
-     │  🏠 Tipo: Cozinha                 │
-     │  💰 Valor estimado: R$ 15.500     │
-     │                                   │
-     │  🔗 [link da imagem]              │
-     └───────────────────────────────────┘
+**Verificação:**
+- A query SELECT parece correta: `.select("*")` pega `valor_total`
+- NovoOrcamento.tsx (linhas 194-195) agora calcula e salva os totais corretamente
+
+**Ação:**
+- Adicionar log para debug ou invalidar cache
+- Verificar se o problema persiste após refresh da página
+
+---
+
+### Correção 2: Página /novo-projeto em Branco
+
+**Análise:**
+- O arquivo `NovoProjeto.tsx` está completo com 413 linhas
+- Inclui Header, formulário, todos os campos
+- O problema pode ser:
+  1. Erro de importação não capturado
+  2. O SelectItem com `value=""` (linha 353) pode causar erro no Radix
+
+**Problema identificado (linha 352-353):**
+```tsx
+<SelectItem value="">Sem parceiro</SelectItem>
 ```
 
-**Mudanças Técnicas:**
-- `VisaoCliente.tsx`: Adicionar botão WhatsApp que abre `https://wa.me/?text=...` com mensagem pré-formatada
-- Incluir valor estimado e link da imagem simulada
+O `SelectItem` do Radix UI **não aceita `value=""`** - isso causa erro silencioso e quebra a renderização!
+
+**Correção:**
+```tsx
+<SelectItem value="none">Sem parceiro</SelectItem>
+```
+E ajustar a lógica para tratar "none" como null.
 
 ---
 
-### 2. Exportar PDF Profissional
+### Correção 3: Conta a Pagar não Aparece na Listagem
 
-**Objetivo:** Gerar um documento PDF bonito e profissional para apresentar ao cliente.
+**Análise:**
+- A query do banco retornou array vazio `[]`
+- O INSERT em `ContasPagar.tsx` (linhas 160-175) usa `fornecedor_id` como obrigatório
+- **Problema:** O campo `fornecedor_id` não pode ser NULL na inserção, mas o formulário pode não estar enviando corretamente
 
-**Conteúdo do PDF:**
-- Logo da marcenaria (opcional, se houver no profile)
-- Foto original + simulação lado a lado
-- Lista de móveis sugeridos com preços
-- Valor total estimado
-- Data da análise
-- Observações
+**Verificação da FK:**
+- A tabela `contas` tem `fornecedor_id` como nullable
+- O JOIN na query (linha 119) usa `.eq("tipo", "PAGAR")` - está correto
 
-**Implementação:**
-- Nova biblioteca: `@react-pdf/renderer` (ou `html2pdf.js` para simplicidade)
-- Novo componente: `src/components/ia/ExportarPDF.tsx`
-- Botão na `VisaoVendedor.tsx`: "Exportar PDF"
+**Possível causa:**
+- O fornecedor selecionado no dropdown não está sendo capturado (mesmo problema do bug 5)
 
-**Layout do PDF:**
-```text
-┌─────────────────────────────────────────────┐
-│  MARCENARIA XYZ                             │
-│  Proposta de Projeto #001                   │
-├─────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐         │
-│  │ Foto Original│  │  Simulação   │         │
-│  └──────────────┘  └──────────────┘         │
-├─────────────────────────────────────────────┤
-│  MÓVEIS SUGERIDOS                           │
-│  ─────────────────────────────────────────  │
-│  • Armário Superior     R$ 1.200,00         │
-│  • Bancada Ilha         R$ 3.500,00         │
-│  • Painel TV            R$ 800,00           │
-├─────────────────────────────────────────────┤
-│  VALOR TOTAL: R$ 5.500,00                   │
-├─────────────────────────────────────────────┤
-│  Data: 07/02/2026                           │
-└─────────────────────────────────────────────┘
+**Correção:**
+- Garantir que o valor do Select está sendo capturado
+- Adicionar tratamento de erro mais detalhado no INSERT
+
+---
+
+### Correção 4: Página de Nova Conta a Receber em Branco
+
+**Análise:**
+- ContasReceber.tsx tem 661 linhas
+- Usa Dialog para abrir formulário de nova conta
+- O Dialog está nas linhas 333-468
+
+**Problema potencial:**
+- O componente pode ter erro silencioso de renderização
+- Verificar se todos os dados estão carregando (clientes, projetos)
+
+**Possível causa:**
+- Se `clientes` ou `projetos` retornarem erro, pode quebrar a renderização
+
+**Correção:**
+- Adicionar tratamento de erro na query
+- Verificar se há erro de tipagem
+
+---
+
+### Correção 5: Dropdown de Fornecedor Vazio em Compras
+
+**Análise:**
+- Os fornecedores existem: Ferragens Brasil e Madeireira Silva & Cia (ambos `ativo: true`)
+- A query em `Compras.tsx` (linhas 76-80) filtra `.eq('ativo', true)` - está correto
+- O problema pode estar no componente Select ou no mapeamento
+
+**Verificação da query:**
+```tsx
+supabase.from('fornecedores')
+  .select('*')
+  .eq('user_id', user.id)
+  .eq('ativo', true)
 ```
 
----
+**Problema identificado:**
+- O `user.id` pode ser undefined no momento da query se a autenticação ainda não carregou
+- A query depende de `[user]` no useEffect, que pode não re-executar
 
-### 3. Comparação de Análises
-
-**Objetivo:** Quando o vendedor faz múltiplas análises do mesmo ambiente (ex: com diferentes referências), poder comparar lado a lado.
-
-**Implementação:**
-- Novo componente: `src/components/ia/ComparacaoAnalises.tsx`
-- Usuário seleciona 2 análises do histórico
-- Tela dividida mostrando:
-  - Imagem simulada A vs B
-  - Valor A vs B
-  - Diferença de móveis
-
-**UI:**
-```text
-┌─────────────────────────────────────────────────────┐
-│  COMPARAÇÃO DE ANÁLISES                             │
-├────────────────────────┬────────────────────────────┤
-│  Análise 1 (05/02)     │  Análise 2 (07/02)         │
-│  ┌──────────────────┐  │  ┌──────────────────────┐  │
-│  │   Simulação A    │  │  │    Simulação B       │  │
-│  └──────────────────┘  │  └──────────────────────┘  │
-│                        │                            │
-│  💰 R$ 12.000,00       │  💰 R$ 15.500,00           │
-│  📦 5 móveis           │  📦 7 móveis               │
-├────────────────────────┴────────────────────────────┤
-│  Diferença: +R$ 3.500 | +2 móveis                   │
-└─────────────────────────────────────────────────────┘
-```
+**Correção:**
+- Adicionar verificação `if (!user?.id) return;` antes de cada query
+- Adicionar loading state ou verificação
 
 ---
 
-### 4. Templates de Preferências
-
-**Objetivo:** Salvar configurações de estilo frequentes para reutilizar em análises futuras.
-
-**Exemplos de templates:**
-- "Moderno Clean" - Cores claras, linhas retas, MDF lacado
-- "Rústico" - Madeira natural, tons terrosos
-- "Alto Padrão" - Materiais premium, detalhes em vidro
-
-**Implementação:**
-- Nova tabela: `templates_preferencias` (id, user_id, nome, preferencias_texto, created_at)
-- Novo componente: `src/components/ia/TemplatesPreferencias.tsx`
-- No campo de preferências, dropdown para "Usar template" ou "Salvar como template"
-
-**UI:**
-```text
-┌───────────────────────────────────────────────┐
-│  Preferências do Cliente                      │
-│  ┌─────────────────────────────────────────┐  │
-│  │ [▼ Selecionar Template]                 │  │
-│  │ ─────────────────────────────────────── │  │
-│  │ • Moderno Clean                         │  │
-│  │ • Rústico                               │  │
-│  │ • Alto Padrão                           │  │
-│  │ + Criar novo template...                │  │
-│  └─────────────────────────────────────────┘  │
-│                                               │
-│  ┌─────────────────────────────────────────┐  │
-│  │ Prefere cores claras, linhas retas...  │  │
-│  └─────────────────────────────────────────┘  │
-│                                               │
-│  [💾 Salvar como Template]                    │
-└───────────────────────────────────────────────┘
-```
-
----
-
-### 5. Link Compartilhável (Página Pública)
-
-**Objetivo:** Gerar um link único que o cliente pode abrir para ver a simulação, mesmo sem ter conta no sistema.
-
-**Implementação:**
-- Adicionar coluna `link_publico` (UUID único) na tabela `analises_ambiente`
-- Nova rota: `/analise-publica/:linkId`
-- Nova página: `src/pages/AnalisePublica.tsx`
-- RLS policy especial para permitir leitura anônima baseada no `link_publico`
-
-**Fluxo:**
-```text
-Vendedor clica "Gerar Link"
-         │
-         ▼
-Sistema gera UUID único
-         │
-         ▼
-Link: lovable.app/analise-publica/abc123
-         │
-         ▼
-Cliente abre e vê:
-  ┌───────────────────────────────────────┐
-  │  SIMULAÇÃO DO SEU AMBIENTE            │
-  │  ┌─────────────────────────────────┐  │
-  │  │      [Imagem Simulada]          │  │
-  │  └─────────────────────────────────┘  │
-  │                                       │
-  │  💰 Valor Estimado: R$ 15.500,00      │
-  │                                       │
-  │  📦 7 móveis sugeridos                │
-  │                                       │
-  │  [💬 Falar com o Vendedor]            │
-  └───────────────────────────────────────┘
-```
-
----
-
-### Ordem de Implementação Sugerida
-
-| Prioridade | Funcionalidade | Complexidade | Dependências |
-|------------|----------------|--------------|--------------|
-| 1 | WhatsApp | Baixa | Nenhuma |
-| 2 | Exportar PDF | Média | Nova biblioteca |
-| 3 | Link Compartilhável | Média | Migration + nova página |
-| 4 | Templates | Média | Migration + novo componente |
-| 5 | Comparação | Média | Depende do histórico |
-
----
-
-### Resumo de Arquivos a Criar/Modificar
+### Arquivos a Modificar
 
 | Arquivo | Ação | Descrição |
 |---------|------|-----------|
-| `VisaoCliente.tsx` | Modificar | Adicionar botão WhatsApp |
-| `VisaoVendedor.tsx` | Modificar | Adicionar botão Exportar PDF + Gerar Link |
-| `ExportarPDF.tsx` | Criar | Componente de geração de PDF |
-| `ComparacaoAnalises.tsx` | Criar | Tela de comparação lado a lado |
-| `TemplatesPreferencias.tsx` | Criar | Gerenciador de templates |
-| `AnalisePublica.tsx` | Criar | Página pública para clientes |
-| `AnaliseFotoAmbiente.tsx` | Modificar | Integrar seletor de templates |
-| `HistoricoAnalises.tsx` | Modificar | Adicionar checkbox para comparação |
-| `App.tsx` | Modificar | Nova rota /analise-publica/:id |
-| Migration SQL | Criar | templates_preferencias + coluna link_publico |
+| `NovoProjeto.tsx` | Modificar | Corrigir SelectItem value="" para value="none" |
+| `Compras.tsx` | Modificar | Adicionar verificação de user antes das queries |
+| `ContasPagar.tsx` | Modificar | Adicionar validação de fornecedor_id antes do INSERT |
+| `ContasReceber.tsx` | Modificar | Adicionar try-catch e loading states |
+| `Orcamentos.tsx` | Verificar | Confirmar se o cache está atualizado |
 
 ---
 
-### Quer que eu implemente todas as 5 funcionalidades de uma vez, ou prefere fazer em partes?
+### Detalhes Técnicos das Correções
 
-Posso começar com as 3 primeiras (WhatsApp, PDF, Link Compartilhável) que são as mais impactantes para o dia a dia do vendedor, e depois seguir com Templates e Comparação.
+#### NovoProjeto.tsx - Linha 352-361
+
+**Antes:**
+```tsx
+<SelectItem value="">Sem parceiro</SelectItem>
+{parceiros.map(p => (
+  <SelectItem key={p.id} value={p.id}>
+    {p.nome} ({p.percentual_comissao}%)
+  </SelectItem>
+))}
+```
+
+**Depois:**
+```tsx
+<SelectItem value="none">Sem parceiro</SelectItem>
+{parceiros.map(p => (
+  <SelectItem key={p.id} value={p.id}>
+    {p.nome} ({p.percentual_comissao}%)
+  </SelectItem>
+))}
+```
+
+E ajustar a lógica de submit (linha 92):
+```tsx
+parceiro_id: formData.parceiro_id && formData.parceiro_id !== 'none' ? formData.parceiro_id : null,
+```
+
+#### Compras.tsx - Adicionar guards
+
+```tsx
+const loadData = async () => {
+  if (!user?.id) return;  // Guard clause
+  // ... resto do código
+};
+```
+
+#### ContasPagar.tsx - Validação antes do INSERT
+
+```tsx
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  // Validar fornecedor
+  if (!formData.fornecedor_id) {
+    toast({ title: "Selecione um fornecedor", variant: "destructive" });
+    return;
+  }
+  // ... resto
+};
+```
+
+---
+
+### Ordem de Implementação
+
+1. **NovoProjeto.tsx** - Corrigir SelectItem (causa erro fatal)
+2. **Compras.tsx** - Adicionar guards de user
+3. **ContasPagar.tsx** - Adicionar validação de fornecedor
+4. **ContasReceber.tsx** - Melhorar tratamento de erros
+5. **Verificar cache** - Testar Orcamentos após fixes
+
+---
+
+### Testes Recomendados Após Correções
+
+1. Criar novo projeto em /novo-projeto
+2. Criar nova compra selecionando fornecedor
+3. Criar nova conta a pagar e verificar na listagem
+4. Criar nova conta a receber via Dialog
+5. Criar novo orçamento e verificar total na listagem
