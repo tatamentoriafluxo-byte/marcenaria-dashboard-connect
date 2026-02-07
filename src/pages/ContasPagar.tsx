@@ -96,10 +96,12 @@ export default function ContasPagar() {
   }, [user]);
 
   const loadFornecedores = async () => {
+    if (!user?.id) return;
+    
     const { data, error } = await supabase
       .from("fornecedores")
       .select("id, nome")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .eq("ativo", true)
       .order("nome");
 
@@ -156,6 +158,11 @@ export default function ContasPagar() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.fornecedor_id) {
+      toast({ title: "Selecione um fornecedor", variant: "destructive" });
+      return;
+    }
     
     const { error: contaError, data: contaData } = await supabase
       .from("contas")

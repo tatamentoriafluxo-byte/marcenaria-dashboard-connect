@@ -57,7 +57,7 @@ const Compras = () => {
   }, [user]);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user?.id) return;
     
     setLoading(true);
     try {
@@ -138,7 +138,16 @@ const Compras = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user?.id) return;
+
+    if (!formData.fornecedor_id) {
+      toast({
+        title: 'Atenção',
+        description: 'Selecione um fornecedor',
+        variant: 'destructive'
+      });
+      return;
+    }
 
     if (itensCompra.length === 0) {
       toast({
