@@ -1,162 +1,222 @@
 
+## Plano: Fase 3 - Melhorias Avançadas de Compartilhamento e Produtividade
 
-## Plano: Melhorias na Análise de Foto com IA
+### Resumo das 5 Funcionalidades
 
-### Resumo das Melhorias
-
-1. **Valor Estimado Baseado no Catálogo** - Usar preços reais do catálogo do usuário
-2. **Botão de Baixar Imagem** - Além de compartilhar, permitir download direto
-3. **Adicionar Móveis ao Catálogo** - Botão para cadastrar automaticamente todos os móveis sugeridos
-4. **Melhorias Extras** - Funcionalidades adicionais que agregariam valor
+| # | Funcionalidade | Descrição |
+|---|----------------|-----------|
+| 1 | Compartilhamento WhatsApp | Enviar simulação + valor direto para o cliente |
+| 2 | Exportar PDF Profissional | Relatório com imagens, móveis e preços |
+| 3 | Comparação de Análises | Visualizar lado a lado diferentes simulações |
+| 4 | Templates de Preferências | Salvar estilos/budgets para reutilizar |
+| 5 | Link Compartilhável | Página pública para cliente ver análise |
 
 ---
 
-### 1. Valor Estimado Baseado no Catálogo
+### 1. Compartilhamento WhatsApp
 
-**Problema Atual:**
-A IA estima preços de forma genérica, sem considerar os valores reais cadastrados no catálogo de cada marcenaria.
+**Objetivo:** Permitir enviar a simulação diretamente para o cliente via WhatsApp Web.
 
-**Solução:**
-Na Edge Function, quando houver correspondência entre um móvel sugerido e um item do catálogo, usar o `preco_base` real do catálogo. Quando não houver correspondência, manter estimativa da IA mas indicar que é "estimado".
-
+**Fluxo:**
 ```text
-┌──────────────────────────────────────────────────┐
-│ Armário Superior Cozinha                         │
-│ Tipo: armário | MDF lacado branco                │
-│                                                  │
-│ ✅ Corresponde: "Armário Aéreo 60cm" do catálogo │
-│                                                  │
-│ 💲 R$ 1.200,00 (preço do catálogo)               │
-└──────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────┐
-│ Prateleira Decorativa                            │
-│ Tipo: prateleira | MDP melamínico                │
-│                                                  │
-│ ⚠️ Sem correspondência no catálogo               │
-│                                                  │
-│ 💲 R$ 350,00 (estimativa IA)                     │
-└──────────────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│  [📥 Baixar] [📤 Compartilhar] [💬 WhatsApp]│
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+     ┌───────────────────────────────────┐
+     │  Olá! Segue a simulação do seu   │
+     │  ambiente:                        │
+     │                                   │
+     │  🏠 Tipo: Cozinha                 │
+     │  💰 Valor estimado: R$ 15.500     │
+     │                                   │
+     │  🔗 [link da imagem]              │
+     └───────────────────────────────────┘
 ```
 
 **Mudanças Técnicas:**
-- `analisar-foto-ambiente/index.ts`: Ao processar sugestões, verificar correspondências com catálogo e substituir `preco_estimado` pelo `preco_base` real quando houver match
-- `VisaoVendedor.tsx`: Indicar visualmente se o preço é do catálogo ou estimativa
+- `VisaoCliente.tsx`: Adicionar botão WhatsApp que abre `https://wa.me/?text=...` com mensagem pré-formatada
+- Incluir valor estimado e link da imagem simulada
 
 ---
 
-### 2. Botão de Baixar Imagem
+### 2. Exportar PDF Profissional
 
-**Solução:**
-Adicionar botão "Baixar Imagem" ao lado do "Compartilhar Simulação" na Visão Cliente.
+**Objetivo:** Gerar um documento PDF bonito e profissional para apresentar ao cliente.
 
+**Conteúdo do PDF:**
+- Logo da marcenaria (opcional, se houver no profile)
+- Foto original + simulação lado a lado
+- Lista de móveis sugeridos com preços
+- Valor total estimado
+- Data da análise
+- Observações
+
+**Implementação:**
+- Nova biblioteca: `@react-pdf/renderer` (ou `html2pdf.js` para simplicidade)
+- Novo componente: `src/components/ia/ExportarPDF.tsx`
+- Botão na `VisaoVendedor.tsx`: "Exportar PDF"
+
+**Layout do PDF:**
 ```text
-┌────────────────────────────────────────┐
-│  🖼️ [Imagem Simulada]                  │
-│                                        │
-│  ┌──────────────┐ ┌──────────────────┐ │
-│  │ 📥 Baixar    │ │ 📤 Compartilhar  │ │
-│  └──────────────┘ └──────────────────┘ │
-└────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│  MARCENARIA XYZ                             │
+│  Proposta de Projeto #001                   │
+├─────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐         │
+│  │ Foto Original│  │  Simulação   │         │
+│  └──────────────┘  └──────────────┘         │
+├─────────────────────────────────────────────┤
+│  MÓVEIS SUGERIDOS                           │
+│  ─────────────────────────────────────────  │
+│  • Armário Superior     R$ 1.200,00         │
+│  • Bancada Ilha         R$ 3.500,00         │
+│  • Painel TV            R$ 800,00           │
+├─────────────────────────────────────────────┤
+│  VALOR TOTAL: R$ 5.500,00                   │
+├─────────────────────────────────────────────┤
+│  Data: 07/02/2026                           │
+└─────────────────────────────────────────────┘
 ```
 
-**Mudanças Técnicas:**
-- `VisaoCliente.tsx`: Adicionar função `handleBaixar` que faz fetch da imagem e força download com nome amigável (ex: `simulacao_cozinha_2026-02-07.png`)
-
 ---
 
-### 3. Adicionar Todos ao Catálogo
+### 3. Comparação de Análises
 
-**Problema:**
-Após a análise, o vendedor precisa cadastrar cada móvel sugerido manualmente no catálogo.
+**Objetivo:** Quando o vendedor faz múltiplas análises do mesmo ambiente (ex: com diferentes referências), poder comparar lado a lado.
 
-**Solução:**
-Botão "Adicionar Todos ao Catálogo" na Visão Vendedor que cadastra automaticamente todos os móveis sugeridos que ainda não existem no catálogo.
+**Implementação:**
+- Novo componente: `src/components/ia/ComparacaoAnalises.tsx`
+- Usuário seleciona 2 análises do histórico
+- Tela dividida mostrando:
+  - Imagem simulada A vs B
+  - Valor A vs B
+  - Diferença de móveis
 
+**UI:**
 ```text
 ┌─────────────────────────────────────────────────────┐
-│ 📦 Móveis Sugeridos                                 │
-│                                                     │
-│ [Armário Superior] [Bancada Ilha] [Painel TV]       │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ ➕ Adicionar Todos ao Catálogo (3 itens)        │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-│ Os itens que já existem no catálogo serão ignorados │
+│  COMPARAÇÃO DE ANÁLISES                             │
+├────────────────────────┬────────────────────────────┤
+│  Análise 1 (05/02)     │  Análise 2 (07/02)         │
+│  ┌──────────────────┐  │  ┌──────────────────────┐  │
+│  │   Simulação A    │  │  │    Simulação B       │  │
+│  └──────────────────┘  │  └──────────────────────┘  │
+│                        │                            │
+│  💰 R$ 12.000,00       │  💰 R$ 15.500,00           │
+│  📦 5 móveis           │  📦 7 móveis               │
+├────────────────────────┴────────────────────────────┤
+│  Diferença: +R$ 3.500 | +2 móveis                   │
 └─────────────────────────────────────────────────────┘
 ```
 
+---
+
+### 4. Templates de Preferências
+
+**Objetivo:** Salvar configurações de estilo frequentes para reutilizar em análises futuras.
+
+**Exemplos de templates:**
+- "Moderno Clean" - Cores claras, linhas retas, MDF lacado
+- "Rústico" - Madeira natural, tons terrosos
+- "Alto Padrão" - Materiais premium, detalhes em vidro
+
+**Implementação:**
+- Nova tabela: `templates_preferencias` (id, user_id, nome, preferencias_texto, created_at)
+- Novo componente: `src/components/ia/TemplatesPreferencias.tsx`
+- No campo de preferências, dropdown para "Usar template" ou "Salvar como template"
+
+**UI:**
+```text
+┌───────────────────────────────────────────────┐
+│  Preferências do Cliente                      │
+│  ┌─────────────────────────────────────────┐  │
+│  │ [▼ Selecionar Template]                 │  │
+│  │ ─────────────────────────────────────── │  │
+│  │ • Moderno Clean                         │  │
+│  │ • Rústico                               │  │
+│  │ • Alto Padrão                           │  │
+│  │ + Criar novo template...                │  │
+│  └─────────────────────────────────────────┘  │
+│                                               │
+│  ┌─────────────────────────────────────────┐  │
+│  │ Prefere cores claras, linhas retas...  │  │
+│  └─────────────────────────────────────────┘  │
+│                                               │
+│  [💾 Salvar como Template]                    │
+└───────────────────────────────────────────────┘
+```
+
+---
+
+### 5. Link Compartilhável (Página Pública)
+
+**Objetivo:** Gerar um link único que o cliente pode abrir para ver a simulação, mesmo sem ter conta no sistema.
+
+**Implementação:**
+- Adicionar coluna `link_publico` (UUID único) na tabela `analises_ambiente`
+- Nova rota: `/analise-publica/:linkId`
+- Nova página: `src/pages/AnalisePublica.tsx`
+- RLS policy especial para permitir leitura anônima baseada no `link_publico`
+
 **Fluxo:**
-1. Usuário clica no botão
-2. Sistema filtra móveis que já têm correspondência no catálogo (não duplicar)
-3. Insere os novos no `catalogo_itens` com categoria mapeada
-4. Exibe toast de sucesso com quantidade de itens adicionados
-
-**Mudanças Técnicas:**
-- `VisaoVendedor.tsx`: Adicionar botão e lógica de inserção em batch
-- Mapeamento de tipo do móvel para categoria do catálogo:
-  - "armário" -> "ARMARIO"
-  - "bancada" -> "BALCAO"
-  - "painel" -> "OUTROS"
-  - etc.
-
----
-
-### 4. Melhorias Extras Identificadas
-
-**4.1 Seleção Individual de Móveis**
-Permitir ao usuário marcar/desmarcar quais móveis quer adicionar ao catálogo, ao invés de adicionar todos.
-
 ```text
-☑️ Armário Superior - R$ 1.200,00
-☑️ Bancada Ilha - R$ 3.500,00  
-☐ Painel TV - R$ 800,00 (já existe)
-
-[Adicionar Selecionados ao Catálogo]
+Vendedor clica "Gerar Link"
+         │
+         ▼
+Sistema gera UUID único
+         │
+         ▼
+Link: lovable.app/analise-publica/abc123
+         │
+         ▼
+Cliente abre e vê:
+  ┌───────────────────────────────────────┐
+  │  SIMULAÇÃO DO SEU AMBIENTE            │
+  │  ┌─────────────────────────────────┐  │
+  │  │      [Imagem Simulada]          │  │
+  │  └─────────────────────────────────┘  │
+  │                                       │
+  │  💰 Valor Estimado: R$ 15.500,00      │
+  │                                       │
+  │  📦 7 móveis sugeridos                │
+  │                                       │
+  │  [💬 Falar com o Vendedor]            │
+  └───────────────────────────────────────┘
 ```
 
-**4.2 Gerar Orçamento a Partir da Análise**
-Botão "Criar Orçamento" que redireciona para `/novo-orcamento` com os itens já pré-preenchidos.
+---
 
-```text
-┌─────────────────────────────────────────┐
-│ 💰 Valor Total: R$ 15.500,00            │
-│                                         │
-│ [📋 Criar Orçamento com Esses Itens]    │
-└─────────────────────────────────────────┘
-```
+### Ordem de Implementação Sugerida
 
-**4.3 Histórico de Análises**
-Salvar cada análise em uma nova tabela `analises_ambiente` para consultar depois, incluindo:
-- Foto original
-- Foto de referência (se houver)
-- Resultado JSON da análise
-- Imagem simulada
-- Data/hora
+| Prioridade | Funcionalidade | Complexidade | Dependências |
+|------------|----------------|--------------|--------------|
+| 1 | WhatsApp | Baixa | Nenhuma |
+| 2 | Exportar PDF | Média | Nova biblioteca |
+| 3 | Link Compartilhável | Média | Migration + nova página |
+| 4 | Templates | Média | Migration + novo componente |
+| 5 | Comparação | Média | Depende do histórico |
 
 ---
 
-### Resumo de Arquivos a Modificar
+### Resumo de Arquivos a Criar/Modificar
 
-| Arquivo | Mudanças |
-|---------|----------|
-| `analisar-foto-ambiente/index.ts` | Calcular valor com preços reais do catálogo |
-| `VisaoCliente.tsx` | Adicionar botão de download da imagem |
-| `VisaoVendedor.tsx` | Botão "Adicionar ao Catálogo" + checkboxes + indicador de preço (catálogo vs estimativa) |
-| `AnaliseFotoAmbiente.tsx` | Passar `user_id` e refetch do catálogo após adição |
+| Arquivo | Ação | Descrição |
+|---------|------|-----------|
+| `VisaoCliente.tsx` | Modificar | Adicionar botão WhatsApp |
+| `VisaoVendedor.tsx` | Modificar | Adicionar botão Exportar PDF + Gerar Link |
+| `ExportarPDF.tsx` | Criar | Componente de geração de PDF |
+| `ComparacaoAnalises.tsx` | Criar | Tela de comparação lado a lado |
+| `TemplatesPreferencias.tsx` | Criar | Gerenciador de templates |
+| `AnalisePublica.tsx` | Criar | Página pública para clientes |
+| `AnaliseFotoAmbiente.tsx` | Modificar | Integrar seletor de templates |
+| `HistoricoAnalises.tsx` | Modificar | Adicionar checkbox para comparação |
+| `App.tsx` | Modificar | Nova rota /analise-publica/:id |
+| Migration SQL | Criar | templates_preferencias + coluna link_publico |
 
 ---
 
-### Priorização Sugerida
+### Quer que eu implemente todas as 5 funcionalidades de uma vez, ou prefere fazer em partes?
 
-**Fase 1 (Essencial):**
-- Valor baseado no catálogo
-- Botão baixar imagem
-- Adicionar todos ao catálogo
-
-**Fase 2 (Aprimoramentos):**
-- Seleção individual de móveis
-- Botão criar orçamento
-- Histórico de análises
-
+Posso começar com as 3 primeiras (WhatsApp, PDF, Link Compartilhável) que são as mais impactantes para o dia a dia do vendedor, e depois seguir com Templates e Comparação.
