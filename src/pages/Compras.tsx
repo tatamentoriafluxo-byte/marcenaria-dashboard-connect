@@ -340,7 +340,11 @@ const Compras = () => {
             <p className="text-muted-foreground mt-1">Gerencie pedidos de materiais</p>
           </div>
           
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
+          <Dialog open={dialogOpen} onOpenChange={async (open) => {
+            if (open && fornecedores.length === 0) {
+              // Recarregar dados se não tiver fornecedores
+              await loadData();
+            }
             setDialogOpen(open);
             if (!open) resetForm();
           }}>
