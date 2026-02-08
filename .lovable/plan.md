@@ -1,402 +1,266 @@
 
-# Plano de Replicacao do Dashboard Look Studio
+# Visao Geral: Dados do Dashboard vs Formularios de Entrada
 
-## Analise Comparativa: O Que Ja Existe vs O Que Falta
+## Resumo Executivo
 
-### 1. RESUMO VENDAS
-
-**Referencia Look Studio:**
-- 4 KPIs: Total Vendas (com % meta e barra de progresso verde), Total Orcamento, Venda + Orcamento, Total Perdido
-- Grafico "Crescimento de venda por mes" (linha)
-- Grafico "Valor e Quantidade de venda por ambiente" (linha por ambiente: SALA, COZINHA, QUARTO CASAL)
-- Tabela "Ranking por vendedor" com paginacao
-- Tabela "Ranking por cliente" com paginacao
-- Filtros: Selecionar periodo, Vendedor
-
-**Status Atual:**
-- KPIs: Faturamento Total, Ticket Medio, Total de Vendas, Meta Mensal (parcialmente OK)
-- Grafico vendas por mes (OK)
-- Grafico origem leads (pizza - diferente do esperado)
-- Valor/Quantidade por ambiente (OK)
-- Rankings por vendedor e cliente (OK, mas sem paginacao)
-
-**Alteracoes Necessarias:**
-- Adicionar barra de progresso verde no KPI "Total Vendas" com % meta
-- Trocar KPI "Ticket Medio" por "Total Orcamento"
-- Adicionar KPI "Venda + Orcamento" e "Total Perdido"
-- Mudar grafico de origem leads para linha de crescimento por ambiente
-- Implementar cores do Look Studio (azul escuro, laranja)
-- Adicionar filtros de periodo e vendedor
-- Adicionar paginacao nas tabelas
+Apos analisar todos os 9 dashboards e suas fontes de dados, identifiquei que a maioria dos dados esta corretamente mapeada para formularios de entrada. Porem, existem alguns **GAPS** onde o dashboard puxa dados que o usuario pode nao ter percebido que precisa preencher.
 
 ---
 
-### 2. RESUMO LUCRO
+## 1. DASHBOARD VENDAS
 
-**Referencia Look Studio:**
-- 4 KPIs: Total Lucro, Meta, Lucro x Meta (negativo em vermelho), Atingimento meta (%)
-- Grafico "Crescimento do lucro por mes" (linha)
-- Grafico "Lucro e %Representatividade por ambiente" (linha multi-serie)
-- Tabela "Ranking Lucro por Vendedor" com colunas: Vendedor, Telefone, Telefone (%), Valor da venda
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Vendas | `projects.valor_venda` | Novo Projeto |
+| Total Orcamentos | `orcamentos.valor_total` | Novo Orcamento |
+| Meta Mensal | `metas.meta_faturamento` | Metas |
+| Ranking Vendedores | `projects.vendedor_responsavel` | Novo Projeto |
+| Ranking Clientes | `projects.nome_cliente` | Novo Projeto |
+| Vendas por Ambiente | `projects.ambiente` | Novo Projeto |
 
-**Status Atual:**
-- KPIs: Lucro Total, Margem Media, Custo Total, Receita Total
-- Grafico evolucao (OK, mas precisa ajustar)
-- Tabela ranking lucro por vendedor (OK)
-- Falta: KPIs de meta e atingimento
-
-**Alteracoes Necessarias:**
-- Adicionar KPI "Meta" (buscar da tabela metas)
-- Adicionar KPI "Lucro x Meta" com valor negativo em vermelho
-- Adicionar KPI "Atingimento meta" em %
-- Adicionar coluna "Telefone (%)" na tabela ranking
+### Status: OK - Todos os dados tem formulario
 
 ---
 
-### 3. RESUMO PROJETOS
+## 2. DASHBOARD LUCRO
 
-**Referencia Look Studio:**
-- 3 KPIs grandes: Total Projetos (com grafico barras), Total Visualizacao (com Valor orcamento), Total Conversao (com Custo materiais/mao obra)
-- Tabela "Origem lead / Status / Qtd Proj"
-- Tabela "Cod Projeto / Status / Visualizado?"
-- Tabela "Ambiente / Origem lead / Conversao"
-- Graficos: Tempo entre Venda e Contato, Tempo entre Venda e Entrega
-- Filtros: Periodo, Ambiente, Origem lead
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Lucro | `resumo_projetos.lucro` (view calculada) | Automatico |
+| Meta Lucro | `metas.meta_lucro` | Metas |
+| Lucro por Ambiente | `resumo_projetos.ambiente` | Novo Projeto |
+| Lucro por Vendedor | `resumo_projetos.vendedor_nome` | Novo Projeto |
 
-**Status Atual:**
-- KPIs simples: Total, Em Andamento, Concluidos, Atrasados
-- Grafico pizza por status
-- Grafico barras por ambiente
-- Taxa de conversao funil
-
-**Alteracoes Necessarias:**
-- Refatorar KPIs para layout do Look Studio (com graficos mini internos)
-- Adicionar tabela Origem lead / Status / Qtd
-- Adicionar tabela Cod Projeto / Status / Visualizado
-- Adicionar tabela Ambiente / Origem lead / Conversao
-- Adicionar graficos de tempo (Venda-Contato, Venda-Entrega)
-- Adicionar filtros interativos
+### Status: OK - Porem depende de:
+- Usuario preencher custos no projeto (custo_materiais, custo_mao_obra, outros_custos)
+- Usuario cadastrar metas de lucro
 
 ---
 
-### 4. RESUMO FLUXO DE CAIXA
+## 3. DASHBOARD PROJETOS
 
-**Referencia Look Studio:**
-- 3 KPIs: Receita (Total Entradas), Saidas, Saldo (Record Count com grafico linha)
-- Tabela "Subcategoria / Valor"
-- Tabela "Categoria / Valor" (Custo Variavel, Custo Fixo)
-- Tabela "Data / Valor / Tipo movimentacao / Record Count"
-- Grafico pizza "Forma de Pagamento (Entradas)"
-- Tabela "Detalhe por NF"
-- Grafico barras "Receita x Saidas"
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Projetos | `resumo_projetos` | Novo Projeto |
+| Visualizado pelo Cliente | `projects.visualizado_cliente` | Novo Projeto |
+| Origem Lead | `projects.origem_lead` | Novo Projeto |
+| Tempo Venda-Contato | `projects.data_contato`, `projects.data_venda` | Novo Projeto |
+| Tempo Venda-Entrega | `projects.data_venda`, `projects.data_entrega` | Novo Projeto |
 
-**Status Atual:**
-- KPIs: Saldo Atual, Total Entradas, Total Saidas, Saldo Mes
-- Grafico linha Receita x Saidas (OK)
-- Grafico barras por categoria (OK)
-- Tabela subcategoria (OK)
-- Pizza forma pagamento (OK)
-- Tabela NF (OK)
-
-**Alteracoes Necessarias:**
-- Reorganizar layout para 3 colunas de KPIs com graficos mini
-- Adicionar grafico linha no card "Saldo"
-- Adicionar tabela de movimentacao detalhada
+### Status: OK - Mas usuario precisa:
+- Marcar o checkbox "Visualizado pelo cliente"
+- Preencher Data da Venda e Data de Entrega para graficos de tempo
 
 ---
 
-### 5. RESUMO PRODUCAO
+## 4. DASHBOARD FLUXO DE CAIXA
 
-**Referencia Look Studio:**
-- 3 KPIs: Producao Marceneiro, Total Producao Fabrica (grafico barras horizontal), Capacidade Producao (grafico barras)
-- Tabela "Nome Marceneiro / Valor Prod"
-- Tabela "Data Real Inicio / Valor Producao / Cod Projeto"
-- Tabela "Data planejada / Data real inicio / Cod Projeto"
-- Grafico barras "Variacao Tempo Estimado x Real" (comparativo)
-- Tabela "Em andamento" (Ambiente / Valor Producao / Cod Projeto)
-- Card "Rejeicao" com Taxa e grafico
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Entradas | `transacoes_financeiras` (tipo=RECEITA) | Fluxo de Caixa |
+| Total Saidas | `transacoes_financeiras` (tipo=DESPESA) | Fluxo de Caixa |
+| Por Categoria | `transacoes_financeiras.categoria` | Fluxo de Caixa |
+| Por Subcategoria | `transacoes_financeiras.subcategoria` | Fluxo de Caixa |
+| Forma Pagamento | `transacoes_financeiras.forma_pagamento` | Fluxo de Caixa |
+| Numero NF | `transacoes_financeiras.numero_nf` | Fluxo de Caixa |
 
-**Status Atual:**
-- KPIs basicos OK
-- Producoes por mes (OK)
-- Tabela marceneiro (OK, mas sem Data Real Inicio)
-- Capacidade producao (OK)
-- Variacao tempo (tabela, precisa virar grafico)
-- Indicadores qualidade (OK)
-
-**Alteracoes Necessarias:**
-- Converter variacao tempo de tabela para grafico de barras comparativo
-- Adicionar tabela "Em andamento"
-- Adicionar mini graficos nos KPIs
-- Adicionar grafico barras horizontal no "Total Producao Fabrica"
+### Status: OK - Todos os campos tem entrada
 
 ---
 
-### 6. RESUMO ESTOQUE
+## 5. DASHBOARD PRODUCAO
 
-**Referencia Look Studio:**
-- 2 Tabelas principais: "Resumo estoque" (Material/Tipo/Qtd atual/min/max), "Estoque e necessidade compra"
-- Tabela "Data ultima compra" (Tipo/Ultima compra/Qtd Ult Compra)
-- Grafico pizza "Estoque por Fornecedores"
-- Grafico barras empilhadas "Tipo de Material"
-- Destaque amarelo para itens abaixo do minimo
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Producoes | `producao` | Producao |
+| Por Marceneiro | `producao.marceneiro_id` + `funcionarios` | Producao + Funcionarios |
+| Tempo Estimado | `producao.tempo_estimado` | Producao |
+| Tempo Real | `producao.tempo_real` | Producao |
+| Taxa Rejeicao | `producao.taxa_rejeicao` | Producao |
+| Capacidade Producao | `capacidade_producao` | Capacidade Producao |
 
-**Status Atual:**
-- KPIs estatisticos (OK)
-- Grafico barras por tipo (OK)
-- Grafico valor por tipo (OK)
-- Lista itens criticos (OK, mas precisa virar tabela completa)
+### Status: OK - Porem:
+- Usuario precisa cadastrar funcionarios do tipo "Marceneiro" primeiro
+- Usuario precisa cadastrar Capacidade de Producao mensalmente
 
-**Alteracoes Necessarias:**
-- Criar tabela "Resumo estoque" com todas colunas
-- Criar tabela "Estoque e necessidade compra" com precos
-- Criar tabela "Data ultima compra"
-- Criar pizza "Estoque por Fornecedores"
-- Criar grafico barras empilhadas "Tipo de Material"
-- Adicionar destaque amarelo para itens criticos
+### DEPENDENCIAS:
+1. **Funcionarios** (tipo=Marceneiro) devem existir para aparecer no dropdown
+2. **Capacidade Producao** deve ser preenchida mensalmente para o grafico funcionar
 
 ---
 
-### 7. RESUMO MONTAGEM
+## 6. DASHBOARD ESTOQUE
 
-**Referencia Look Studio:**
-- 3 graficos topo: Montadores (barras), Montagem por ambiente (barras empilhadas), Montagem por Projeto
-- Tabelas: Montador/Status/Valor/Qtd Projeto, Ambiente/Valor/Qtd Projeto, Projeto/Movel/Valor/Qtd
-- Grafico horizontal "Tempo estimado vs real"
-- Pizza "Feedback cliente" (Excelente/Bom)
-- Tabela "Desafios montagem" (Montador/Movel/Desafios)
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Quantidade Atual | `estoque.quantidade_atual` | Estoque |
+| Quantidade Minima | `estoque.quantidade_minima` | Estoque |
+| Quantidade Maxima | `estoque.quantidade_maxima` | Estoque |
+| Preco Medio | `estoque.preco_medio_compra` | Estoque |
+| Data Ultima Compra | `estoque.data_ultima_compra` | Estoque |
+| Por Tipo Material | `materiais.tipo` | Materiais |
+| Por Fornecedor | `fornecedores` | Estoque (fornecedor_principal) |
 
-**Status Atual:**
-- Montagens por mes (OK)
-- Montagens por ambiente (OK)
-- Tabela montadores (OK)
-- Feedback cliente pizza (OK)
-- Tempo estimado barra progresso (precisa virar grafico horizontal)
-- Tabela desafios (precisa adicionar colunas Montador/Movel)
-
-**Alteracoes Necessarias:**
-- Mudar "Tempo estimado" para grafico barras horizontais
-- Adicionar grafico "Montagem por Projeto"
-- Expandir tabela desafios com mais colunas
+### Status: OK - Porem DEPENDENCIAS:
+1. **Materiais** devem ser cadastrados primeiro
+2. **Fornecedores** devem ser cadastrados primeiro
 
 ---
 
-### 8. RESUMO FEEDBACK
+## 7. DASHBOARD MONTAGEM
 
-**Referencia Look Studio:**
-- KPI: Record Count
-- 6 graficos pizza: Avaliacao vendedor, Equipe projetos, Fabricacao moveis, Montagem, Atendimento geral, Recomendacao servico
-- Barra "Sugestao de melhoria"
-- Tabela "Resumo respostas"
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Montagens | `montagem` | Montagem |
+| Por Montador | `montagem.montador_id` + `funcionarios` | Montagem + Funcionarios |
+| Por Ambiente | `montagem.ambiente` | Montagem |
+| Tempo Estimado vs Real | `montagem.tempo_estimado`, `tempo_real` | Montagem |
+| Feedback Cliente | `montagem.feedback_cliente` | Montagem |
+| Desafios | `montagem.desafios` | Montagem |
 
-**Status Atual:**
-- 4 KPIs estatisticos
-- 6 graficos pizza (OK)
-- Tabela resumo respostas (OK)
-- Falta: Barra de sugestao de melhoria
-
-**Alteracoes Necessarias:**
-- Adicionar componente "Sugestao de melhoria" (barra visual)
-- Ajustar layout para 3 colunas por linha nas pizzas
-- Simplificar KPIs para apenas "Record Count"
+### Status: OK - Porem DEPENDENCIAS:
+1. **Funcionarios** (tipo=Montador) devem existir
+2. **Projetos** devem existir para vincular montagem
 
 ---
 
-### 9. RESUMO FORNECEDOR
+## 8. DASHBOARD FEEDBACK
 
-**Referencia Look Studio:**
-- Grafico barras empilhadas "Detalhes fornecedor" por mes
-- Grafico linha multi-serie "Evolucao total compra"
-- Tabela "Nome Fornecedor / Total compra / Quantidade / %Total" com total geral
-- Tabela "Nome Fornecedor / Material / Custo medio por unid"
-- Card "Prazos" (Record Count, Quantidade Adquirida) com tabela
-- Card "Status" com pizza 100% Entregue e tabela
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Avaliacao Vendedor | `feedbacks.avaliacao_vendedor` | Feedbacks |
+| Avaliacao Equipe Projetos | `feedbacks.avaliacao_equipe_projetos` | Feedbacks |
+| Avaliacao Fabricacao | `feedbacks.avaliacao_fabricacao` | Feedbacks |
+| Avaliacao Montagem | `feedbacks.avaliacao_montagem` | Feedbacks |
+| Avaliacao Atendimento | `feedbacks.avaliacao_atendimento_geral` | Feedbacks |
+| Recomendaria Servico | `feedbacks.recomendaria_servico` | Feedbacks |
+| Sugestoes Melhoria | `feedbacks.sugestoes_melhoria` | Feedbacks |
 
-**Status Atual:**
-- Pizza fornecedores por tipo (diferente)
-- Linha evolucao compra (OK)
-- Ranking fornecedores (OK)
-- Material por fornecedor (OK)
-- Detalhes fornecedor (OK)
-- Falta: Prazos card, Status card com pizza
-
-**Alteracoes Necessarias:**
-- Converter pizza para barras empilhadas por mes
-- Adicionar card "Prazos" com Record Count
-- Adicionar card "Status" com pizza de status
+### Status: OK - Porem DEPENDENCIA:
+1. **Projetos** devem existir para vincular feedback
 
 ---
 
-## Componentes de UI Compartilhados a Criar
+## 9. DASHBOARD FORNECEDOR
 
-### 1. DashboardKPICard (Novo)
-```
-- Titulo
-- Valor principal grande
-- Valor secundario (percentual, meta)
-- Barra de progresso (opcional)
-- Mini grafico (opcional)
-- Cor de destaque (verde positivo, vermelho negativo)
-```
+### Dados que o Dashboard Puxa:
+| Dado | Tabela Origem | Formulario de Entrada |
+|------|---------------|----------------------|
+| Total Fornecedores | `fornecedores` | Fornecedores |
+| Ranking Fornecedores | `compras` vinculado a fornecedor | Compras |
+| Tipo Material | `fornecedores.tipo_material` | Fornecedores |
+| Prazo Medio Entrega | `fornecedores.prazo_entrega_medio` | Fornecedores |
+| Evolucao Compras | `compras.valor_total` | Compras |
+| Material por Fornecedor | `compras.itens_compra` + `materiais` | Compras |
 
-### 2. DashboardTable (Novo)
-```
-- Headers com ordenacao
-- Paginacao (1-X/Y)
-- Navegacao < >
-- Destaque de linha (amarelo para alerta)
-- Total geral no footer
-```
+### Status: OK - Porem DEPENDENCIAS:
+1. **Fornecedores** devem ser cadastrados primeiro
+2. **Materiais** devem existir para adicionar itens nas compras
 
-### 3. DashboardFilter (Novo)
-```
-- Dropdown "Selecionar periodo"
-- Dropdown dinamico (Vendedor, Ambiente, etc)
-- Filtros sincronizados entre componentes
-```
+---
 
-### 4. DashboardHeader (Novo)
-```
-- Titulo da aba com estilo Look Studio
-- Area de filtros
+## RESUMO DE DEPENDENCIAS (Ordem de Cadastro Recomendada)
+
+Para que todos os dashboards funcionem corretamente, o usuario deve seguir esta ordem:
+
+```text
+ETAPA 1 - CADASTROS BASE (obrigatorios primeiro)
++--------------------------------------------------+
+|  1. Materiais                                    |
+|  2. Fornecedores                                 |
+|  3. Funcionarios (Marceneiros + Montadores)      |
+|  4. Vendedores                                   |
++--------------------------------------------------+
+
+ETAPA 2 - OPERACOES COMERCIAIS
++--------------------------------------------------+
+|  5. Clientes                                     |
+|  6. Projetos (Novo Projeto)                      |
+|  7. Orcamentos                                   |
++--------------------------------------------------+
+
+ETAPA 3 - OPERACOES INTERNAS
++--------------------------------------------------+
+|  8. Compras (depende de Fornecedores + Materiais)|
+|  9. Estoque (depende de Materiais + Fornecedores)|
+| 10. Producao (depende de Projetos + Marceneiros) |
+| 11. Montagem (depende de Projetos + Montadores)  |
+| 12. Feedbacks (depende de Projetos)              |
++--------------------------------------------------+
+
+ETAPA 4 - FINANCEIRO E METAS
++--------------------------------------------------+
+| 13. Fluxo de Caixa (transacoes)                  |
+| 14. Metas (mensal)                               |
+| 15. Capacidade Producao (mensal)                 |
++--------------------------------------------------+
 ```
 
 ---
 
-## Paleta de Cores a Aplicar
+## GAPS IDENTIFICADOS - DADOS SEM FORMULARIO OBVIO
 
-```
-Header tabelas: #1e3a5f (azul escuro marinho)
-Fundo cards: #ffffff (branco)
-Positivo/Meta atingida: #22c55e (verde)
-Negativo/Alerta: #ef4444 (vermelho)
-Destaque linha: #fef08a (amarelo claro)
-Barras graficos: #f97316 (laranja), #1e3a5f (azul escuro)
-Texto header tabela: #ffffff (branco)
-```
+### 1. Campo `vendedor_responsavel` no Projeto
+- **Problema**: E um campo de texto livre, nao vinculado a tabela `vendedores`
+- **Impacto**: Ranking de vendedores pode ter nomes inconsistentes
+- **Sugestao**: Mudar para SELECT vinculado a tabela vendedores
 
----
+### 2. Capacidade de Producao
+- **Problema**: Muitos usuarios podem nao saber que precisam preencher isso mensalmente
+- **Impacto**: Grafico de capacidade fica vazio no Dashboard Producao
+- **Sugestao**: Adicionar alerta visual quando nao ha capacidade cadastrada
 
-## Ordem de Implementacao (Por Complexidade)
+### 3. Metas Mensais
+- **Problema**: O dashboard mostra % de meta atingida, mas se nao houver meta cadastrada, mostra valores incorretos
+- **Impacto**: KPIs de "Meta Lucro" e "Meta Faturamento" ficam zerados
+- **Sugestao**: Adicionar alerta quando nao ha meta do mes atual
 
-### Fase 1: Componentes Base (1-2 horas)
-1. Criar componente DashboardKPICard
-2. Criar componente DashboardTable com paginacao
-3. Criar componente DashboardFilter
-4. Aplicar paleta de cores globalmente
-
-### Fase 2: Dashboards Simples (2-3 horas)
-5. Atualizar DashboardFeedbacks (mais proximo do atual)
-6. Atualizar DashboardFornecedores
-7. Atualizar DashboardMontagem
-
-### Fase 3: Dashboards Medios (3-4 horas)
-8. Atualizar DashboardFluxoCaixa
-9. Atualizar DashboardEstoque
-10. Atualizar DashboardProducao
-
-### Fase 4: Dashboards Complexos (4-5 horas)
-11. Atualizar DashboardVendas (principal)
-12. Atualizar DashboardLucro
-13. Atualizar DashboardProjetos (mais complexo)
-
-### Fase 5: Integracao e Polimento (1-2 horas)
-14. Testar filtros funcionando entre componentes
-15. Ajustar responsividade
-16. Validar calculos e dados
+### 4. Visualizacao pelo Cliente (Projeto)
+- **Problema**: Campo pouco visivel no formulario de projeto
+- **Impacto**: Dashboard Projetos mostra "Total Visualizacao = 0" mesmo com projetos
+- **Sugestao**: Destacar esse campo ou tornar automatico baseado em acoes
 
 ---
 
-## Secao Tecnica - Detalhes de Implementacao
+## FORMULARIOS EXISTENTES vs PAGINAS
 
-### Estrutura de Pastas
-```
-src/components/dashboard/
-  ui/
-    DashboardKPICard.tsx
-    DashboardTable.tsx
-    DashboardFilter.tsx
-    DashboardHeader.tsx
-  DashboardVendas.tsx (atualizado)
-  DashboardLucro.tsx (atualizado)
-  ... (demais atualizados)
-```
-
-### Estado de Filtros (Context ou Props)
-```typescript
-interface DashboardFilters {
-  periodo: { inicio: Date; fim: Date } | null;
-  vendedor: string | null;
-  ambiente: string | null;
-  origemLead: string | null;
-}
-```
-
-### Query com Filtros
-```typescript
-let query = supabase
-  .from("projects")
-  .select("*")
-  .eq("user_id", userId);
-
-if (filters.periodo) {
-  query = query
-    .gte("data_venda", filters.periodo.inicio.toISOString())
-    .lte("data_venda", filters.periodo.fim.toISOString());
-}
-if (filters.vendedor) {
-  query = query.eq("vendedor_responsavel", filters.vendedor);
-}
-```
-
-### Paginacao de Tabelas
-```typescript
-const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 5;
-const paginatedData = data.slice(
-  (currentPage - 1) * itemsPerPage,
-  currentPage * itemsPerPage
-);
-```
-
-### Estilizacao Look Studio
-```css
-/* Headers de tabela */
-.table-header-look {
-  background-color: #1e3a5f;
-  color: white;
-}
-
-/* Linha de alerta */
-.row-alert {
-  background-color: #fef08a;
-}
-
-/* KPI positivo */
-.kpi-positive {
-  color: #22c55e;
-}
-
-/* KPI negativo */
-.kpi-negative {
-  color: #ef4444;
-}
-```
+| Pagina | Tabela | Tem Formulario Completo |
+|--------|--------|-------------------------|
+| `/materiais` | materiais | SIM |
+| `/fornecedores` | fornecedores | SIM |
+| `/funcionarios` | funcionarios | SIM |
+| `/vendedores` | vendedores | SIM |
+| `/clientes` | clientes | SIM |
+| `/novo-projeto` | projects | SIM |
+| `/orcamentos` | orcamentos | SIM |
+| `/compras` | compras + itens_compra | SIM |
+| `/estoque` | estoque | SIM |
+| `/producao` | producao | SIM |
+| `/montagem` | montagem | SIM |
+| `/feedbacks` | feedbacks | SIM |
+| `/fluxo-caixa` | transacoes_financeiras | SIM |
+| `/metas` | metas | SIM |
+| `/capacidade-producao` | capacidade_producao | SIM |
 
 ---
 
-## Resumo do Esforco
+## CONCLUSAO
 
-| Dashboard | Status Atual | Trabalho Necessario | Prioridade |
-|-----------|-------------|---------------------|------------|
-| Vendas | 60% | Alto | 1 |
-| Lucro | 50% | Medio | 2 |
-| Projetos | 40% | Alto | 3 |
-| Fluxo Caixa | 70% | Medio | 4 |
-| Producao | 60% | Medio | 5 |
-| Estoque | 50% | Alto | 6 |
-| Montagem | 65% | Medio | 7 |
-| Feedback | 80% | Baixo | 8 |
-| Fornecedor | 60% | Medio | 9 |
+O sistema esta **bem estruturado** com todos os dados do dashboard tendo formularios correspondentes. Os principais pontos de atencao sao:
 
-**Tempo Total Estimado: 12-16 horas de desenvolvimento**
+1. **Ordem de preenchimento**: Usuario precisa seguir a sequencia logica de cadastros
+2. **Metas e Capacidade**: Precisam ser preenchidos mensalmente
+3. **Vinculos com Vendedores**: O campo `vendedor_responsavel` no projeto e texto livre, podendo gerar inconsistencias
+
+### Proximos Passos Recomendados:
+- Adicionar um "assistente de onboarding" que guie o usuario pela ordem correta
+- Criar alertas quando dados essenciais estao faltando
+- Converter campo `vendedor_responsavel` para SELECT vinculado
