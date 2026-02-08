@@ -19,6 +19,7 @@ const NovoProjeto = () => {
   const [loading, setLoading] = useState(false);
 
   const [parceiros, setParceiros] = useState<any[]>([]);
+  const [vendedores, setVendedores] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     cod_projeto: '',
     data_contato: new Date().toISOString().split('T')[0],
@@ -43,7 +44,10 @@ const NovoProjeto = () => {
   });
 
   useEffect(() => {
-    loadParceiros();
+    if (user) {
+      loadParceiros();
+      loadVendedores();
+    }
   }, [user]);
 
   const loadParceiros = async () => {
@@ -55,6 +59,17 @@ const NovoProjeto = () => {
       .eq('ativo', true)
       .order('nome');
     setParceiros(data || []);
+  };
+
+  const loadVendedores = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('vendedores')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('ativo', true)
+      .order('nome');
+    setVendedores(data || []);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -162,13 +177,32 @@ const NovoProjeto = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="vendedor_responsavel">Vendedor Responsável *</Label>
-                  <Input
-                    id="vendedor_responsavel"
+                  <Select
                     value={formData.vendedor_responsavel}
-                    onChange={(e) => handleChange('vendedor_responsavel', e.target.value)}
-                    required
-                    placeholder="Nome do vendedor"
-                  />
+                    onValueChange={(value) => handleChange('vendedor_responsavel', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um vendedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vendedores.length === 0 ? (
+                        <SelectItem value="sem_vendedores" disabled>
+                          Nenhum vendedor cadastrado
+                        </SelectItem>
+                      ) : (
+                        vendedores.map((v) => (
+                          <SelectItem key={v.id} value={v.nome}>
+                            {v.nome}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {vendedores.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Cadastre vendedores em Configurações → Vendedores
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -373,22 +407,44 @@ const NovoProjeto = () => {
                   />
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="visualizado_cliente"
-                    checked={formData.visualizado_cliente}
-                    onCheckedChange={(checked) => handleChange('visualizado_cliente', checked)}
-                  />
-                  <Label htmlFor="visualizado_cliente">Visualizado pelo cliente</Label>
-                </div>
+                {/* Seção destacada para acompanhamento do cliente */}
+                <div className="md:col-span-2 p-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 space-y-4">
+                  <p className="text-sm font-medium text-primary">
+                    📊 Campos importantes para métricas do Dashboard
+                  </p>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex items-center space-x-3 p-3 bg-background rounded-md border">
+                      <Switch
+                        id="visualizado_cliente"
+                        checked={formData.visualizado_cliente}
+                        onCheckedChange={(checked) => handleChange('visualizado_cliente', checked)}
+                      />
+                      <div>
+                        <Label htmlFor="visualizado_cliente" className="font-medium">
+                          Visualizado pelo cliente
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Marque quando o cliente visualizar o orçamento
+                        </p>
+                      </div>
+                    </div>
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="preencheu_formulario"
-                    checked={formData.preencheu_formulario}
-                    onCheckedChange={(checked) => handleChange('preencheu_formulario', checked)}
-                  />
-                  <Label htmlFor="preencheu_formulario">Preencheu formulário</Label>
+                    <div className="flex items-center space-x-3 p-3 bg-background rounded-md border">
+                      <Switch
+                        id="preencheu_formulario"
+                        checked={formData.preencheu_formulario}
+                        onCheckedChange={(checked) => handleChange('preencheu_formulario', checked)}
+                      />
+                      <div>
+                        <Label htmlFor="preencheu_formulario" className="font-medium">
+                          Preencheu formulário
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Marque quando o cliente preencher o formulário
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

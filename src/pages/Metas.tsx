@@ -75,7 +75,7 @@ export default function Metas() {
 
     const payload = {
       mes_referencia: formData.mes_referencia,
-      vendedor_id: formData.vendedor_id || null,
+      vendedor_id: formData.vendedor_id && formData.vendedor_id !== 'geral' ? formData.vendedor_id : null,
       meta_faturamento: formData.meta_faturamento ? Number(formData.meta_faturamento) : null,
       meta_lucro: formData.meta_lucro ? Number(formData.meta_lucro) : null,
       meta_projetos: formData.meta_projetos ? Number(formData.meta_projetos) : null,
@@ -189,7 +189,7 @@ export default function Metas() {
                       <SelectValue placeholder="Geral (todos)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Geral (todos)</SelectItem>
+                      <SelectItem value="geral">Geral (todos)</SelectItem>
                       {vendedores.map((vendedor) => (
                         <SelectItem key={vendedor.id} value={vendedor.id}>
                           {vendedor.nome}
