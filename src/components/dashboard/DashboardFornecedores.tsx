@@ -3,13 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Truck, CheckCircle, Clock, TrendingDown } from "lucide-react";
+import { Truck } from "lucide-react";
 
 type DashboardFornecedoresProps = {
   userId: string;
 };
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe'];
+const COLORS = ['#f97316', '#1e3a5f', '#82ca9d', '#ff8042', '#0088fe'];
 
 export default function DashboardFornecedores({ userId }: DashboardFornecedoresProps) {
   const [fornecedoresPorTipo, setFornecedoresPorTipo] = useState<any[]>([]);
@@ -44,23 +44,63 @@ export default function DashboardFornecedores({ userId }: DashboardFornecedoresP
       }, {});
       setFornecedoresPorTipo(Object.values(porTipo));
 
-      // Buscar compras
+      // Buscar compras com detalhes
       const { data: compras } = await supabase
         .from("compras")
-        .select("*, fornecedores!compras_fornecedor_fkey(nome), itens_compra(*)")
+        .select("*, fornecedores!compras_fornecedor_id_fkey(nome), itens_compra(*)")
         .eq("user_id", userId);
 
       if (compras) {
-        // Evolução de compras
-        const porMes = compras.reduce((acc: any, compra: any) => {
+        // Detalhes fornecedor - agrupado por mês (para gráfico barras empilhadas)
+        const detalhePorMes: any = {};
+        const evolucaoPorFornecedor: Record<string, any[]> = {};
+
+        compras.forEach((compra: any) => {
           if (compra.data_compra) {
-            const mes = new Date(compra.data_compra).toLocaleDateString('pt-BR', { month: 'short' });
-            if (!acc[mes]) acc[mes] = { mes, totalCompra: 0 };
-            acc[mes].totalCompra += compra.valor_total || 0;
+            const mes = new Date(compra.data_compra).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+            const nomeFornecedor = compra.fornecedores?.nome || "Sem nome";
+
+            // Detalhe por mês
+            if (!detalhePorMes[mes]) detalhePorMes[mes] = { mes };
+            if (!detalhePorMes[mes][nomeFornecedor]) detalhePorMes[mes][nomeFornecedor] = 0;
+            detalhePorMes[mes][nomeFornecedor] += compra.valor_total || 0;
+
+            // Evolução por fornecedor
+            if (!evolucaoPorFornecedor[nomeFornecedor]) evolucaoPorFornecedor[nomeFornecedor] = [];
+            const existeMes = evolucaoPorFornecedor[nomeFornecedor].find(e => e.mes === mes);
+            if (existeMes) {
+              existeMes.valor += compra.valor_total || 0;
+            } else {
+              evolucaoPorFornecedor[nomeFornecedor].push({ mes, valor: compra.valor_total || 0, fornecedor: nomeFornecedor });
+            }
           }
-          return acc;
-        }, {});
-        setEvolucaoCompras(Object.values(porMes));
+        });
+
+        // Ordenar por mês
+        const detalheArray = Object.values(detalhePorMes).sort((a: any, b: any) => {
+          const dateA = new Date(a.mes);
+          const dateB = new Date(b.mes);
+          return dateA.getTime() - dateB.getTime();
+        });
+
+        setDetalheFornecedores(detalheArray);
+
+        // Evolução - combinar todos fornecedores em meses
+        const mesesUnicos = new Set<string>();
+        Object.values(evolucaoPorFornecedor).forEach((meses: any[]) => {
+          meses.forEach(m => mesesUnicos.add(m.mes));
+        });
+
+        const evolucaoArray = Array.from(mesesUnicos).sort().map(mes => {
+          const obj: any = { mes };
+          Object.entries(evolucaoPorFornecedor).forEach(([fornecedor, dados]: any) => {
+            const found = dados.find((d: any) => d.mes === mes);
+            obj[fornecedor] = found ? found.valor : 0;
+          });
+          return obj;
+        });
+
+        setEvolucaoCompras(evolucaoArray);
 
         // Ranking fornecedores
         const ranking: Record<string, {
@@ -132,95 +172,96 @@ export default function DashboardFornecedores({ userId }: DashboardFornecedoresP
 
   return (
     <div className="space-y-6">
-      {/* Cards de Estatísticas */}
+      {/* Header com Filtros */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-dashboard-navy">RESUMO FORNECEDOR</h2>
+        <div className="flex items-center gap-2">
+          <Truck className="h-5 w-5 text-dashboard-orange" />
+          <span className="text-sm font-medium text-dashboard-navy">{stats.totalFornecedores} Fornecedores</span>
+        </div>
+      </div>
+
+      {/* KPIs Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Fornecedores</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalFornecedores}</div>
-            <p className="text-xs text-muted-foreground">Fornecedores cadastrados</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Total Fornecedores</div>
+            <div className="text-3xl font-bold text-dashboard-navy">{stats.totalFornecedores}</div>
+            <div className="text-xs text-muted-foreground mt-2">Cadastrados</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Ativos</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.ativos}</div>
-            <p className="text-xs text-muted-foreground">Fornecedores ativos</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Ativos</div>
+            <div className="text-3xl font-bold text-dashboard-success">{stats.ativos}</div>
+            <div className="text-xs text-muted-foreground mt-2">Em operação</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Inativos</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.inativos}</div>
-            <p className="text-xs text-muted-foreground">Fornecedores inativos</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Inativos</div>
+            <div className="text-3xl font-bold text-dashboard-danger">{stats.inativos}</div>
+            <div className="text-xs text-muted-foreground mt-2">Desativados</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Prazo Médio</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.prazoMedio.toFixed(0)} dias</div>
-            <p className="text-xs text-muted-foreground">Entrega média</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Prazo Médio</div>
+            <div className="text-3xl font-bold text-dashboard-orange">{stats.prazoMedio.toFixed(0)}</div>
+            <div className="text-xs text-muted-foreground mt-2">dias de entrega</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Gráficos */}
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Detalhes fornecedor - Barras Empilhadas */}
         <Card>
           <CardHeader>
-            <CardTitle>Fornecedores por Tipo de Material</CardTitle>
+            <CardTitle>Detalhes Fornecedor por Período</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={fornecedoresPorTipo}
-                  dataKey="total"
-                  nameKey="tipo"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label
-                >
-                  {fornecedoresPorTipo.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={detalheFornecedores}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mes" />
+                <YAxis />
+                <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
                 <Legend />
-              </PieChart>
+                {/* Dynamicamente adicionar fornecedores */}
+                {detalheFornecedores[0] && Object.keys(detalheFornecedores[0])
+                  .filter(key => key !== 'mes')
+                  .map((fornecedor, idx) => (
+                    <Bar key={idx} dataKey={fornecedor} stackId="a" fill={COLORS[idx % COLORS.length]} />
+                  ))
+                }
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
+        {/* Evolução total compra - Linha Multi-Série */}
         <Card>
           <CardHeader>
             <CardTitle>Evolução Total Compra</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <LineChart data={evolucaoCompras}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="mes" />
                 <YAxis />
                 <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
                 <Legend />
-                <Line type="monotone" dataKey="totalCompra" stroke="#8884d8" name="Total Compra" strokeWidth={2} />
+                {evolucaoCompras[0] && Object.keys(evolucaoCompras[0])
+                  .filter(key => key !== 'mes')
+                  .map((fornecedor, idx) => (
+                    <Line key={idx} type="monotone" dataKey={fornecedor} stroke={COLORS[idx % COLORS.length]} strokeWidth={2} />
+                  ))
+                }
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

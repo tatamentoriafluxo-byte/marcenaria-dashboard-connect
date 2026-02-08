@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Factory, Clock, AlertTriangle, TrendingUp } from "lucide-react";
+import { Factory } from "lucide-react";
 
 type DashboardProducaoProps = {
   userId: string;
@@ -124,49 +124,48 @@ export default function DashboardProducao({ userId }: DashboardProducaoProps) {
 
   return (
     <div className="space-y-6">
-      {/* Cards de Estatísticas */}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-dashboard-navy">RESUMO PRODUÇÃO</h2>
+        <div className="flex items-center gap-2">
+          <Factory className="h-5 w-5 text-dashboard-orange" />
+          <span className="text-sm font-medium text-dashboard-navy">{stats.totalProducoes} Produções</span>
+        </div>
+      </div>
+
+      {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Produções</CardTitle>
-            <Factory className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalProducoes}</div>
-            <p className="text-xs text-muted-foreground">Produções cadastradas</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Produção Marceneiro</div>
+            <div className="text-3xl font-bold text-dashboard-navy">{stats.totalProducoes}</div>
+            <div className="text-xs text-muted-foreground mt-2">Total de produções</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Em Andamento</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.emAndamento}</div>
-            <p className="text-xs text-muted-foreground">Produções ativas</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Total Produção Fábrica</div>
+            <div className="text-3xl font-bold text-dashboard-orange">{stats.emAndamento}</div>
+            <div className="text-xs text-muted-foreground mt-2">Em andamento</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Rejeição</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.taxaRejeicaoMedia.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">Taxa média</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Capacidade Produção</div>
+            <div className="text-3xl font-bold text-dashboard-success">{stats.eficienciaMedia.toFixed(0)}%</div>
+            <div className="text-xs text-muted-foreground mt-2">Utilização</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Eficiência</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.eficienciaMedia.toFixed(0)}%</div>
-            <p className="text-xs text-muted-foreground">Tempo real vs estimado</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Taxa de Rejeição</div>
+            <div className={`text-3xl font-bold ${stats.taxaRejeicaoMedia > 5 ? 'text-dashboard-danger' : 'text-dashboard-success'}`}>
+              {stats.taxaRejeicaoMedia.toFixed(1)}%
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">Qualidade</div>
           </CardContent>
         </Card>
       </div>
