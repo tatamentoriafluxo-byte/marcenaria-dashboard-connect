@@ -323,6 +323,9 @@ export default function DashboardEstoque({ userId }: DashboardEstoqueProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Gráficos Adicionais */}
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Estoque por Tipo de Material</CardTitle>
@@ -335,7 +338,7 @@ export default function DashboardEstoque({ userId }: DashboardEstoqueProps) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="quantidade" fill="#8884d8" name="Quantidade" />
+                <Bar dataKey="quantidade" fill="#1e3a5f" name="Quantidade" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -353,52 +356,52 @@ export default function DashboardEstoque({ userId }: DashboardEstoqueProps) {
                 <YAxis />
                 <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
                 <Legend />
-                <Bar dataKey="valor" fill="#82ca9d" name="Valor (R$)" />
+                <Bar dataKey="valor" fill="#f97316" name="Valor (R$)" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Itens com Estoque Crítico</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {itensCriticos.length > 0 ? (
-              <div className="space-y-4">
-                {itensCriticos.map((item: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between border-b pb-3">
-                    <div className="flex-1">
-                      <p className="font-medium">{item.nome}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Tipo: {item.tipo}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm">
-                        <span className="font-medium text-red-600">
-                          {item.quantidade_atual}
-                        </span>
-                        {" / "}
-                        <span className="text-muted-foreground">
-                          {item.quantidade_minima} mín.
-                        </span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Repor: {item.quantidade_minima - item.quantidade_atual} unidades
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">
-                Nenhum item com estoque crítico
-              </p>
-            )}
-          </CardContent>
-        </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Itens com Estoque Crítico</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {itensCriticos.length > 0 ? (
+            <div className="space-y-4">
+              {itensCriticos.map((item: any, index: number) => (
+                <div key={index} className="flex items-center justify-between border-b pb-3">
+                  <div className="flex-1">
+                    <p className="font-medium">{item.nome}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Tipo: {item.tipo}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm">
+                      <span className="font-medium text-dashboard-danger">
+                        {item.quantidade_atual}
+                      </span>
+                      {" / "}
+                      <span className="text-muted-foreground">
+                        {item.quantidade_minima} mín.
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Repor: {item.quantidade_minima - item.quantidade_atual} unidades
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              Nenhum item com estoque crítico
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
