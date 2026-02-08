@@ -143,7 +143,7 @@ export default function DashboardProjetos({ userId }: DashboardProjetosProps) {
 
       // Calcular stats
       const totalVisualizacao = data.filter((p: any) => p.visualizado_cliente).length;
-      const totalConvertido = data.filter((p: any) => p.status === "ENTREGUE").length;
+      const totalConvertido = data.filter((p: any) => p.status === "ENTREGUE" || p.status === "CONVERTIDO").length;
       const totalOrcamento = data.reduce((sum: number, p: any) => sum + (p.valor_orcamento || 0), 0);
       const totalMaoDeObra = data.reduce((sum: number, p: any) => sum + (p.custo_mao_obra || 0), 0);
 

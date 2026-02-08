@@ -26,12 +26,12 @@ export function useMissingDataAlerts() {
       const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
       // Check for missing metas for current month
+      const mesAtual = currentMonth + '-01'; // e.g., "2026-02-01"
       const { data: metas } = await supabase
         .from('metas')
         .select('id')
         .eq('user_id', user.id)
-        .gte('mes_referencia', `${currentMonth}-01`)
-        .lt('mes_referencia', `${currentMonth}-32`)
+        .eq('mes_referencia', mesAtual)
         .limit(1);
 
       if (!metas || metas.length === 0) {
@@ -49,8 +49,7 @@ export function useMissingDataAlerts() {
         .from('capacidade_producao')
         .select('id')
         .eq('user_id', user.id)
-        .gte('mes_referencia', `${currentMonth}-01`)
-        .lt('mes_referencia', `${currentMonth}-32`)
+        .eq('mes_referencia', mesAtual)
         .limit(1);
 
       if (!capacidade || capacidade.length === 0) {
