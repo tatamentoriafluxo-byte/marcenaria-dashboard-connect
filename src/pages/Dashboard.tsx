@@ -22,6 +22,7 @@ import DashboardParceiros from "@/components/dashboard/DashboardParceiros";
 import DashboardOrcamentos from "@/components/dashboard/DashboardOrcamentos";
 import { PainelSemaforo } from "@/components/alertas/PainelSemaforo";
 import { PainelScoreFechamento } from "@/components/ia/PainelScoreFechamento";
+import { MissingDataAlerts } from "@/components/dashboard/MissingDataAlerts";
 import { BarChart3, TrendingUp, FolderKanban, Factory, Package, Users, Truck, UserCog, Box, UserCheck, ShoppingCart, Wrench, Wallet, Target, MessageSquare, Handshake, CreditCard, DollarSign, FileText, Calculator, AlertTriangle, Brain } from "lucide-react";
 
 export default function Dashboard() {
@@ -33,6 +34,8 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">Visão geral do seu negócio</p>
       </div>
+
+      <MissingDataAlerts />
 
       <Tabs defaultValue="alertas" className="w-full">
         <TabsList className="grid w-full grid-cols-5 lg:grid-cols-8 xl:grid-cols-10 gap-1 mb-6 h-auto p-1">
