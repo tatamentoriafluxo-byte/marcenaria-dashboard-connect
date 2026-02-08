@@ -57,6 +57,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        dashboard: {
+          navy: "hsl(var(--dashboard-navy))",
+          "navy-foreground": "hsl(var(--dashboard-navy-foreground))",
+          orange: "hsl(var(--dashboard-orange))",
+          success: "hsl(var(--dashboard-success))",
+          danger: "hsl(var(--dashboard-danger))",
+          warning: "hsl(var(--dashboard-warning))",
+          info: "hsl(var(--dashboard-info))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
