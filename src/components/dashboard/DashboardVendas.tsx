@@ -125,8 +125,9 @@ export default function DashboardVendas({ userId }: DashboardVendasProps) {
 
     if (projectsData) {
       // Calculate stats
+      // Incluir projetos com valor_venda > 0, independente do status
       const vendasConcluidas = projectsData.filter(
-        (p) => (p.status === "CONVERTIDO" || p.status === "ENTREGUE") && p.valor_venda
+        (p) => p.valor_venda && p.valor_venda > 0
       );
       const projetosPerdidos = projectsData.filter(
         (p) => p.status === "CANCELADO"
