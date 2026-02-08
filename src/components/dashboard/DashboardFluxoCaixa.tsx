@@ -134,88 +134,90 @@ export default function DashboardFluxoCaixa({ userId }: DashboardFluxoCaixaProps
 
   return (
     <div className="space-y-6">
-      {/* Cards de Estatísticas */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Saldo Atual</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {stats.saldoAtual.toLocaleString('pt-BR')}</div>
-            <p className="text-xs text-muted-foreground">Saldo total</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-dashboard-navy">RESUMO FLUXO DE CAIXA</h2>
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-5 w-5 text-dashboard-orange" />
+          <span className="text-sm font-medium text-dashboard-navy">Período: Geral</span>
+        </div>
+      </div>
+
+      {/* 3 KPIs principais com mini-gráficos */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Receita (Entradas)</div>
+            <div className="text-3xl font-bold text-dashboard-success">R$ {(stats.totalEntradas / 1000).toFixed(1)}k</div>
+            <div className="text-xs text-muted-foreground mt-2">Total acumulado</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Entradas</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">R$ {stats.totalEntradas.toLocaleString('pt-BR')}</div>
-            <p className="text-xs text-muted-foreground">Receitas totais</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Saídas</div>
+            <div className={`text-3xl font-bold ${stats.totalSaidas > stats.totalEntradas ? 'text-dashboard-danger' : 'text-dashboard-warning'}`}>
+              R$ {(stats.totalSaidas / 1000).toFixed(1)}k
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">Despesas acumuladas</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Saídas</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">R$ {stats.totalSaidas.toLocaleString('pt-BR')}</div>
-            <p className="text-xs text-muted-foreground">Despesas totais</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Saldo do Mês</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {stats.saldoMesAtual.toLocaleString('pt-BR')}</div>
-            <p className="text-xs text-muted-foreground">Saldo mensal</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Saldo</div>
+            <div className={`text-3xl font-bold ${stats.saldoAtual >= 0 ? 'text-dashboard-success' : 'text-dashboard-danger'}`}>
+              R$ {(stats.saldoAtual / 1000).toFixed(1)}k
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">Saldo atual</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Gráficos */}
+      {/* Gráficos - Receita x Saídas e Categorias */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Receita x Saídas</CardTitle>
+            <CardTitle>Receita x Saídas por Mês</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={fluxoPorMes}>
+              <BarChart data={fluxoPorMes}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="mes" />
                 <YAxis />
                 <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
                 <Legend />
-                <Line type="monotone" dataKey="entradas" stroke="#82ca9d" name="Receita" strokeWidth={2} />
-                <Line type="monotone" dataKey="saidas" stroke="#ff8042" name="Saídas" strokeWidth={2} />
-              </LineChart>
+                <Bar dataKey="entradas" fill="#22c55e" name="Entradas" />
+                <Bar dataKey="saidas" fill="#ef4444" name="Saídas" />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Transações por Categoria</CardTitle>
+            <CardTitle>Forma de Pagamento (Entradas)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={transacoesPorCategoria}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="categoria" />
-                <YAxis />
+              <PieChart>
+                <Pie
+                  data={formaPagamento}
+                  dataKey="valor"
+                  nameKey="forma"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ valor }) => `R$ ${(valor / 1000).toFixed(0)}k`}
+                >
+                  {formaPagamento.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={['#f97316', '#1e3a5f', '#22c55e'][index % 3]} />
+                  ))}
+                </Pie>
                 <Tooltip formatter={(value: any) => `R$ ${value.toLocaleString('pt-BR')}`} />
                 <Legend />
-                <Bar dataKey="valor" fill="#8884d8" name="Valor" />
-              </BarChart>
+              </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

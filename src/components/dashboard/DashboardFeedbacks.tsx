@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { MessageSquare, ThumbsUp, Star, TrendingUp } from "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { MessageSquare } from "lucide-react";
 
 type DashboardFeedbacksProps = {
   userId: string;
 };
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe'];
+const COLORS = ['#22c55e', '#f97316', '#ef4444', '#fef08a', '#0088fe'];
 
 export default function DashboardFeedbacks({ userId }: DashboardFeedbacksProps) {
   const [avaliacoesPorCategoria, setAvaliacoesPorCategoria] = useState<any[]>([]);
@@ -148,54 +148,43 @@ export default function DashboardFeedbacks({ userId }: DashboardFeedbacksProps) 
 
   return (
     <div className="space-y-6">
-      {/* Cards de Estatísticas */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total de Feedbacks</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalFeedbacks}</div>
-            <p className="text-xs text-muted-foreground">Avaliações recebidas</p>
+      {/* Header com KPI simplificado */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-dashboard-navy">RESUMO FEEDBACK</h2>
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-5 w-5 text-dashboard-orange" />
+          <span className="text-sm font-medium text-dashboard-navy">{stats.totalFeedbacks} Feedbacks</span>
+        </div>
+      </div>
+
+      {/* Cards de Estatísticas - Simplificado */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Taxa de Recomendação</div>
+            <div className="text-3xl font-bold text-dashboard-success">{stats.taxaRecomendacao.toFixed(0)}%</div>
+            <div className="text-xs text-muted-foreground mt-2">Clientes que recomendariam</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Recomendariam</CardTitle>
-            <ThumbsUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.recomendariam}</div>
-            <p className="text-xs text-muted-foreground">Clientes satisfeitos</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Nota Média Geral</div>
+            <div className="text-3xl font-bold text-dashboard-orange">{stats.notaMedia.toFixed(1)}/5</div>
+            <div className="text-xs text-muted-foreground mt-2">Avaliação média</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Nota Média</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.notaMedia.toFixed(1)}</div>
-            <p className="text-xs text-muted-foreground">De 5 estrelas</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Recomendação</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.taxaRecomendacao.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">Percentual de aprovação</p>
+        <Card className="bg-white border-dashboard-navy border-l-4">
+          <CardContent className="pt-6">
+            <div className="text-sm text-muted-foreground mb-1">Total de Respostas</div>
+            <div className="text-3xl font-bold text-dashboard-navy">{stats.totalFeedbacks}</div>
+            <div className="text-xs text-muted-foreground mt-2">Avaliações coletadas</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Gráficos */}
+      {/* Gráficos - 6 Pizzas em layout 3x2 */}
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
