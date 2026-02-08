@@ -1,177 +1,402 @@
 
+# Plano de Replicacao do Dashboard Look Studio
 
-## Plano de Testes Estratégico - Ordem de Execução
+## Analise Comparativa: O Que Ja Existe vs O Que Falta
 
-### Lógica da Ordem
+### 1. RESUMO VENDAS
 
-Os testes seguem a ordem de **dependência de dados**: primeiro cadastramos os dados base, depois testamos as funcionalidades que dependem deles.
+**Referencia Look Studio:**
+- 4 KPIs: Total Vendas (com % meta e barra de progresso verde), Total Orcamento, Venda + Orcamento, Total Perdido
+- Grafico "Crescimento de venda por mes" (linha)
+- Grafico "Valor e Quantidade de venda por ambiente" (linha por ambiente: SALA, COZINHA, QUARTO CASAL)
+- Tabela "Ranking por vendedor" com paginacao
+- Tabela "Ranking por cliente" com paginacao
+- Filtros: Selecionar periodo, Vendedor
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 1: DADOS BASE (sem dependências)                        │
-│  Materiais → Fornecedores → Funcionários → Vendedores           │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 2: ENTIDADES COMERCIAIS (dependem da Camada 1)          │
-│  Clientes → Parceiros → Catálogo de Preços                      │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 3: OPERAÇÕES (dependem das Camadas 1 e 2)               │
-│  Projetos → Orçamentos → Compras → Estoque                      │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 4: FINANCEIRO (depende das Camadas anteriores)          │
-│  Contas a Pagar → Contas a Receber → Cheques → Fluxo de Caixa   │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 5: EXECUÇÃO E CONTROLE                                  │
-│  Produção → Montagem → Feedbacks → Metas                        │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 6: IA E COMPARTILHAMENTO (Fase 3 - Nova!)               │
-│  Análise de Foto → Templates → PDF → WhatsApp → Link Público    │
-└─────────────────────────────────────────────────────────────────┘
+**Status Atual:**
+- KPIs: Faturamento Total, Ticket Medio, Total de Vendas, Meta Mensal (parcialmente OK)
+- Grafico vendas por mes (OK)
+- Grafico origem leads (pizza - diferente do esperado)
+- Valor/Quantidade por ambiente (OK)
+- Rankings por vendedor e cliente (OK, mas sem paginacao)
+
+**Alteracoes Necessarias:**
+- Adicionar barra de progresso verde no KPI "Total Vendas" com % meta
+- Trocar KPI "Ticket Medio" por "Total Orcamento"
+- Adicionar KPI "Venda + Orcamento" e "Total Perdido"
+- Mudar grafico de origem leads para linha de crescimento por ambiente
+- Implementar cores do Look Studio (azul escuro, laranja)
+- Adicionar filtros de periodo e vendedor
+- Adicionar paginacao nas tabelas
+
+---
+
+### 2. RESUMO LUCRO
+
+**Referencia Look Studio:**
+- 4 KPIs: Total Lucro, Meta, Lucro x Meta (negativo em vermelho), Atingimento meta (%)
+- Grafico "Crescimento do lucro por mes" (linha)
+- Grafico "Lucro e %Representatividade por ambiente" (linha multi-serie)
+- Tabela "Ranking Lucro por Vendedor" com colunas: Vendedor, Telefone, Telefone (%), Valor da venda
+
+**Status Atual:**
+- KPIs: Lucro Total, Margem Media, Custo Total, Receita Total
+- Grafico evolucao (OK, mas precisa ajustar)
+- Tabela ranking lucro por vendedor (OK)
+- Falta: KPIs de meta e atingimento
+
+**Alteracoes Necessarias:**
+- Adicionar KPI "Meta" (buscar da tabela metas)
+- Adicionar KPI "Lucro x Meta" com valor negativo em vermelho
+- Adicionar KPI "Atingimento meta" em %
+- Adicionar coluna "Telefone (%)" na tabela ranking
+
+---
+
+### 3. RESUMO PROJETOS
+
+**Referencia Look Studio:**
+- 3 KPIs grandes: Total Projetos (com grafico barras), Total Visualizacao (com Valor orcamento), Total Conversao (com Custo materiais/mao obra)
+- Tabela "Origem lead / Status / Qtd Proj"
+- Tabela "Cod Projeto / Status / Visualizado?"
+- Tabela "Ambiente / Origem lead / Conversao"
+- Graficos: Tempo entre Venda e Contato, Tempo entre Venda e Entrega
+- Filtros: Periodo, Ambiente, Origem lead
+
+**Status Atual:**
+- KPIs simples: Total, Em Andamento, Concluidos, Atrasados
+- Grafico pizza por status
+- Grafico barras por ambiente
+- Taxa de conversao funil
+
+**Alteracoes Necessarias:**
+- Refatorar KPIs para layout do Look Studio (com graficos mini internos)
+- Adicionar tabela Origem lead / Status / Qtd
+- Adicionar tabela Cod Projeto / Status / Visualizado
+- Adicionar tabela Ambiente / Origem lead / Conversao
+- Adicionar graficos de tempo (Venda-Contato, Venda-Entrega)
+- Adicionar filtros interativos
+
+---
+
+### 4. RESUMO FLUXO DE CAIXA
+
+**Referencia Look Studio:**
+- 3 KPIs: Receita (Total Entradas), Saidas, Saldo (Record Count com grafico linha)
+- Tabela "Subcategoria / Valor"
+- Tabela "Categoria / Valor" (Custo Variavel, Custo Fixo)
+- Tabela "Data / Valor / Tipo movimentacao / Record Count"
+- Grafico pizza "Forma de Pagamento (Entradas)"
+- Tabela "Detalhe por NF"
+- Grafico barras "Receita x Saidas"
+
+**Status Atual:**
+- KPIs: Saldo Atual, Total Entradas, Total Saidas, Saldo Mes
+- Grafico linha Receita x Saidas (OK)
+- Grafico barras por categoria (OK)
+- Tabela subcategoria (OK)
+- Pizza forma pagamento (OK)
+- Tabela NF (OK)
+
+**Alteracoes Necessarias:**
+- Reorganizar layout para 3 colunas de KPIs com graficos mini
+- Adicionar grafico linha no card "Saldo"
+- Adicionar tabela de movimentacao detalhada
+
+---
+
+### 5. RESUMO PRODUCAO
+
+**Referencia Look Studio:**
+- 3 KPIs: Producao Marceneiro, Total Producao Fabrica (grafico barras horizontal), Capacidade Producao (grafico barras)
+- Tabela "Nome Marceneiro / Valor Prod"
+- Tabela "Data Real Inicio / Valor Producao / Cod Projeto"
+- Tabela "Data planejada / Data real inicio / Cod Projeto"
+- Grafico barras "Variacao Tempo Estimado x Real" (comparativo)
+- Tabela "Em andamento" (Ambiente / Valor Producao / Cod Projeto)
+- Card "Rejeicao" com Taxa e grafico
+
+**Status Atual:**
+- KPIs basicos OK
+- Producoes por mes (OK)
+- Tabela marceneiro (OK, mas sem Data Real Inicio)
+- Capacidade producao (OK)
+- Variacao tempo (tabela, precisa virar grafico)
+- Indicadores qualidade (OK)
+
+**Alteracoes Necessarias:**
+- Converter variacao tempo de tabela para grafico de barras comparativo
+- Adicionar tabela "Em andamento"
+- Adicionar mini graficos nos KPIs
+- Adicionar grafico barras horizontal no "Total Producao Fabrica"
+
+---
+
+### 6. RESUMO ESTOQUE
+
+**Referencia Look Studio:**
+- 2 Tabelas principais: "Resumo estoque" (Material/Tipo/Qtd atual/min/max), "Estoque e necessidade compra"
+- Tabela "Data ultima compra" (Tipo/Ultima compra/Qtd Ult Compra)
+- Grafico pizza "Estoque por Fornecedores"
+- Grafico barras empilhadas "Tipo de Material"
+- Destaque amarelo para itens abaixo do minimo
+
+**Status Atual:**
+- KPIs estatisticos (OK)
+- Grafico barras por tipo (OK)
+- Grafico valor por tipo (OK)
+- Lista itens criticos (OK, mas precisa virar tabela completa)
+
+**Alteracoes Necessarias:**
+- Criar tabela "Resumo estoque" com todas colunas
+- Criar tabela "Estoque e necessidade compra" com precos
+- Criar tabela "Data ultima compra"
+- Criar pizza "Estoque por Fornecedores"
+- Criar grafico barras empilhadas "Tipo de Material"
+- Adicionar destaque amarelo para itens criticos
+
+---
+
+### 7. RESUMO MONTAGEM
+
+**Referencia Look Studio:**
+- 3 graficos topo: Montadores (barras), Montagem por ambiente (barras empilhadas), Montagem por Projeto
+- Tabelas: Montador/Status/Valor/Qtd Projeto, Ambiente/Valor/Qtd Projeto, Projeto/Movel/Valor/Qtd
+- Grafico horizontal "Tempo estimado vs real"
+- Pizza "Feedback cliente" (Excelente/Bom)
+- Tabela "Desafios montagem" (Montador/Movel/Desafios)
+
+**Status Atual:**
+- Montagens por mes (OK)
+- Montagens por ambiente (OK)
+- Tabela montadores (OK)
+- Feedback cliente pizza (OK)
+- Tempo estimado barra progresso (precisa virar grafico horizontal)
+- Tabela desafios (precisa adicionar colunas Montador/Movel)
+
+**Alteracoes Necessarias:**
+- Mudar "Tempo estimado" para grafico barras horizontais
+- Adicionar grafico "Montagem por Projeto"
+- Expandir tabela desafios com mais colunas
+
+---
+
+### 8. RESUMO FEEDBACK
+
+**Referencia Look Studio:**
+- KPI: Record Count
+- 6 graficos pizza: Avaliacao vendedor, Equipe projetos, Fabricacao moveis, Montagem, Atendimento geral, Recomendacao servico
+- Barra "Sugestao de melhoria"
+- Tabela "Resumo respostas"
+
+**Status Atual:**
+- 4 KPIs estatisticos
+- 6 graficos pizza (OK)
+- Tabela resumo respostas (OK)
+- Falta: Barra de sugestao de melhoria
+
+**Alteracoes Necessarias:**
+- Adicionar componente "Sugestao de melhoria" (barra visual)
+- Ajustar layout para 3 colunas por linha nas pizzas
+- Simplificar KPIs para apenas "Record Count"
+
+---
+
+### 9. RESUMO FORNECEDOR
+
+**Referencia Look Studio:**
+- Grafico barras empilhadas "Detalhes fornecedor" por mes
+- Grafico linha multi-serie "Evolucao total compra"
+- Tabela "Nome Fornecedor / Total compra / Quantidade / %Total" com total geral
+- Tabela "Nome Fornecedor / Material / Custo medio por unid"
+- Card "Prazos" (Record Count, Quantidade Adquirida) com tabela
+- Card "Status" com pizza 100% Entregue e tabela
+
+**Status Atual:**
+- Pizza fornecedores por tipo (diferente)
+- Linha evolucao compra (OK)
+- Ranking fornecedores (OK)
+- Material por fornecedor (OK)
+- Detalhes fornecedor (OK)
+- Falta: Prazos card, Status card com pizza
+
+**Alteracoes Necessarias:**
+- Converter pizza para barras empilhadas por mes
+- Adicionar card "Prazos" com Record Count
+- Adicionar card "Status" com pizza de status
+
+---
+
+## Componentes de UI Compartilhados a Criar
+
+### 1. DashboardKPICard (Novo)
+```
+- Titulo
+- Valor principal grande
+- Valor secundario (percentual, meta)
+- Barra de progresso (opcional)
+- Mini grafico (opcional)
+- Cor de destaque (verde positivo, vermelho negativo)
+```
+
+### 2. DashboardTable (Novo)
+```
+- Headers com ordenacao
+- Paginacao (1-X/Y)
+- Navegacao < >
+- Destaque de linha (amarelo para alerta)
+- Total geral no footer
+```
+
+### 3. DashboardFilter (Novo)
+```
+- Dropdown "Selecionar periodo"
+- Dropdown dinamico (Vendedor, Ambiente, etc)
+- Filtros sincronizados entre componentes
+```
+
+### 4. DashboardHeader (Novo)
+```
+- Titulo da aba com estilo Look Studio
+- Area de filtros
 ```
 
 ---
 
-## ROTEIRO DE TESTES DETALHADO
+## Paleta de Cores a Aplicar
 
-### FASE 1: DADOS BASE (5-10 min)
-
-| # | Teste | Rota | O que verificar |
-|---|-------|------|-----------------|
-| 1.1 | Criar Material | /materiais | Nome, tipo, unidade, preço médio |
-| 1.2 | Criar Fornecedor | /fornecedores | Nome, CNPJ, telefone, tipo de material |
-| 1.3 | Criar Funcionário | /funcionarios | Nome, tipo, salário |
-| 1.4 | Criar Vendedor | /vendedores | Nome, comissão %, meta mensal |
-
-**Validação:** Todos devem aparecer nas respectivas listagens.
-
----
-
-### FASE 2: ENTIDADES COMERCIAIS (5 min)
-
-| # | Teste | Rota | O que verificar |
-|---|-------|------|-----------------|
-| 2.1 | Criar Cliente | /clientes | Nome, telefone, email, endereço |
-| 2.2 | Criar Parceiro | /parceiros | Nome, categoria, % comissão |
-| 2.3 | Criar Item no Catálogo | /catalogo-precos | Nome, código, preço, categoria |
-
-**Validação:** Todos devem aparecer nas listagens e nos dropdowns das próximas etapas.
+```
+Header tabelas: #1e3a5f (azul escuro marinho)
+Fundo cards: #ffffff (branco)
+Positivo/Meta atingida: #22c55e (verde)
+Negativo/Alerta: #ef4444 (vermelho)
+Destaque linha: #fef08a (amarelo claro)
+Barras graficos: #f97316 (laranja), #1e3a5f (azul escuro)
+Texto header tabela: #ffffff (branco)
+```
 
 ---
 
-### FASE 3: OPERAÇÕES - BUGS CORRIGIDOS (10 min)
+## Ordem de Implementacao (Por Complexidade)
 
-| # | Teste | Rota | O que verificar | Bug Corrigido |
-|---|-------|------|-----------------|---------------|
-| 3.1 | **Criar Projeto** | /novo-projeto | Página carrega, formulário funciona, projeto salva | Bug #2 - Página em branco |
-| 3.2 | Criar Orçamento | /orcamentos → Novo | Item do catálogo aparece, total calcula corretamente | Bug #1 - Total R$ 0,00 |
-| 3.3 | **Criar Compra** | /compras → Nova | Dropdown de fornecedor mostra opções, compra salva | Bug #5 - Dropdown vazio |
-| 3.4 | Verificar Estoque | /estoque | Material aparece vinculado à compra |
+### Fase 1: Componentes Base (1-2 horas)
+1. Criar componente DashboardKPICard
+2. Criar componente DashboardTable com paginacao
+3. Criar componente DashboardFilter
+4. Aplicar paleta de cores globalmente
 
-**Validação Crítica:**
-- Projeto deve aparecer na listagem de /projetos
-- Orçamento deve mostrar total correto na listagem
-- Compra deve ter fornecedor vinculado
+### Fase 2: Dashboards Simples (2-3 horas)
+5. Atualizar DashboardFeedbacks (mais proximo do atual)
+6. Atualizar DashboardFornecedores
+7. Atualizar DashboardMontagem
 
----
+### Fase 3: Dashboards Medios (3-4 horas)
+8. Atualizar DashboardFluxoCaixa
+9. Atualizar DashboardEstoque
+10. Atualizar DashboardProducao
 
-### FASE 4: FINANCEIRO - BUGS CORRIGIDOS (10 min)
+### Fase 4: Dashboards Complexos (4-5 horas)
+11. Atualizar DashboardVendas (principal)
+12. Atualizar DashboardLucro
+13. Atualizar DashboardProjetos (mais complexo)
 
-| # | Teste | Rota | O que verificar | Bug Corrigido |
-|---|-------|------|-----------------|---------------|
-| 4.1 | **Criar Conta a Pagar** | /contas-pagar → Nova | Dropdown de fornecedor funciona, conta salva E aparece na listagem | Bug #3 - Não aparecia |
-| 4.2 | **Criar Conta a Receber** | /contas-receber → Nova | Dialog abre corretamente, dropdown de projeto funciona | Bug #4 - Página em branco |
-| 4.3 | Criar Cheque | /cheques | Cheque cadastrado aparece na listagem |
-| 4.4 | Verificar Fluxo de Caixa | /fluxo-caixa | Saldo atualizado com entradas/saídas |
-
-**Validação Crítica:**
-- Conta a pagar DEVE aparecer na listagem após cadastro
-- Conta a receber DEVE salvar e aparecer na listagem
-- Dropdown de projeto deve mostrar "Nenhum" como opção válida
+### Fase 5: Integracao e Polimento (1-2 horas)
+14. Testar filtros funcionando entre componentes
+15. Ajustar responsividade
+16. Validar calculos e dados
 
 ---
 
-### FASE 5: EXECUÇÃO E CONTROLE (5 min)
+## Secao Tecnica - Detalhes de Implementacao
 
-| # | Teste | Rota | O que verificar |
-|---|-------|------|-----------------|
-| 5.1 | Criar Produção | /producao | Vincular ao projeto criado |
-| 5.2 | Criar Montagem | /montagem | Vincular ao projeto criado |
-| 5.3 | Criar Feedback | /feedbacks | Projeto aparece no dropdown |
-| 5.4 | Definir Meta | /metas | Meta mensal cadastrada |
+### Estrutura de Pastas
+```
+src/components/dashboard/
+  ui/
+    DashboardKPICard.tsx
+    DashboardTable.tsx
+    DashboardFilter.tsx
+    DashboardHeader.tsx
+  DashboardVendas.tsx (atualizado)
+  DashboardLucro.tsx (atualizado)
+  ... (demais atualizados)
+```
+
+### Estado de Filtros (Context ou Props)
+```typescript
+interface DashboardFilters {
+  periodo: { inicio: Date; fim: Date } | null;
+  vendedor: string | null;
+  ambiente: string | null;
+  origemLead: string | null;
+}
+```
+
+### Query com Filtros
+```typescript
+let query = supabase
+  .from("projects")
+  .select("*")
+  .eq("user_id", userId);
+
+if (filters.periodo) {
+  query = query
+    .gte("data_venda", filters.periodo.inicio.toISOString())
+    .lte("data_venda", filters.periodo.fim.toISOString());
+}
+if (filters.vendedor) {
+  query = query.eq("vendedor_responsavel", filters.vendedor);
+}
+```
+
+### Paginacao de Tabelas
+```typescript
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 5;
+const paginatedData = data.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+);
+```
+
+### Estilizacao Look Studio
+```css
+/* Headers de tabela */
+.table-header-look {
+  background-color: #1e3a5f;
+  color: white;
+}
+
+/* Linha de alerta */
+.row-alert {
+  background-color: #fef08a;
+}
+
+/* KPI positivo */
+.kpi-positive {
+  color: #22c55e;
+}
+
+/* KPI negativo */
+.kpi-negative {
+  color: #ef4444;
+}
+```
 
 ---
 
-### FASE 6: IA E COMPARTILHAMENTO - FASE 3 NOVA (15 min)
+## Resumo do Esforco
 
-| # | Teste | Rota | O que verificar |
-|---|-------|------|-----------------|
-| 6.1 | Upload de Foto | /analise-foto | Foto carrega corretamente |
-| 6.2 | Analisar Ambiente | /analise-foto | IA retorna móveis sugeridos com preços do catálogo |
-| 6.3 | **Usar Template** | /analise-foto | Criar template de preferências, aplicar em nova análise |
-| 6.4 | **Baixar Imagem** | /analise-foto | Botão de download funciona |
-| 6.5 | **Compartilhar WhatsApp** | /analise-foto | Abre WhatsApp Web com mensagem pré-formatada |
-| 6.6 | **Exportar PDF** | /analise-foto | PDF gerado com imagens e valores |
-| 6.7 | **Gerar Link Público** | /analise-foto | Link copiado para área de transferência |
-| 6.8 | **Abrir Link Público** | /analise-publica/:id | Página pública carrega sem login |
-| 6.9 | Histórico de Análises | /analise-foto | Análises anteriores aparecem |
-| 6.10 | **Comparar Análises** | /analise-foto | Selecionar 2 análises e comparar lado a lado |
-| 6.11 | Adicionar ao Catálogo | /analise-foto → Visão Vendedor | Móvel sugerido vira item do catálogo |
-| 6.12 | Criar Orçamento da IA | /analise-foto → Visão Vendedor | Orçamento criado com itens da análise |
+| Dashboard | Status Atual | Trabalho Necessario | Prioridade |
+|-----------|-------------|---------------------|------------|
+| Vendas | 60% | Alto | 1 |
+| Lucro | 50% | Medio | 2 |
+| Projetos | 40% | Alto | 3 |
+| Fluxo Caixa | 70% | Medio | 4 |
+| Producao | 60% | Medio | 5 |
+| Estoque | 50% | Alto | 6 |
+| Montagem | 65% | Medio | 7 |
+| Feedback | 80% | Baixo | 8 |
+| Fornecedor | 60% | Medio | 9 |
 
----
-
-## CHECKLIST DE VALIDAÇÃO FINAL
-
-### Bugs Corrigidos
-- [ ] /novo-projeto carrega e salva projetos
-- [ ] Orçamentos mostram total correto na listagem
-- [ ] Conta a pagar aparece na listagem após cadastro
-- [ ] Conta a receber - dialog abre corretamente
-- [ ] Dropdown de fornecedor funciona em Compras
-
-### Funcionalidades Fase 3
-- [ ] Templates de preferências funcionam
-- [ ] Download de imagem funciona
-- [ ] Compartilhamento WhatsApp abre link correto
-- [ ] PDF exportado contém imagens e valores
-- [ ] Link público gerado e copiado
-- [ ] Página pública acessível sem login
-- [ ] Comparação de análises lado a lado funciona
-
----
-
-## DICA DE TESTE RÁPIDO
-
-Se quiser testar apenas os **bugs corrigidos**, siga esta ordem mínima:
-
-1. /novo-projeto → Criar projeto (Bug #2)
-2. /compras → Nova compra com fornecedor (Bug #5)
-3. /contas-pagar → Nova conta (Bug #3)
-4. /contas-receber → Nova conta via Dialog (Bug #4)
-5. /orcamentos → Verificar total na listagem (Bug #1)
-
-Tempo estimado: 10-15 minutos
-
----
-
-## DICA PARA FASE 3 (IA)
-
-Para testar a Fase 3 completa:
-
-1. Vá para /analise-foto
-2. Faça upload de uma foto de ambiente (cozinha, sala, etc.)
-3. Clique em "Analisar Ambiente"
-4. Após análise, teste:
-   - Na aba "Para o Cliente": WhatsApp, Download
-   - Na aba "Para o Vendedor": PDF, Link Público, Adicionar ao Catálogo
-5. Faça outra análise e teste "Comparar" no histórico
-
+**Tempo Total Estimado: 12-16 horas de desenvolvimento**
